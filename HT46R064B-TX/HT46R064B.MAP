@@ -1,0 +1,211 @@
+
+连接器　版本8.7.5.171218
+Input Object File: D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ
+
+Input Library File: D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\MATH6.LIB
+Input Library File: D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\time_srsc.lib
+Input Library File: D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\ctype_srsc.lib
+Input Library File: D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\math_srsc.lib
+Input Library File: D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\stdlib_srsc.lib
+Input Library File: D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\string_srsc.lib
+
+
+     Start     End      Length     Class    AvgIns    Name
+     0000h     0002h    0003h      CODE               @CODE (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0003h     0006h    0004h      CODE               __DELAY (D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\MATH6.LIB)
+     0007h     0010h    000ah      CODE               __DELAY (D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\MATH6.LIB)
+     0011h     001eh    000eh      CODE               __DELAY (D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\MATH6.LIB)
+     001fh     007fh    0061h      CODE               _c_cmt_init (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0080h     00a6h    0027h      CODE               @FIFO_WRITE (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     00a7h     00d0h    002ah      CODE               @SPI_WRITE (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     00d1h     00feh    002eh      CODE               @SPI_READ (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     00ffh     0175h    0077h      CODE               @CMT_init (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0176h     01ebh    0076h      CODE               @CMT_TX (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     01ech     0207h    001ch      CODE               @KEY (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0208h     0224h    001dh      CODE               @initail (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0225h     022bh    0007h      CODE               @MAIN (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     022ch     022ch    0001h      CODE               STARTSEC (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0040h     004fh    0010h      DATA     0         @a_rx (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0050h     0050h    0001h      DATA     3         CTMPDATA (D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\MATH6.LIB)
+     0056h     0057h    0002h      DATA     1.5       @a_tx (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0058h     0058h    0001h      DATA     0         @a_data (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0059h     0059h    0001h      DATA     0         @f_10ms (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     005ah     005ah    0001h      DATA     4         @f_k2_buf (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     005bh     005bh    0001h      DATA     0         @f_k1_buf (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     005ch     005ch    0001h      DATA     4         @f_tx (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     005dh     005dh    0001h      DATA     4         @f_k2 (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     005eh     005eh    0001h      DATA     0         @f_k1 (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     005fh     005fh    0001h      DATA     0         @a_k5_low (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0060h     0060h    0001h      DATA     0         @a_k5_high (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0061h     0061h    0001h      DATA     0         @a_k4_low (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0062h     0062h    0001h      DATA     0         @a_k4_high (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0063h     0063h    0001h      DATA     0         @a_k3_low (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0064h     0064h    0001h      DATA     0         @a_k3_high (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0065h     0065h    0001h      DATA     3         @a_k2_low (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0066h     0066h    0001h      DATA     3         @a_k2_high (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0067h     0067h    0001h      DATA     0         @a_k1_low (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0068h     0068h    0001h      DATA     0         @a_k1_high (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0069h     0069h    0001h      DATA     0         @a_10ms (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     006ah     006ah    0001h      DATA     0         @a_count (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     006bh     006bh    0001h      DATA     0         @a_100ms (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     006ch     006dh    0002h      DATA     0         @lcd_data (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     006eh     006eh    0001h      DATA     0         @a_lcd_count (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+
+     Local Sections
+
+     Start     End      Length     Class    AvgIns    Name
+     0056h     0056h    0000h      LOCAL    0         @DUMMY (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0056h     0056h    0000h      LOCAL    0         _main (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0056h     0056h    0000h      LOCAL    0         _initail (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0054h     0055h    0002h      LOCAL    15        _CMT_init (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0051h     0053h    0003h      LOCAL    19        _SPI_WRITE (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0051h     0051h    0000h      LOCAL    0         __DELAY (D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\MATH6.LIB)
+     0051h     0053h    0003h      LOCAL    9         _SPI_READ (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0055h     0055h    0001h      LOCAL    14        _CMT_TX (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0051h     0054h    0004h      LOCAL    2.75      _FIFO_WRITE (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+
+     Indepentent Local Sections
+
+     Start     End      Length     Class    AvgIns    Name
+     0051h     0051h    0000h      ILOCAL   0         _KEY (D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ)
+     0051h     0051h    0000h      ILOCAL   0         __DELAYX (D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\MATH6.LIB)
+     0051h     0051h    0000h      ILOCAL   0         __DELAYY (D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\MATH6.LIB)
+
+     Public Symbols Information
+     Address            Public by Name
+     0051h              FIFO_WRITE0
+     0050h              RH
+     0176h              _CMT_TX
+     00ffh              _CMT_init
+     0080h              _FIFO_WRITE
+     01ech              _KEY
+     00d1h              _SPI_READ
+     00a7h              _SPI_WRITE
+     0006h              __DELAY0
+     0005h              __DELAY1
+     0004h              __DELAY2
+     0003h              __DELAY3
+     000dh              __DELAYX0
+     000ch              __DELAYX1
+     000bh              __DELAYX2
+     000ah              __DELAYX3
+     0009h              __DELAYX4
+     0008h              __DELAYX5
+     0007h              __DELAYX6
+     0016h              __DELAYY0
+     0015h              __DELAYY1
+     0014h              __DELAYY2
+     0013h              __DELAYY3
+     0012h              __DELAYY4
+     0011h              __DELAYY5
+     006bh              _a_100ms
+     0069h              _a_10ms
+     006ah              _a_count
+     0058h              _a_data
+     0068h              _a_k1_high
+     0067h              _a_k1_low
+     0066h              _a_k2_high
+     0065h              _a_k2_low
+     0064h              _a_k3_high
+     0063h              _a_k3_low
+     0062h              _a_k4_high
+     0061h              _a_k4_low
+     0060h              _a_k5_high
+     005fh              _a_k5_low
+     006eh              _a_lcd_count
+     0040h              _a_rx
+     0056h              _a_tx
+     0059h              _f_10ms
+     005eh              _f_k1
+     005bh              _f_k1_buf
+     005dh              _f_k2
+     005ah              _f_k2_buf
+     005ch              _f_tx
+     0208h              _initail
+     006ch              _lcd_data
+     001fh              l_c_cmt_init
+
+     Address            Public by Value
+     0003h              __DELAY3
+     0004h              __DELAY2
+     0005h              __DELAY1
+     0006h              __DELAY0
+     0007h              __DELAYX6
+     0008h              __DELAYX5
+     0009h              __DELAYX4
+     000ah              __DELAYX3
+     000bh              __DELAYX2
+     000ch              __DELAYX1
+     000dh              __DELAYX0
+     0011h              __DELAYY5
+     0012h              __DELAYY4
+     0013h              __DELAYY3
+     0014h              __DELAYY2
+     0015h              __DELAYY1
+     0016h              __DELAYY0
+     001fh              l_c_cmt_init
+     0040h              _a_rx
+     0050h              RH
+     0051h              FIFO_WRITE0
+     0056h              _a_tx
+     0058h              _a_data
+     0059h              _f_10ms
+     005ah              _f_k2_buf
+     005bh              _f_k1_buf
+     005ch              _f_tx
+     005dh              _f_k2
+     005eh              _f_k1
+     005fh              _a_k5_low
+     0060h              _a_k5_high
+     0061h              _a_k4_low
+     0062h              _a_k4_high
+     0063h              _a_k3_low
+     0064h              _a_k3_high
+     0065h              _a_k2_low
+     0066h              _a_k2_high
+     0067h              _a_k1_low
+     0068h              _a_k1_high
+     0069h              _a_10ms
+     006ah              _a_count
+     006bh              _a_100ms
+     006ch              _lcd_data
+     006eh              _a_lcd_count
+     0080h              _FIFO_WRITE
+     00a7h              _SPI_WRITE
+     00d1h              _SPI_READ
+     00ffh              _CMT_init
+     0176h              _CMT_TX
+     01ech              _KEY
+     0208h              _initail
+
+
+ROM Usage Statistics
+     Size      Used     Percentage
+     0400h     022dh    54%
+
+RAM Usage Statistics
+     Size      Used     Percentage
+     0040h     002fh    73%
+
+Use Stack Count
+_main: 4
+
+Call Tree
+    @DUMMY
+        _main (0)
+            _initail (1)
+                _CMT_init (2)
+                    _SPI_WRITE (3)
+                        __DELAY (4)
+                    __DELAY (3)
+                    _SPI_READ (3)
+            _CMT_TX (1)
+                _SPI_READ (2)
+                _SPI_WRITE (2)
+                    __DELAY (3)
+                _FIFO_WRITE (2)
+                    __DELAY (3)
+
+HLINK : 程序的开始执行点在程序段'@CODE'（地址0）。定义在'D:\Project\pcollar640\HT46R064B-TX\HT46R064B.OBJ' 文件中
+
+错误总数 : 0  警告总数 : 0

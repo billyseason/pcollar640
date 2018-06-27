@@ -1,0 +1,155 @@
+
+连接器　版本8.7.2.161220
+Input Object File: D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ
+
+Input Library File: E:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.93\LIB\MATH6.LIB
+Input Library File: E:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.93\LIB\time_srsc.lib
+Input Library File: E:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.93\LIB\ctype_srsc.lib
+Input Library File: E:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.93\LIB\math_srsc.lib
+Input Library File: E:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.93\LIB\stdlib_srsc.lib
+Input Library File: E:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.93\LIB\string_srsc.lib
+
+
+     Start     End      Length     Class    AvgIns    Name
+     0000h     0002h    0003h      CODE               @CODE (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+     0003h     0006h    0004h      CODE               __DELAY (E:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.93\LIB\MATH6.LIB)
+     0007h     0010h    000ah      CODE               __DELAY (E:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.93\LIB\MATH6.LIB)
+     0011h     001eh    000eh      CODE               __DELAY (E:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.93\LIB\MATH6.LIB)
+     001fh     007fh    0061h      CODE               _c_cmt_init (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+     0080h     00a9h    002ah      CODE               @FIFO_READ (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+     00aah     00d2h    0029h      CODE               @FIFO_WRITE (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+     00d3h     00fch    002ah      CODE               @SPI_WRITE (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+     00fdh     012ah    002eh      CODE               @SPI_READ (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+     012bh     01c2h    0098h      CODE               @CMT_init (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+     01c3h     01e0h    001eh      CODE               @CMT_RX (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+     01e1h     01eeh    000eh      CODE               @initail (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+     01efh     01f8h    000ah      CODE               @MAIN (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+     01f9h     01f9h    0001h      CODE               STARTSEC (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+     0040h     0040h    0001h      DATA     2         CTMPDATA (E:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.93\LIB\MATH6.LIB)
+     0047h     0048h    0002h      DATA     1         @a_tx (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+     0049h     004ah    0002h      DATA     1         @a_rev (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+     004bh     004bh    0001h      DATA     0         @a_count (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+     004ch     004ch    0001h      DATA     0         @a_data (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+
+     Local Sections
+
+     Start     End      Length     Class    AvgIns    Name
+     0044h     0046h    0003h      LOCAL    10.333    _CMT_init (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+     0041h     0043h    0003h      LOCAL    17        _SPI_WRITE (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+     0041h     0041h    0000h      LOCAL    0         __DELAY (E:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.93\LIB\MATH6.LIB)
+     0041h     0043h    0003h      LOCAL    6.6667    _SPI_READ (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+     0046h     0046h    0001h      LOCAL    4         _CMT_RX (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+     0041h     0045h    0005h      LOCAL    3         _FIFO_READ (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+     0046h     0046h    0000h      LOCAL    0         @DUMMY (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+     0046h     0046h    0000h      LOCAL    0         _main (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+     0041h     0041h    0000h      LOCAL    0         _initail (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+     0041h     0045h    0005h      LOCAL    2.8       _FIFO_WRITE (D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ)
+
+     Indepentent Local Sections
+
+     Start     End      Length     Class    AvgIns    Name
+     0041h     0041h    0000h      ILOCAL   0         __DELAYX (E:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.93\LIB\MATH6.LIB)
+     0041h     0041h    0000h      ILOCAL   0         __DELAYY (E:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.93\LIB\MATH6.LIB)
+
+     Public Symbols Information
+     Address            Public by Name
+     0041h              FIFO_READ0
+     0040h              RH
+     01c3h              _CMT_RX
+     012bh              _CMT_init
+     0080h              _FIFO_READ
+     00aah              _FIFO_WRITE
+     00fdh              _SPI_READ
+     00d3h              _SPI_WRITE
+     0006h              __DELAY0
+     0005h              __DELAY1
+     0004h              __DELAY2
+     0003h              __DELAY3
+     000dh              __DELAYX0
+     000ch              __DELAYX1
+     000bh              __DELAYX2
+     000ah              __DELAYX3
+     0009h              __DELAYX4
+     0008h              __DELAYX5
+     0007h              __DELAYX6
+     0016h              __DELAYY0
+     0015h              __DELAYY1
+     0014h              __DELAYY2
+     0013h              __DELAYY3
+     0012h              __DELAYY4
+     0011h              __DELAYY5
+     004bh              _a_count
+     004ch              _a_data
+     0049h              _a_rev
+     0047h              _a_tx
+     01e1h              _initail
+     001fh              l_c_cmt_init
+
+     Address            Public by Value
+     0003h              __DELAY3
+     0004h              __DELAY2
+     0005h              __DELAY1
+     0006h              __DELAY0
+     0007h              __DELAYX6
+     0008h              __DELAYX5
+     0009h              __DELAYX4
+     000ah              __DELAYX3
+     000bh              __DELAYX2
+     000ch              __DELAYX1
+     000dh              __DELAYX0
+     0011h              __DELAYY5
+     0012h              __DELAYY4
+     0013h              __DELAYY3
+     0014h              __DELAYY2
+     0015h              __DELAYY1
+     0016h              __DELAYY0
+     001fh              l_c_cmt_init
+     0040h              RH
+     0041h              FIFO_READ0
+     0047h              _a_tx
+     0049h              _a_rev
+     004bh              _a_count
+     004ch              _a_data
+     0080h              _FIFO_READ
+     00aah              _FIFO_WRITE
+     00d3h              _SPI_WRITE
+     00fdh              _SPI_READ
+     012bh              _CMT_init
+     01c3h              _CMT_RX
+     01e1h              _initail
+
+
+ROM Usage Statistics
+     Size      Used     Percentage
+     0400h     01fah    49%
+
+RAM Usage Statistics
+     Size      Used     Percentage
+     0040h     000dh    20%
+
+Use Stack Count
+_CMT_init: 2
+_CMT_RX: 2
+_main: 2
+
+Call Tree
+    _CMT_init
+        _SPI_WRITE (0)
+            __DELAY (1)
+        __DELAY (0)
+        _SPI_READ (0)
+    _CMT_RX
+        _FIFO_READ (0)
+            __DELAY (1)
+        _SPI_WRITE (0)
+            __DELAY (1)
+    @DUMMY
+        _main (0)
+            _initail (1)
+            _FIFO_WRITE (1)
+                __DELAY (2)
+            __DELAY (1)
+
+HLINK : 程序的开始执行点在程序段'@CODE'（地址0）。定义在'D:\WORK\项目\派特\640\HT46R064B\HT46R064B.OBJ' 文件中
+
+错误总数 : 0  警告总数 : 0

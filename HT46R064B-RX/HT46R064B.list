@@ -1,0 +1,862 @@
+				;file D:\WORK\项目\派特\640\HT46R064B\HT46R064B.c
+				;1	#include "HT46R064B.h"
+				;2	#include "cmt2300a_defs.h"
+				;3	
+				;4	#define FCSB	_pa0
+				;5	#define CSB		_pa1
+				;6	#define SCLK	_pa3
+				;7	#define SDIO	_pa2
+				;8	
+				;9	#define FCSBC	_pac0
+				;10	#define CSBC	_pac1
+				;11	#define SCLKC	_pac3
+				;12	#define SDIOC	_pac2
+				;13	#define SDIOUP	_papu2
+				;14	
+				;15	#define CMT_IO1		_pb0
+				;16	#define CMT_IO1C	_pbc0
+				;17	
+				;18	unsigned char a_data,a_count,a_rev[2],a_tx[2];
+				;19	
+				;20	const unsigned char c_cmt_init[0x60]={
+				l_c_cmt_init:
+				_c_cmt_init:
+001F	0386	addm    a, PCL
+				_c_cmt_init:
+0020	0902	ret     a, 2H
+0021	0966	ret     a, 66H
+0022	09EC	ret     a, ECH
+0023	091C	ret     a, 1CH
+0024	09F0	ret     a, F0H
+0025	0980	ret     a, 80H
+0026	0914	ret     a, 14H
+0027	0908	ret     a, 8H
+0028	0991	ret     a, 91H
+0029	0902	ret     a, 2H
+002A	0902	ret     a, 2H
+002B	090D	ret     a, DH
+002C	09AE	ret     a, AEH
+002D	09E0	ret     a, E0H
+002E	0970	ret     a, 70H
+002F	0900	ret     a, 0H
+0030	0900	ret     a, 0H
+0031	09F4	ret     a, F4H
+0032	0910	ret     a, 10H
+0033	09E2	ret     a, E2H
+0034	0942	ret     a, 42H
+0035	0920	ret     a, 20H
+0036	0900	ret     a, 0H
+0037	0981	ret     a, 81H
+0038	0942	ret     a, 42H
+0039	0971	ret     a, 71H
+003A	09CE	ret     a, CEH
+003B	091C	ret     a, 1CH
+003C	0942	ret     a, 42H
+003D	095B	ret     a, 5BH
+003E	091C	ret     a, 1CH
+003F	091C	ret     a, 1CH
+0040	0932	ret     a, 32H
+0041	0918	ret     a, 18H
+0042	0900	ret     a, 0H
+0043	0999	ret     a, 99H
+0044	09C1	ret     a, C1H
+0045	099B	ret     a, 9BH
+0046	0906	ret     a, 6H
+0047	090A	ret     a, AH
+0048	099F	ret     a, 9FH
+0049	0939	ret     a, 39H
+004A	0929	ret     a, 29H
+004B	0929	ret     a, 29H
+004C	09C0	ret     a, C0H
+004D	0951	ret     a, 51H
+004E	092A	ret     a, 2AH
+004F	0953	ret     a, 53H
+0050	0900	ret     a, 0H
+0051	0900	ret     a, 0H
+0052	09B4	ret     a, B4H
+0053	0900	ret     a, 0H
+0054	0900	ret     a, 0H
+0055	0901	ret     a, 1H
+0056	0900	ret     a, 0H
+0057	0900	ret     a, 0H
+0058	0912	ret     a, 12H
+0059	0908	ret     a, 8H
+005A	0900	ret     a, 0H
+005B	09AA	ret     a, AAH
+005C	0902	ret     a, 2H
+005D	0900	ret     a, 0H
+005E	0900	ret     a, 0H
+005F	0900	ret     a, 0H
+0060	0900	ret     a, 0H
+0061	0900	ret     a, 0H
+0062	0900	ret     a, 0H
+0063	09D4	ret     a, D4H
+0064	092D	ret     a, 2DH
+0065	0900	ret     a, 0H
+0066	091F	ret     a, 1FH
+0067	0900	ret     a, 0H
+0068	0900	ret     a, 0H
+0069	0900	ret     a, 0H
+006A	0900	ret     a, 0H
+006B	0900	ret     a, 0H
+006C	0900	ret     a, 0H
+006D	0900	ret     a, 0H
+006E	0900	ret     a, 0H
+006F	0960	ret     a, 60H
+0070	09FF	ret     a, FFH
+0071	0901	ret     a, 1H
+0072	0900	ret     a, 0H
+0073	091F	ret     a, 1FH
+0074	0910	ret     a, 10H
+0075	0950	ret     a, 50H
+0076	0926	ret     a, 26H
+0077	0903	ret     a, 3H
+0078	0900	ret     a, 0H
+0079	0942	ret     a, 42H
+007A	09B0	ret     a, B0H
+007B	0900	ret     a, 0H
+007C	0901	ret     a, 1H
+007D	0901	ret     a, 1H
+007E	093F	ret     a, 3FH
+007F	097F	ret     a, 7FH
+				;21								 0x02,0x66,0xec,0x1c,0xf0,0x80,0x14,0x08,0x91,0x02,0x02,0x0d,	//CMT Bank
+				;22								 0xae,0xe0,0x70,0x00,0x00,0xf4,0x10,0xe2,0x42,0x20,0x00,0x81,	//System Bank
+				;23								 0x42,0x71,0xCE,0x1C,0x42,0x5B,0x1C,0x1C,						//Freq Bank
+				;24								 0x32,0x18,0x00,0x99,0xC1,0x9B,0x06,0x0a,0x9F,0x39,0x29,0x29,0xC0,0x51,0x2A,0x53,0x00,0x00,0xB4,0x00,0x00,0x01,0x00,0x00,	//Data Rate Bank
+				;25								 0x12,0x08,0x00,0xAA,0x02,0x00,0x00,0x00,0x00,0x00,0x00,0xD4,0x2D,0x00,0x1F,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x60,0xFF,0x01,0x00,0x1F,0x10, //Baseband
+				;26								 0x50,0x26,0x03,0x00,0x42,0xB0,0x00,0x01,0x01,0x3F,	//Reserve Bank
+				;27								 0x7F,												//LBD Bank	
+				;28								 };
+				;29	
+				;30	void FIFO_READ(unsigned char len)
+				;31	{
+				;32		unsigned char i,j,data;	
+				;33		CSB=1;
+				_FIFO_READ:
+				@FIFO_READ .SECTION 'CODE'
+0080	3090	set     PA1
+				;34		FCSB=0;
+0081	3410	clr     PA0
+				;35		SCLK=0;
+0082	3590	clr     PA3
+				;36		SDIOC=1;
+0083	3111	set     PAC2
+				;37		for(j=0;j<len;j++)
+0084	1F45	clr     j[0]
+0085	28A2	jmp     L5
+				L3:
+00A1	14C5	inc     j[0]
+				L5:
+00A2	0745	mov     a, j[0]
+00A3	0241	sub     a, len[0]
+00A4	380A	snz     C
+00A5	2886	jmp     L2
+				;38		{		
+				;39			FCSB=0;
+				L2:
+0086	3410	clr     PA0
+				;40			data=0;
+0087	1F44	clr     data[0]
+				;41			for(i=0;i<8;i++)
+0088	1F43	clr     i[0]
+0089	2893	jmp     L9
+				L7:
+0092	14C3	inc     i[0]
+				L9:
+0093	0743	mov     a, i[0]
+0094	0A08	sub     a, 8H
+0095	380A	snz     C
+0096	288A	jmp     L6
+				;42			{
+				;43				data<<=1;
+				L6:
+008A	340A	clr     C
+008B	1AC4	rlc     data[0]
+				;44				SCLK=1;
+008C	3190	set     PA3
+				;45				if(SDIO)		data|=1;	
+008D	3910	snz     PA2
+008E	2890	jmp     L10
+008F	3044	set     data[0].0
+				;46				_nop();	
+				L10:
+0090	0000	nop
+				;47				SCLK=0;		
+0091	3590	clr     PA3
+				;48			}
+				;49			a_rev[j]=data;
+0097	0745	mov     a, j[0]
+0098	0B49	add     a, 49H
+0099	00C2	mov     i, a
+009A	0742	mov     a, i
+009B	0081	mov     MP0, a
+009C	0744	mov     a, data[0]
+009D	0080	mov     [00H], a
+				;50			FCSB=1;	
+009E	3010	set     PA0
+				;51			_delay(10);	
+009F	0F01	mov     a, 1H
+00A0	200B	call    __DELAYX2
+				;52		}
+				;53		SDIOC=0;
+00A6	3511	clr     PAC2
+				;54		SCLK=0;	
+00A7	3590	clr     PA3
+				;55		FCSB=1;	
+00A8	3010	set     PA0
+				L1:
+00A9	0003	ret
+				;56	}
+				;57	
+				;58	void FIFO_WRITE(unsigned char len)
+				;59	{	
+				;60		unsigned char i,j,data;	
+				;61		CSB=1;
+				_FIFO_WRITE:
+				@FIFO_WRITE .SECTION 'CODE'
+00AA	3090	set     PA1
+				;62		FCSB=0;
+00AB	3410	clr     PA0
+				;63		SCLK=0;
+00AC	3590	clr     PA3
+				;64		SDIOC=0;
+00AD	3511	clr     PAC2
+				;65		for(j=0;j<len;j++)
+00AE	1F45	clr     j[0]
+00AF	28CC	jmp     L16
+				L14:
+00CB	14C5	inc     j[0]
+				L16:
+00CC	0745	mov     a, j[0]
+00CD	0241	sub     a, len[0]
+00CE	380A	snz     C
+00CF	28B0	jmp     L13
+				;66		{		
+				;67			FCSB=0;
+				L13:
+00B0	3410	clr     PA0
+				;68			data=a_tx[j];
+00B1	0F47	mov     a, 47H
+00B2	0345	add     a, j[0]
+00B3	0081	mov     MP0, a
+00B4	0700	mov     a, [00H]
+00B5	00C2	mov     i, a
+00B6	0742	mov     a, i
+00B7	00C4	mov     data[0], a
+				;69			for(i=0;i<8;i++)
+00B8	1F43	clr     i[0]
+00B9	28C4	jmp     L20
+				L18:
+00C3	14C3	inc     i[0]
+				L20:
+00C4	0743	mov     a, i[0]
+00C5	0A08	sub     a, 8H
+00C6	380A	snz     C
+00C7	28BA	jmp     L17
+				;70			{
+				;71				SCLK=0;
+				L17:
+00BA	3590	clr     PA3
+				;72				if(data&0x80)	SDIO=1;
+00BB	3BC4	snz     data[0].7
+00BC	28BF	jmp     L21
+00BD	3110	set     PA2
+00BE	28C0	jmp     L22
+				;73				else 			SDIO=0;	
+				L21:
+00BF	3510	clr     PA2
+				;74				SCLK=1;
+				L22:
+00C0	3190	set     PA3
+				;75				data<<=1;
+00C1	340A	clr     C
+00C2	1AC4	rlc     data[0]
+				;76			}
+				;77			FCSB=1;	
+00C8	3010	set     PA0
+				;78			_delay(10);	
+00C9	0F01	mov     a, 1H
+00CA	200B	call    __DELAYX2
+				;79		}
+				;80		SCLK=0;	
+00D0	3590	clr     PA3
+				;81		FCSB=1;	
+00D1	3010	set     PA0
+				L12:
+00D2	0003	ret
+				;82	}
+				;83	
+				;84	void SPI_WRITE(unsigned char address,unsigned char data)
+				;85	{
+				;86		unsigned char i;
+				;87		address&=0x7f;
+				_SPI_WRITE:
+				@SPI_WRITE .SECTION 'CODE'
+00D3	37C1	clr     address[0].7
+				;88		FCSB=1;
+00D4	3010	set     PA0
+				;89		CSB=0;	
+00D5	3490	clr     PA1
+				;90		SDIOC=0;
+00D6	3511	clr     PAC2
+				;91		SCLK=0;
+00D7	3590	clr     PA3
+				;92		for(i=0;i<8;i++)
+00D8	1F43	clr     i[0]
+00D9	28E4	jmp     L27
+				L25:
+00E3	14C3	inc     i[0]
+				L27:
+00E4	0743	mov     a, i[0]
+00E5	0A08	sub     a, 8H
+00E6	380A	snz     C
+00E7	28DA	jmp     L24
+				;93		{
+				;94			SCLK=0;
+				L24:
+00DA	3590	clr     PA3
+				;95			if(address&0x80)	SDIO=1;
+00DB	3BC1	snz     address[0].7
+00DC	28DF	jmp     L28
+00DD	3110	set     PA2
+00DE	28E0	jmp     L29
+				;96			else 				SDIO=0;	
+				L28:
+00DF	3510	clr     PA2
+				;97			SCLK=1;
+				L29:
+00E0	3190	set     PA3
+				;98			address<<=1;
+00E1	340A	clr     C
+00E2	1AC1	rlc     address[0]
+				;99		}
+				;100		for(i=0;i<8;i++)
+00E8	1F43	clr     i[0]
+00E9	28F4	jmp     L33
+				L31:
+00F3	14C3	inc     i[0]
+				L33:
+00F4	0743	mov     a, i[0]
+00F5	0A08	sub     a, 8H
+00F6	380A	snz     C
+00F7	28EA	jmp     L30
+				;101		{
+				;102			SCLK=0;
+				L30:
+00EA	3590	clr     PA3
+				;103			if(data&0x80)		SDIO=1;
+00EB	3BC2	snz     data[0].7
+00EC	28EF	jmp     L34
+00ED	3110	set     PA2
+00EE	28F0	jmp     L35
+				;104			else				SDIO=0;
+				L34:
+00EF	3510	clr     PA2
+				;105			data<<=1;
+				L35:
+00F0	340A	clr     C
+00F1	1AC2	rlc     data[0]
+				;106			SCLK=1;			
+00F2	3190	set     PA3
+				;107		}
+				;108		SCLK=0;
+00F8	3590	clr     PA3
+				;109		_delay(5);
+00F9	2005	call    __DELAY1
+				;110		SDIO=0;
+00FA	3510	clr     PA2
+				;111		CSB=1;
+00FB	3090	set     PA1
+				L23:
+00FC	0003	ret
+				;112	}
+				;113	
+				;114	unsigned char SPI_READ(unsigned char address)
+				;115	{
+				;116		unsigned char i,data;
+				;117		FCSB=1;
+				_SPI_READ:
+				@SPI_READ .SECTION 'CODE'
+00FD	3010	set     PA0
+				;118		CSB=0;	
+00FE	3490	clr     PA1
+				;119		SCLK=0;
+00FF	3590	clr     PA3
+				;120		SDIOC=0;
+0100	3511	clr     PAC2
+				;121		address|=0x80;
+0101	33C1	set     address[0].7
+				;122		for(i=0;i<8;i++)
+0102	1F42	clr     i[0]
+0103	290F	jmp     L40
+				L38:
+010E	14C2	inc     i[0]
+				L40:
+010F	0742	mov     a, i[0]
+0110	0A08	sub     a, 8H
+0111	380A	snz     C
+0112	2904	jmp     L37
+				;123		{
+				;124			SCLK=0;
+				L37:
+0104	3590	clr     PA3
+				;125			if(address&0x80)	SDIO=1;
+0105	3BC1	snz     address[0].7
+0106	2909	jmp     L41
+0107	3110	set     PA2
+0108	290A	jmp     L42
+				;126			else 				SDIO=0;	
+				L41:
+0109	3510	clr     PA2
+				;127			_nop();
+				L42:
+010A	0000	nop
+				;128			SCLK=1;
+010B	3190	set     PA3
+				;129			address<<=1;
+010C	340A	clr     C
+010D	1AC1	rlc     address[0]
+				;130		}
+				;131		SDIOC=1;
+0113	3111	set     PAC2
+				;132		SCLK=0;
+0114	3590	clr     PA3
+				;133		data=0;
+0115	1F43	clr     data[0]
+				;134		for(i=0;i<8;i++)
+0116	1F42	clr     i[0]
+0117	2921	jmp     L46
+				L44:
+0120	14C2	inc     i[0]
+				L46:
+0121	0742	mov     a, i[0]
+0122	0A08	sub     a, 8H
+0123	380A	snz     C
+0124	2918	jmp     L43
+				;135		{
+				;136			data<<=1;
+				L43:
+0118	340A	clr     C
+0119	1AC3	rlc     data[0]
+				;137			SCLK=1;
+011A	3190	set     PA3
+				;138			if(SDIO)		data|=1;	
+011B	3910	snz     PA2
+011C	291E	jmp     L47
+011D	3043	set     data[0].0
+				;139			_nop();	
+				L47:
+011E	0000	nop
+				;140			SCLK=0;			
+011F	3590	clr     PA3
+				;141		}
+				;142		SCLK=0;
+0125	3590	clr     PA3
+				;143		SDIOC=0;
+0126	3511	clr     PAC2
+				;144		SDIO=0;
+0127	3510	clr     PA2
+				;145		CSB=1;	
+0128	3090	set     PA1
+				;146		return data;
+0129	0743	mov     a, data[0]
+				L36:
+012A	0003	ret
+				;147	}
+				;148	
+				;149	void CMT_init()
+				;150	{
+				;151		unsigned char tmp,back;
+				;152		SPI_WRITE(0x7F,0xFF);		//Soft Reset 
+				_CMT_init:
+				@CMT_init .SECTION 'CODE'
+012B	0F7F	mov     a, 7FH
+012C	00C1	mov     address, a
+012D	0FFF	mov     a, FFH
+012E	00C2	mov     i, a
+012F	20D3	call    _SPI_WRITE
+				;153		_delay(40000);			//20ms
+0130	0F26	mov     a, 26H
+0131	00C0	mov     RH, a
+0132	0FFB	mov     a, FBH
+0133	2013	call    __DELAYY3
+				;154		SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_STBY);	//go_stdby
+0134	0F60	mov     a, 60H
+0135	00C1	mov     address, a
+0136	0F02	mov     a, 2H
+0137	00C2	mov     i, a
+0138	20D3	call    _SPI_WRITE
+				;155		
+				;156		tmp=SPI_READ(CMT2300A_CUS_MODE_STA);				//address 0x61
+0139	0F61	mov     a, 61H
+013A	00C1	mov     address, a
+013B	20FD	call    _SPI_READ
+013C	00C5	mov     tmp[0], a
+				;157		tmp|=CMT2300A_MASK_CFG_RETAIN;						//Enable CFG_RETAIN 
+013D	3245	set     tmp[0].4
+				;158		tmp&=(unsigned char)~CMT2300A_MASK_RSTN_IN_EN;		//Disable RSTN_IN 
+013E	0FDF	mov     a, DFH
+013F	00C4	mov     b0_5, a
+0140	0744	mov     a, b0_5
+0141	06C5	andm    a, tmp[0]
+				;159		SPI_WRITE(CMT2300A_CUS_MODE_STA,tmp);
+0142	0F61	mov     a, 61H
+0143	00C1	mov     address, a
+0144	0745	mov     a, tmp[0]
+0145	00C2	mov     i, a
+0146	20D3	call    _SPI_WRITE
+				;160		
+				;161		tmp=SPI_READ(CMT2300A_CUS_EN_CTL);		//adress 0x60
+0147	0F62	mov     a, 62H
+0148	00C1	mov     address, a
+0149	20FD	call    _SPI_READ
+014A	00C5	mov     tmp[0], a
+				;162		tmp|=CMT2300A_MASK_LOCKING_EN;			//LOCKING_EN=1;
+014B	32C5	set     tmp[0].5
+				;163		SPI_WRITE(CMT2300A_CUS_EN_CTL, tmp);				
+014C	0F62	mov     a, 62H
+014D	00C1	mov     address, a
+014E	0745	mov     a, tmp[0]
+014F	00C2	mov     i, a
+0150	20D3	call    _SPI_WRITE
+				;164		
+				;165		for(tmp=0;tmp<0x60;tmp++)
+0151	1F45	clr     tmp[0]
+0152	295E	jmp     L53
+				L51:
+015D	14C5	inc     tmp[0]
+				L53:
+015E	0745	mov     a, tmp[0]
+015F	0A60	sub     a, 60H
+0160	380A	snz     C
+0161	2953	jmp     L50
+				;166		{
+				;167			SPI_WRITE(tmp,c_cmt_init[tmp]);
+				L50:
+0153	0745	mov     a, tmp[0]
+0154	00C1	mov     address, a
+0155	0F00	mov     a, 0H
+0156	0345	add     a, tmp[0]
+0157	201F	call    l_c_cmt_init
+0158	00C4	mov     b0_5, a
+0159	0744	mov     a, b0_5
+015A	00C2	mov     i, a
+015B	20D3	call    _SPI_WRITE
+				;168			_clrwdt();	
+015C	0001	clr     wdt
+				;169		}
+				;170	
+				;171	//	tmp=((unsigned char)~0x07)&SPI_READ(CMT2300A_CUS_CMT10);		//RFPDK 1.46以后，可忽略
+				;172	//	SPI_WRITE(CMT2300A_CUS_CMT10, tmp|0x02);
+				;173		SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_SLEEP);	//go_sleep	
+0162	0F60	mov     a, 60H
+0163	00C1	mov     address, a
+0164	0F10	mov     a, 10H
+0165	00C2	mov     i, a
+0166	20D3	call    _SPI_WRITE
+				;174		
+				;175		SPI_WRITE(CMT2300A_CUS_IO_SEL,CMT2300A_GPIO1_SEL_INT1|CMT2300A_GPIO2_SEL_INT2|CMT2300A_GPIO3_SEL_DOUT);	//INT1 > GPIO1;INT2 > GPIO2
+0167	0F65	mov     a, 65H
+0168	00C1	mov     address, a
+0169	0F15	mov     a, 15H
+016A	00C2	mov     i, a
+016B	20D3	call    _SPI_WRITE
+				;176		tmp=SPI_READ(CMT2300A_CUS_INT1_CTL);
+016C	0F66	mov     a, 66H
+016D	00C1	mov     address, a
+016E	20FD	call    _SPI_READ
+016F	00C5	mov     tmp[0], a
+				;177		tmp|=CMT2300A_INT_SEL_PKT_DONE|CMT2300A_INT_POLAR_SEL_1;
+0170	0F39	mov     a, 39H
+0171	05C5	orm     a, tmp[0]
+				;178		SPI_WRITE(CMT2300A_CUS_INT1_CTL, tmp);				//CMT2300A_INT1_SEL_PKT_DONE,GPIO1
+0172	0F66	mov     a, 66H
+0173	00C1	mov     address, a
+0174	0745	mov     a, tmp[0]
+0175	00C2	mov     i, a
+0176	20D3	call    _SPI_WRITE
+				;179		tmp=SPI_READ(CMT2300A_CUS_INT2_CTL);
+0177	0F67	mov     a, 67H
+0178	00C1	mov     address, a
+0179	20FD	call    _SPI_READ
+017A	00C5	mov     tmp[0], a
+				;180		tmp|=CMT2300A_INT_SEL_RX_ACTIVE;
+017B	0745	mov     a, tmp[0]
+017C	00C5	mov     tmp[0], a
+				;181		SPI_WRITE(CMT2300A_CUS_INT1_CTL, tmp);				//CMT2300A_INT_SEL_RX_ACTIVE
+017D	0F66	mov     a, 66H
+017E	00C1	mov     address, a
+017F	0745	mov     a, tmp[0]
+0180	00C2	mov     i, a
+0181	20D3	call    _SPI_WRITE
+				;182		SPI_WRITE(CMT2300A_CUS_INT_EN,CMT2300A_MASK_PKT_DONE_EN);
+0182	0F68	mov     a, 68H
+0183	00C1	mov     address, a
+0184	0F01	mov     a, 1H
+0185	00C2	mov     i, a
+0186	20D3	call    _SPI_WRITE
+				;183		SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_SLEEP);
+0187	0F60	mov     a, 60H
+0188	00C1	mov     address, a
+0189	0F10	mov     a, 10H
+018A	00C2	mov     i, a
+018B	20D3	call    _SPI_WRITE
+				;184		//测试CMT是否存在
+				;185		back = SPI_READ(CMT2300A_CUS_PKT17);
+018C	0F48	mov     a, 48H
+018D	00C1	mov     address, a
+018E	20FD	call    _SPI_READ
+018F	00C6	mov     back[0], a
+				;186	    SPI_WRITE(CMT2300A_CUS_PKT17, 0xAA);
+0190	0F48	mov     a, 48H
+0191	00C1	mov     address, a
+0192	0FAA	mov     a, AAH
+0193	00C2	mov     i, a
+0194	20D3	call    _SPI_WRITE
+				;187	    tmp = SPI_READ(CMT2300A_CUS_PKT17);
+0195	0F48	mov     a, 48H
+0196	00C1	mov     address, a
+0197	20FD	call    _SPI_READ
+0198	00C5	mov     tmp[0], a
+				;188	    SPI_WRITE(CMT2300A_CUS_PKT17, back);
+0199	0F48	mov     a, 48H
+019A	00C1	mov     address, a
+019B	0746	mov     a, back[0]
+019C	00C2	mov     i, a
+019D	20D3	call    _SPI_WRITE
+				;189	    if(tmp!=0xAA) while(1);    
+019E	0745	mov     a, tmp[0]
+019F	0CAA	xor     a, AAH
+01A0	3D0A	sz      Z
+01A1	29A3	jmp     L54
+				L57:
+				L56:
+01A2	29A2	jmp     $
+				;190	    
+				;191	   	SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_STBY);	//go_stdby
+				L54:
+01A3	0F60	mov     a, 60H
+01A4	00C1	mov     address, a
+01A5	0F02	mov     a, 2H
+01A6	00C2	mov     i, a
+01A7	20D3	call    _SPI_WRITE
+				;192		SPI_WRITE(CMT2300A_CUS_INT_CLR2,CMT2300A_MASK_PKT_DONE_CLR);  //clr PKT_DONE int flag	
+01A8	0F6B	mov     a, 6BH
+01A9	00C1	mov     address, a
+01AA	0F01	mov     a, 1H
+01AB	00C2	mov     i, a
+01AC	20D3	call    _SPI_WRITE
+				;193		//enable read fifo
+				;194		tmp=SPI_READ(CMT2300A_CUS_FIFO_CTL);
+01AD	0F69	mov     a, 69H
+01AE	00C1	mov     address, a
+01AF	20FD	call    _SPI_READ
+01B0	00C5	mov     tmp[0], a
+				;195		tmp &= ~(unsigned char)CMT2300A_MASK_SPI_FIFO_RD_WR_SEL; 
+01B1	3445	clr     tmp[0].0
+				;196	   	tmp &= ~(unsigned char)CMT2300A_MASK_FIFO_RX_TX_SEL;
+01B2	3545	clr     tmp[0].2
+				;197	   	SPI_WRITE(CMT2300A_CUS_FIFO_CTL,tmp);
+01B3	0F69	mov     a, 69H
+01B4	00C1	mov     address, a
+01B5	0745	mov     a, tmp[0]
+01B6	00C2	mov     i, a
+01B7	20D3	call    _SPI_WRITE
+				;198	   	//clr rx fifo
+				;199	   	SPI_WRITE(CMT2300A_CUS_FIFO_CLR,CMT2300A_MASK_FIFO_CLR_RX);
+01B8	0F6C	mov     a, 6CH
+01B9	00C1	mov     address, a
+01BA	0F02	mov     a, 2H
+01BB	00C2	mov     i, a
+01BC	20D3	call    _SPI_WRITE
+				;200	   	//go_rx
+				;201	   	SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_RX);	
+01BD	0F60	mov     a, 60H
+01BE	00C1	mov     address, a
+01BF	0F08	mov     a, 8H
+01C0	00C2	mov     i, a
+01C1	20D3	call    _SPI_WRITE
+				L49:
+01C2	0003	ret
+				;202	}
+				;203	
+				;204	void CMT_RX()
+				;205	{
+				;206		unsigned char i;	
+				;207		if(CMT_IO1)
+				_CMT_RX:
+				@CMT_RX .SECTION 'CODE'
+01C3	3814	snz     PB0
+01C4	29E0	jmp     L59
+				;208		{
+				;209			FIFO_READ(2);
+01C5	0F02	mov     a, 2H
+01C6	00C1	mov     address, a
+01C7	2080	call    _FIFO_READ
+				;210			SPI_WRITE(CMT2300A_CUS_INT_CLR2,CMT2300A_MASK_PKT_DONE_CLR); //clr PKT_DONE int flag
+01C8	0F6B	mov     a, 6BH
+01C9	00C1	mov     address, a
+01CA	0F01	mov     a, 1H
+01CB	00C2	mov     i, a
+01CC	20D3	call    _SPI_WRITE
+				;211			SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_SLEEP);	//go_sleep
+01CD	0F60	mov     a, 60H
+01CE	00C1	mov     address, a
+01CF	0F10	mov     a, 10H
+01D0	00C2	mov     i, a
+01D1	20D3	call    _SPI_WRITE
+				;212			if(!(a_rev[0]^a_rev[1]))	_pb0^=1;
+01D2	0749	mov     a, a_rev[0]
+01D3	044A	xor     a, a_rev[1]
+01D4	1085	sz      ACC
+01D5	29E0	jmp     L59
+01D6	1F46	clr     b0_6
+01D7	3C14	sz      PB0
+01D8	3046	set     b0_6.0
+01D9	0F01	mov     a, 1H
+01DA	04C6	xorm    a, b0_6
+01DB	0714	mov     a, PB
+01DC	3405	clr     ACC.0
+01DD	10C6	sz      b0_6
+01DE	3005	set     ACC.0
+01DF	0094	mov     PB, a
+				L59:
+				L60:
+				L62:
+01E0	0003	ret
+				;213		}	
+				;214	}
+				;215	
+				;216	void initail()
+				;217	{
+				;218		FCSBC=0;
+				_initail:
+				@initail .SECTION 'CODE'
+01E1	3411	clr     PAC0
+				;219		CSBC=0;
+01E2	3491	clr     PAC1
+				;220		SCLKC=0;
+01E3	3591	clr     PAC3
+				;221		SDIOC=0;
+01E4	3511	clr     PAC2
+				;222		FCSB=1;
+01E5	3010	set     PA0
+				;223		CSB=1;
+01E6	3090	set     PA1
+				;224		SCLK=0;
+01E7	3590	clr     PA3
+				;225		SDIO=0;	
+01E8	3510	clr     PA2
+				;226		SDIOUP=1;
+01E9	3112	set     PAPU2
+				;227	//	CMT_init();
+				;228		a_tx[0]=0x55;
+01EA	0F55	mov     a, 55H
+01EB	00C7	mov     a_tx[0], a
+				;229		a_tx[1]=0xaa;
+01EC	0FAA	mov     a, AAH
+01ED	00C8	mov     a_tx[1], a
+				L65:
+01EE	0003	ret
+				;230	}
+				;231	
+				;232	void main()
+				@CODE .SECTION 'CODE'
+				include HT46R064B.inc
+0000	21F9	call    STARTSEC
+0001	29EF	jmp     begin
+				@DUMMY .SECTION 'CODE'
+0002	21EF	call    begin
+				__DELAY3:
+				__DELAY:
+				__DELAY:
+0003	0000	nop
+				__DELAY2:
+0004	0000	nop
+				__DELAY1:
+0005	0000	nop
+				__DELAY0:
+0006	0003	ret
+				__DELAYX6:
+				__DELAYX:
+				__DELAY:
+0007	0000	nop
+				__DELAYX5:
+0008	0000	nop
+				__DELAYX4:
+0009	0000	nop
+				__DELAYX3:
+000A	0000	nop
+				__DELAYX2:
+000B	0000	nop
+				__DELAYX1:
+000C	0000	nop
+				__DELAYX0:
+000D	0000	nop
+000E	1785	sdz     ACC
+000F	280D	jmp     __DELAYX0
+0010	0003	ret
+				__DELAYY5:
+				__DELAYY:
+				__DELAY:
+0011	0000	nop
+				__DELAYY4:
+0012	0000	nop
+				__DELAYY3:
+0013	0000	nop
+				__DELAYY2:
+0014	0000	nop
+				__DELAYY1:
+0015	0000	nop
+				__DELAYY0:
+0016	0000	nop
+0017	1785	sdz     ACC
+0018	2816	jmp     __DELAYY0
+				L0019:
+0019	0000	nop
+001A	1785	sdz     ACC
+001B	2819	jmp     L0019
+001C	17C0	sdz     RH
+001D	2819	jmp     L0019
+001E	0003	ret
+				STARTSEC:
+				STARTUP:
+				STARTSEC:
+01F9	0003	ret
+				;233	{
+				;234		initail();
+				begin:
+				_main:
+				@MAIN .SECTION 'CODE'
+01EF	21E1	call    _initail
+01F0	29F7	jmp     L69
+				;235		while(1)
+				L69:
+01F7	29F1	jmp     L68
+				;236		{
+				;237			_clrwdt();
+				L68:
+01F1	0001	clr     wdt
+				;238			FIFO_WRITE(2);
+01F2	0F02	mov     a, 2H
+01F3	00C1	mov     address, a
+01F4	20AA	call    _FIFO_WRITE
+				;239			_delay(1000);
+01F5	0FF9	mov     a, F9H
+01F6	200D	call    __DELAYX0
+				;240		}
+				;241	}
+				L67:
+01F8	29F8	jmp     $
+				data .SECTION 'DATA'
+				RH DB DUP (?)
+				address DB DUP (?) ; address
+				i DB DUP (?) ; i
+				data DB DUP (?) ; data
+				b0_5 DB DUP (?)
+				tmp DB DUP (?) ; tmp
+				b0_6 DB DUP (?)
+				a_tx DB DUP (?) ; a_tx
+				a_rev DB DUP (?) ; a_rev
+				a_count DB DUP (?) ; a_count
+				a_data DB DUP (?) ; a_data

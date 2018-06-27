@@ -1,0 +1,3069 @@
+				;file D:\Project\pcollar640\HT66F0185\HT66F0185.c
+				;1	/*
+				;2	  a_tx[4]:待发送的4个字节数据存储变量，与FIFO_WRITE(4)中的参数对应
+				;3	
+				;4	项目：640训狗器遥控软件。
+				;5	编译器 HT-V3,芯片：HT66F0185 
+				;6	功能：LCD显示，六个按键，433M发送数据,充电
+				;7	
+				;8	修改历史：
+				;9	--2018/06/13
+				;10	  1、增加AD检测功能。
+				;11	  2、增加充电检测功能，以配合电量显示锁定功能。该功能有待进一步完善。
+				;12	  3、初始化上述增加部分的相关变量。  
+				;13	*/
+				;14	
+				;15	#include "HT66F0185.h"
+				;16	#include "head.h"
+				;17	#include "cmt2300a_defs.h"
+				;18	
+				;19	volatile unsigned char a_lcd_count,lcd_data[2],a_100ms,a_count,a_10count,a_10ms,a_500ms,a_1min;
+				;20	unsigned char a_k1_high,a_k1_low,a_k2_high,a_k2_low,a_k3_high,a_k3_low,a_k4_high,a_k4_low,a_k5_high,a_k5_low;
+				;21	volatile flag_byte f_flag;
+				;22	volatile unsigned char a_data,a_tx[4],a_tx_count,a_set_count;
+				;23	
+				;24	#define c_count2	2
+				;25	#define c_count8	8
+				;26	
+				;27	
+				;28	volatile unsigned char ad_data,a_voltage_count,a_voltage_level;
+				;29	volatile unsigned int  ad_voltage_buf;
+				;30	
+				;31	//Vref=2.08V,AD=Hight 8bit
+				;32	#define c_voltage_3V51 	215		//3.51		
+				;33	#define c_voltage_3V6	221		//3.6		
+				;34	#define c_voltage_3V9   239     //3.9
+				;35	
+				;36	//1250us
+				;37	void __attribute((interrupt(0x10)))	TM1_int()
+				;38	{
+				@TM1_int_code .SECTION 'CODE'
+0010	40A6	mov     r110, a
+0011	070A	mov     a, STATUS
+0012	40A7	mov     r210, a
+0013	2849	jmp     _TM1_int
+				@dummy16 .SECTION 'CODE'
+0014	065F	and     a, __pdc[12]
+0015	2F6B	jmp     76BH
+0016	3D36	sz      __pbc[16].2
+0017	077D	mov     a, __pdc[42]
+0018	3F7F	sz      __pdc[44].6
+0019	6640	call    E40H
+001A	1DEC	tabrdl  __pdc[25]
+001B	80F0	dc	080F0H
+001C	0814	dc	00814H
+001D	0291	subm    a, MFI0
+001E	D002	dc	0D002H
+001F	E0AE	dc	0E0AEH
+0020	0035	dc	00035H
+0021	F400	dc	0F400H
+0022	E210	dc	0E210H
+0023	2042	call    L0042
+0024	8100	call    L0100
+0025	7142	set     tmp[18].2
+0026	1CCE	dc	01CCEH
+0027	5B42	rrca    tmp[18]
+0028	1C1C	dc	01C1CH
+0029	60CA	call    8CAH
+002A	3310	set     SIMF
+002B	36E1	clr     __pdc[14].5
+002C	0A18	sub     a, 18H
+002D	389F	snz     EED.1
+002E	2929	jmp     _L20
+002F	94C0	jmp     L04C0
+0030	530A	adc     a, a_k1_low[0]
+0031	0008	dc	00008H
+0032	00B4	mov     TM0AH, a
+0033	0100	cpla    [00H]
+0034	0000	nop
+0035	AF12	dc	0AF12H
+0036	AA00	dc	0AA00H
+0037	0002	halt
+0038	0000	nop
+0039	0000	nop
+003A	D400	dc	0D400H
+003B	002D	dc	0002DH
+003C	0003	ret
+003D	0000	nop
+003E	0000	nop
+003F	0000	nop
+0040	6000	call    800H
+0041	00FF	mov     __pdc[44], a
+				L0042:
+0042	1F01	clr     MP0
+0043	5010	sza     a_k4_low[0]
+0044	0C19	xor     a, 19H
+0045	0F00	mov     a, 0H
+0046	0090	mov     INTC2, a
+0047	188A	rl      STATUS
+0048	7F3F	sz      tmp[15].6
+				;39		if(_t1af)
+				_TM1_int:
+				_TM1_int:
+0049	0712	mov     a, MFI1
+004A	40A8	mov     ra10, a
+004B	0F20	mov     a, 20H
+004C	46A8	andm    a, ra10
+004D	50A8	sz      ra10
+004E	2850	jmp     _LI1
+004F	2AAF	jmp     _L1
+				;40		{
+				;41			_t1af=0;
+				_LI1:
+0050	3692	clr     T1AF
+				;42			a_10ms++;
+0051	4706	mov     a, a_10ms[0]
+0052	40A8	mov     ra10, a
+0053	54A8	inc     ra10
+0054	4728	mov     a, ra10
+0055	4086	mov     a_10ms[0], a
+				;43			if(a_10ms>=8)
+0056	4706	mov     a, a_10ms[0]
+0057	40A8	mov     ra10, a
+0058	0F07	mov     a, 7H
+0059	4228	sub     a, ra10
+005A	3C0A	sz      C
+005B	2879	jmp     _L3
+				;44			{
+				;45				a_10ms=0;
+005C	5F06	clr     a_10ms[0]
+				;46				f_10ms=1;	
+005D	7114	set     f_flag[1].2
+				;47				a_500ms++;
+005E	4707	mov     a, a_500ms[0]
+005F	40A8	mov     ra10, a
+0060	54A8	inc     ra10
+0061	4728	mov     a, ra10
+0062	4087	mov     a_500ms[0], a
+				;48				if(a_500ms>=50)
+0063	4707	mov     a, a_500ms[0]
+0064	40A8	mov     ra10, a
+0065	0F31	mov     a, 31H
+0066	4228	sub     a, ra10
+0067	3C0A	sz      C
+0068	2879	jmp     _L3
+				;49				{
+				;50					a_500ms=0;
+0069	5F07	clr     a_500ms[0]
+				;51					f_voltage_500ms=1;	
+006A	7095	set     f_flag[2].1
+				;52					a_1min++;
+006B	4708	mov     a, a_1min[0]
+006C	40A8	mov     ra10, a
+006D	54A8	inc     ra10
+006E	4728	mov     a, ra10
+006F	4088	mov     a_1min[0], a
+				;53					if(a_1min>=12)		//120
+0070	4708	mov     a, a_1min[0]
+0071	40A8	mov     ra10, a
+0072	0F0B	mov     a, BH
+0073	4228	sub     a, ra10
+0074	3C0A	sz      C
+0075	2879	jmp     _L3
+				;54					{
+				;55						a_1min=0;
+0076	5F08	clr     a_1min[0]
+				;56						f_1min=1;
+0077	7115	set     f_flag[2].2
+				;57						f_halt=1;	
+0078	7195	set     f_flag[2].3
+				;58					}
+				;59				}
+				;60			}
+				;61			
+				;62			a_lcd_count++;
+				_L3:
+0079	4700	mov     a, a_lcd_count[0]
+007A	40A8	mov     ra10, a
+007B	54A8	inc     ra10
+007C	4728	mov     a, ra10
+007D	4080	mov     a_lcd_count[0], a
+				;63			if(a_lcd_count>=9)	a_lcd_count=0;
+007E	4700	mov     a, a_lcd_count[0]
+007F	40A8	mov     ra10, a
+0080	0F08	mov     a, 8H
+0081	4228	sub     a, ra10
+0082	3C0A	sz      C
+0083	2885	jmp     _L4
+0084	5F00	clr     a_lcd_count[0]
+				;64			if(a_lcd_count<=7)
+				_L4:
+0085	4700	mov     a, a_lcd_count[0]
+0086	40A8	mov     ra10, a
+0087	0F07	mov     a, 7H
+0088	4228	sub     a, ra10
+0089	380A	snz     C
+008A	2A7A	jmp     _L5
+				;65			{
+				;66				SEG3C=0;
+008B	3595	clr     PAC3
+				;67				COM0=0;
+008C	3541	clr     PC2
+				;68				COM1=0;
+008D	36C1	clr     PC5
+				;69				COM2=0;
+008E	3494	clr     PA1
+				;70				COM3=0;
+008F	3725	clr     PB6
+				;71				SEG0=0;
+0090	3441	clr     PC0
+				;72				SEG1=0;
+0091	34C1	clr     PC1
+				;73				SEG2=0;
+0092	3641	clr     PC4
+				;74				SEG3=0;
+0093	3594	clr     PA3
+				;75				_slcdc0|=0b00001111;
+0094	074A	mov     a, SLCDC0
+0095	40A8	mov     ra10, a
+0096	0F0F	mov     a, FH
+0097	45A8	orm     a, ra10
+0098	4728	mov     a, ra10
+0099	00CA	mov     SLCDC0, a
+				;76				_slcdc1|=0b01001000;
+009A	074B	mov     a, SLCDC1
+009B	40A8	mov     ra10, a
+009C	0F48	mov     a, 48H
+009D	45A8	orm     a, ra10
+009E	4728	mov     a, ra10
+009F	00CB	mov     SLCDC1, a
+				;77				_slcdc3|=0b01100000;
+00A0	074D	mov     a, SLCDC3
+00A1	40A8	mov     ra10, a
+00A2	0F60	mov     a, 60H
+00A3	45A8	orm     a, ra10
+00A4	4728	mov     a, ra10
+00A5	00CD	mov     SLCDC3, a
+				;78				_slcdc4|=0b00000001;
+00A6	074E	mov     a, SLCDC4
+00A7	40A8	mov     ra10, a
+00A8	7028	set     ra10.0
+00A9	4728	mov     a, ra10
+00AA	00CE	mov     SLCDC4, a
+				;79				switch(a_lcd_count)									//Output com
+00AB	4700	mov     a, a_lcd_count[0]
+00AC	40A8	mov     ra10, a
+00AD	5F29	clr     rb10
+00AE	4728	mov     a, ra10
+00AF	4529	or      a, rb10
+00B0	3D0A	sz      Z
+00B1	28D6	jmp     _L7
+00B2	4728	mov     a, ra10
+00B3	0C01	xor     a, 1H
+00B4	4529	or      a, rb10
+00B5	3D0A	sz      Z
+00B6	290E	jmp     _L8
+00B7	4728	mov     a, ra10
+00B8	0C02	xor     a, 2H
+00B9	4529	or      a, rb10
+00BA	3D0A	sz      Z
+00BB	2946	jmp     _L9
+00BC	4728	mov     a, ra10
+00BD	0C03	xor     a, 3H
+00BE	4529	or      a, rb10
+00BF	3D0A	sz      Z
+00C0	297E	jmp     _L10
+00C1	4728	mov     a, ra10
+00C2	0C04	xor     a, 4H
+00C3	4529	or      a, rb10
+00C4	3D0A	sz      Z
+00C5	29B6	jmp     _L11
+00C6	4728	mov     a, ra10
+00C7	0C05	xor     a, 5H
+00C8	4529	or      a, rb10
+00C9	3D0A	sz      Z
+00CA	29EE	jmp     _L12
+00CB	4728	mov     a, ra10
+00CC	0C06	xor     a, 6H
+00CD	4529	or      a, rb10
+00CE	3D0A	sz      Z
+00CF	2A26	jmp     _L13
+00D0	4728	mov     a, ra10
+00D1	0C07	xor     a, 7H
+00D2	4529	or      a, rb10
+00D3	3D0A	sz      Z
+00D4	2A50	jmp     _L14
+00D5	2AAF	jmp     _L1
+				;80				{	
+				;81					case 0: 
+				;82						_frame=0;
+				_L7:
+00D6	37CA	clr     FRAME
+				;83						if(lcd_data[0]&0x10)	{_seg20en=0;SEG1=0;}
+00D7	4701	mov     a, lcd_data[0]
+00D8	40A8	mov     ra10, a
+00D9	5F29	clr     rb10
+00DA	0F10	mov     a, 10H
+00DB	46A8	andm    a, ra10
+00DC	0F00	mov     a, 0H
+00DD	46A9	andm    a, rb10
+00DE	4728	mov     a, ra10
+00DF	4529	or      a, rb10
+00E0	3D0A	sz      Z
+00E1	28E4	jmp     _L15
+00E2	374D	clr     SEG20EN
+00E3	34C1	clr     PC1
+				;84						if(lcd_data[0]&0x01)	{_seg22en=0;SEG2=0;}
+				_L15:
+00E4	4701	mov     a, lcd_data[0]
+00E5	40A8	mov     ra10, a
+00E6	5F29	clr     rb10
+00E7	0F01	mov     a, 1H
+00E8	46A8	andm    a, ra10
+00E9	0F00	mov     a, 0H
+00EA	46A9	andm    a, rb10
+00EB	4728	mov     a, ra10
+00EC	4529	or      a, rb10
+00ED	3D0A	sz      Z
+00EE	28F1	jmp     _L16
+00EF	344E	clr     SEG22EN
+00F0	3641	clr     PC4
+				;85						if(lcd_data[1]&0x10)	{_com3en=0;SEG3=0;}
+				_L16:
+00F1	4702	mov     a, lcd_data[1]
+00F2	40A8	mov     ra10, a
+00F3	5F29	clr     rb10
+00F4	0F10	mov     a, 10H
+00F5	46A8	andm    a, ra10
+00F6	0F00	mov     a, 0H
+00F7	46A9	andm    a, rb10
+00F8	4728	mov     a, ra10
+00F9	4529	or      a, rb10
+00FA	3D0A	sz      Z
+00FB	28FE	jmp     _L17
+00FC	35CA	clr     COM3EN
+00FD	3594	clr     PA3
+				;86						if(lcd_data[1]&0x01)	{_seg19en=0;SEG0=0;}
+				_L17:
+00FE	4702	mov     a, lcd_data[1]
+00FF	40A8	mov     ra10, a
+				L0100:
+0100	5F29	clr     rb10
+0101	0F01	mov     a, 1H
+0102	46A8	andm    a, ra10
+0103	0F00	mov     a, 0H
+0104	46A9	andm    a, rb10
+0105	4728	mov     a, ra10
+0106	4529	or      a, rb10
+0107	3D0A	sz      Z
+0108	290B	jmp     _L18
+0109	36CD	clr     SEG19EN
+010A	3441	clr     PC0
+				;87						_com0en=0; COM0=1; 
+				_L18:
+010B	344A	clr     COM0EN
+010C	3141	set     PC2
+				;88						break;
+010D	2A79	jmp     _L6
+				;89					case 1: 	
+				;90						_frame=1;			
+				_L8:
+010E	33CA	set     FRAME
+				;91						if(lcd_data[0]&0x10)	{_seg20en=0;SEG1=1;}
+010F	4701	mov     a, lcd_data[0]
+0110	40A8	mov     ra10, a
+0111	5F29	clr     rb10
+0112	0F10	mov     a, 10H
+0113	46A8	andm    a, ra10
+0114	0F00	mov     a, 0H
+0115	46A9	andm    a, rb10
+0116	4728	mov     a, ra10
+0117	4529	or      a, rb10
+0118	3D0A	sz      Z
+0119	291C	jmp     _L19
+011A	374D	clr     SEG20EN
+011B	30C1	set     PC1
+				;92						if(lcd_data[0]&0x01)	{_seg22en=0;SEG2=1;}
+				_L19:
+011C	4701	mov     a, lcd_data[0]
+011D	40A8	mov     ra10, a
+011E	5F29	clr     rb10
+011F	0F01	mov     a, 1H
+0120	46A8	andm    a, ra10
+0121	0F00	mov     a, 0H
+0122	46A9	andm    a, rb10
+0123	4728	mov     a, ra10
+0124	4529	or      a, rb10
+0125	3D0A	sz      Z
+0126	2929	jmp     _L20
+0127	344E	clr     SEG22EN
+0128	3241	set     PC4
+				;93						if(lcd_data[1]&0x10)	{_com3en=0;SEG3=1;}
+				_L20:
+0129	4702	mov     a, lcd_data[1]
+012A	40A8	mov     ra10, a
+012B	5F29	clr     rb10
+012C	0F10	mov     a, 10H
+012D	46A8	andm    a, ra10
+012E	0F00	mov     a, 0H
+012F	46A9	andm    a, rb10
+0130	4728	mov     a, ra10
+0131	4529	or      a, rb10
+0132	3D0A	sz      Z
+0133	2936	jmp     _L21
+0134	35CA	clr     COM3EN
+0135	3194	set     PA3
+				;94						if(lcd_data[1]&0x01)	{_seg19en=0;SEG0=1;}
+				_L21:
+0136	4702	mov     a, lcd_data[1]
+0137	40A8	mov     ra10, a
+0138	5F29	clr     rb10
+0139	0F01	mov     a, 1H
+013A	46A8	andm    a, ra10
+013B	0F00	mov     a, 0H
+013C	46A9	andm    a, rb10
+013D	4728	mov     a, ra10
+013E	4529	or      a, rb10
+013F	3D0A	sz      Z
+0140	2943	jmp     _L22
+0141	36CD	clr     SEG19EN
+0142	3041	set     PC0
+				;95						_com0en=0; COM0=0; 
+				_L22:
+0143	344A	clr     COM0EN
+0144	3541	clr     PC2
+				;96						break;				
+0145	2A79	jmp     _L6
+				;97					case 2: 				
+				;98						_frame=0;
+				_L9:
+0146	37CA	clr     FRAME
+				;99						if(lcd_data[0]&0x20)	{_seg20en=0;SEG1=0;}
+0147	4701	mov     a, lcd_data[0]
+0148	40A8	mov     ra10, a
+0149	5F29	clr     rb10
+014A	0F20	mov     a, 20H
+014B	46A8	andm    a, ra10
+014C	0F00	mov     a, 0H
+014D	46A9	andm    a, rb10
+014E	4728	mov     a, ra10
+014F	4529	or      a, rb10
+0150	3D0A	sz      Z
+0151	2954	jmp     _L23
+0152	374D	clr     SEG20EN
+0153	34C1	clr     PC1
+				;100						if(lcd_data[0]&0x02)	{_seg22en=0;SEG2=0;}
+				_L23:
+0154	4701	mov     a, lcd_data[0]
+0155	40A8	mov     ra10, a
+0156	5F29	clr     rb10
+0157	0F02	mov     a, 2H
+0158	46A8	andm    a, ra10
+0159	0F00	mov     a, 0H
+015A	46A9	andm    a, rb10
+015B	4728	mov     a, ra10
+015C	4529	or      a, rb10
+015D	3D0A	sz      Z
+015E	2961	jmp     _L24
+015F	344E	clr     SEG22EN
+0160	3641	clr     PC4
+				;101						if(lcd_data[1]&0x20)	{_com3en=0;SEG3=0;}
+				_L24:
+0161	4702	mov     a, lcd_data[1]
+0162	40A8	mov     ra10, a
+0163	5F29	clr     rb10
+0164	0F20	mov     a, 20H
+0165	46A8	andm    a, ra10
+0166	0F00	mov     a, 0H
+0167	46A9	andm    a, rb10
+0168	4728	mov     a, ra10
+0169	4529	or      a, rb10
+016A	3D0A	sz      Z
+016B	296E	jmp     _L25
+016C	35CA	clr     COM3EN
+016D	3594	clr     PA3
+				;102						if(lcd_data[1]&0x02)	{_seg19en=0;SEG0=0;}
+				_L25:
+016E	4702	mov     a, lcd_data[1]
+016F	40A8	mov     ra10, a
+0170	5F29	clr     rb10
+0171	0F02	mov     a, 2H
+0172	46A8	andm    a, ra10
+0173	0F00	mov     a, 0H
+0174	46A9	andm    a, rb10
+0175	4728	mov     a, ra10
+0176	4529	or      a, rb10
+0177	3D0A	sz      Z
+0178	297B	jmp     _L26
+0179	36CD	clr     SEG19EN
+017A	3441	clr     PC0
+				;103						_com1en=0; COM1=1; 
+				_L26:
+017B	34CA	clr     COM1EN
+017C	32C1	set     PC5
+				;104						break;
+017D	2A79	jmp     _L6
+				;105					case 3: 				
+				;106						_frame=1;
+				_L10:
+017E	33CA	set     FRAME
+				;107						if(lcd_data[0]&0x20)	{_seg20en=0;SEG1=1;}
+017F	4701	mov     a, lcd_data[0]
+0180	40A8	mov     ra10, a
+0181	5F29	clr     rb10
+0182	0F20	mov     a, 20H
+0183	46A8	andm    a, ra10
+0184	0F00	mov     a, 0H
+0185	46A9	andm    a, rb10
+0186	4728	mov     a, ra10
+0187	4529	or      a, rb10
+0188	3D0A	sz      Z
+0189	298C	jmp     _L27
+018A	374D	clr     SEG20EN
+018B	30C1	set     PC1
+				;108						if(lcd_data[0]&0x02)	{_seg22en=0;SEG2=1;}
+				_L27:
+018C	4701	mov     a, lcd_data[0]
+018D	40A8	mov     ra10, a
+018E	5F29	clr     rb10
+018F	0F02	mov     a, 2H
+0190	46A8	andm    a, ra10
+0191	0F00	mov     a, 0H
+0192	46A9	andm    a, rb10
+0193	4728	mov     a, ra10
+0194	4529	or      a, rb10
+0195	3D0A	sz      Z
+0196	2999	jmp     _L28
+0197	344E	clr     SEG22EN
+0198	3241	set     PC4
+				;109						if(lcd_data[1]&0x20)	{_com3en=0;SEG3=1;}
+				_L28:
+0199	4702	mov     a, lcd_data[1]
+019A	40A8	mov     ra10, a
+019B	5F29	clr     rb10
+019C	0F20	mov     a, 20H
+019D	46A8	andm    a, ra10
+019E	0F00	mov     a, 0H
+019F	46A9	andm    a, rb10
+01A0	4728	mov     a, ra10
+01A1	4529	or      a, rb10
+01A2	3D0A	sz      Z
+01A3	29A6	jmp     _L29
+01A4	35CA	clr     COM3EN
+01A5	3194	set     PA3
+				;110						if(lcd_data[1]&0x02)	{_seg19en=0;SEG0=1;}
+				_L29:
+01A6	4702	mov     a, lcd_data[1]
+01A7	40A8	mov     ra10, a
+01A8	5F29	clr     rb10
+01A9	0F02	mov     a, 2H
+01AA	46A8	andm    a, ra10
+01AB	0F00	mov     a, 0H
+01AC	46A9	andm    a, rb10
+01AD	4728	mov     a, ra10
+01AE	4529	or      a, rb10
+01AF	3D0A	sz      Z
+01B0	29B3	jmp     _L30
+01B1	36CD	clr     SEG19EN
+01B2	3041	set     PC0
+				;111						_com1en=0; COM1=0; 
+				_L30:
+01B3	34CA	clr     COM1EN
+01B4	36C1	clr     PC5
+				;112						break;
+01B5	2A79	jmp     _L6
+				;113					case 4: 				
+				;114						_frame=0;
+				_L11:
+01B6	37CA	clr     FRAME
+				;115						if(lcd_data[0]&0x40)	{_seg20en=0;SEG1=0;}
+01B7	4701	mov     a, lcd_data[0]
+01B8	40A8	mov     ra10, a
+01B9	5F29	clr     rb10
+01BA	0F40	mov     a, 40H
+01BB	46A8	andm    a, ra10
+01BC	0F00	mov     a, 0H
+01BD	46A9	andm    a, rb10
+01BE	4728	mov     a, ra10
+01BF	4529	or      a, rb10
+01C0	3D0A	sz      Z
+01C1	29C4	jmp     _L31
+01C2	374D	clr     SEG20EN
+01C3	34C1	clr     PC1
+				;116						if(lcd_data[0]&0x04)	{_seg22en=0;SEG2=0;}
+				_L31:
+01C4	4701	mov     a, lcd_data[0]
+01C5	40A8	mov     ra10, a
+01C6	5F29	clr     rb10
+01C7	0F04	mov     a, 4H
+01C8	46A8	andm    a, ra10
+01C9	0F00	mov     a, 0H
+01CA	46A9	andm    a, rb10
+01CB	4728	mov     a, ra10
+01CC	4529	or      a, rb10
+01CD	3D0A	sz      Z
+01CE	29D1	jmp     _L32
+01CF	344E	clr     SEG22EN
+01D0	3641	clr     PC4
+				;117						if(lcd_data[1]&0x40)	{_com3en=0;SEG3=0;}
+				_L32:
+01D1	4702	mov     a, lcd_data[1]
+01D2	40A8	mov     ra10, a
+01D3	5F29	clr     rb10
+01D4	0F40	mov     a, 40H
+01D5	46A8	andm    a, ra10
+01D6	0F00	mov     a, 0H
+01D7	46A9	andm    a, rb10
+01D8	4728	mov     a, ra10
+01D9	4529	or      a, rb10
+01DA	3D0A	sz      Z
+01DB	29DE	jmp     _L33
+01DC	35CA	clr     COM3EN
+01DD	3594	clr     PA3
+				;118						if(lcd_data[1]&0x04)	{_seg19en=0;SEG0=0;}
+				_L33:
+01DE	4702	mov     a, lcd_data[1]
+01DF	40A8	mov     ra10, a
+01E0	5F29	clr     rb10
+01E1	0F04	mov     a, 4H
+01E2	46A8	andm    a, ra10
+01E3	0F00	mov     a, 0H
+01E4	46A9	andm    a, rb10
+01E5	4728	mov     a, ra10
+01E6	4529	or      a, rb10
+01E7	3D0A	sz      Z
+01E8	29EB	jmp     _L34
+01E9	36CD	clr     SEG19EN
+01EA	3441	clr     PC0
+				;119						_com2en=0; COM2=1; 
+				_L34:
+01EB	354A	clr     COM2EN
+01EC	3094	set     PA1
+				;120						break;
+01ED	2A79	jmp     _L6
+				;121					case 5: 				
+				;122						_frame=1;
+				_L12:
+01EE	33CA	set     FRAME
+				;123						if(lcd_data[0]&0x40)	{_seg20en=0;SEG1=1;}
+01EF	4701	mov     a, lcd_data[0]
+01F0	40A8	mov     ra10, a
+01F1	5F29	clr     rb10
+01F2	0F40	mov     a, 40H
+01F3	46A8	andm    a, ra10
+01F4	0F00	mov     a, 0H
+01F5	46A9	andm    a, rb10
+01F6	4728	mov     a, ra10
+01F7	4529	or      a, rb10
+01F8	3D0A	sz      Z
+01F9	29FC	jmp     _L35
+01FA	374D	clr     SEG20EN
+01FB	30C1	set     PC1
+				;124						if(lcd_data[0]&0x04)	{_seg22en=0;SEG2=1;}
+				_L35:
+01FC	4701	mov     a, lcd_data[0]
+01FD	40A8	mov     ra10, a
+01FE	5F29	clr     rb10
+01FF	0F04	mov     a, 4H
+0200	46A8	andm    a, ra10
+0201	0F00	mov     a, 0H
+0202	46A9	andm    a, rb10
+0203	4728	mov     a, ra10
+0204	4529	or      a, rb10
+0205	3D0A	sz      Z
+0206	2A09	jmp     _L36
+0207	344E	clr     SEG22EN
+0208	3241	set     PC4
+				;125						if(lcd_data[1]&0x40)	{_com3en=0;SEG3=1;}
+				_L36:
+0209	4702	mov     a, lcd_data[1]
+020A	40A8	mov     ra10, a
+020B	5F29	clr     rb10
+020C	0F40	mov     a, 40H
+020D	46A8	andm    a, ra10
+020E	0F00	mov     a, 0H
+020F	46A9	andm    a, rb10
+0210	4728	mov     a, ra10
+0211	4529	or      a, rb10
+0212	3D0A	sz      Z
+0213	2A16	jmp     _L37
+0214	35CA	clr     COM3EN
+0215	3194	set     PA3
+				;126						if(lcd_data[1]&0x04)	{_seg19en=0;SEG0=1;}
+				_L37:
+0216	4702	mov     a, lcd_data[1]
+0217	40A8	mov     ra10, a
+0218	5F29	clr     rb10
+0219	0F04	mov     a, 4H
+021A	46A8	andm    a, ra10
+021B	0F00	mov     a, 0H
+021C	46A9	andm    a, rb10
+021D	4728	mov     a, ra10
+021E	4529	or      a, rb10
+021F	3D0A	sz      Z
+0220	2A23	jmp     _L38
+0221	36CD	clr     SEG19EN
+0222	3041	set     PC0
+				;127						_com2en=0; COM2=0; 
+				_L38:
+0223	354A	clr     COM2EN
+0224	3494	clr     PA1
+				;128						break;
+0225	2A79	jmp     _L6
+				;129					case 6: 				
+				;130						_frame=0;
+				_L13:
+0226	37CA	clr     FRAME
+				;131						if(lcd_data[0]&0x80)	{_seg20en=0;SEG1=0;}
+0227	4701	mov     a, lcd_data[0]
+0228	40A8	mov     ra10, a
+0229	7BA8	snz     ra10.7
+022A	2A2D	jmp     _L39
+022B	374D	clr     SEG20EN
+022C	34C1	clr     PC1
+				;132						if(lcd_data[0]&0x08)	{_seg22en=0;SEG2=0;}
+				_L39:
+022D	4701	mov     a, lcd_data[0]
+022E	40A8	mov     ra10, a
+022F	5F29	clr     rb10
+0230	0F08	mov     a, 8H
+0231	46A8	andm    a, ra10
+0232	0F00	mov     a, 0H
+0233	46A9	andm    a, rb10
+0234	4728	mov     a, ra10
+0235	4529	or      a, rb10
+0236	3D0A	sz      Z
+0237	2A3A	jmp     _L40
+0238	344E	clr     SEG22EN
+0239	3641	clr     PC4
+				;133						if(lcd_data[1]&0x80)	{_com3en=0;SEG3=0;}
+				_L40:
+023A	4702	mov     a, lcd_data[1]
+023B	40A8	mov     ra10, a
+023C	7BA8	snz     ra10.7
+023D	2A40	jmp     _L41
+023E	35CA	clr     COM3EN
+023F	3594	clr     PA3
+				;134						if(lcd_data[1]&0x08)	{_seg19en=0;SEG0=0;}
+				_L41:
+0240	4702	mov     a, lcd_data[1]
+0241	40A8	mov     ra10, a
+0242	5F29	clr     rb10
+0243	0F08	mov     a, 8H
+0244	46A8	andm    a, ra10
+0245	0F00	mov     a, 0H
+0246	46A9	andm    a, rb10
+0247	4728	mov     a, ra10
+0248	4529	or      a, rb10
+0249	3D0A	sz      Z
+024A	2A4D	jmp     _L42
+024B	36CD	clr     SEG19EN
+024C	3441	clr     PC0
+				;135						_com4en=0; COM3=1; 
+				_L42:
+024D	374B	clr     COM4EN
+024E	3325	set     PB6
+				;136						break;
+024F	2A79	jmp     _L6
+				;137					case 7: 				
+				;138						_frame=1;
+				_L14:
+0250	33CA	set     FRAME
+				;139						if(lcd_data[0]&0x80)	{_seg20en=0;SEG1=1;}
+0251	4701	mov     a, lcd_data[0]
+0252	40A8	mov     ra10, a
+0253	7BA8	snz     ra10.7
+0254	2A57	jmp     _L43
+0255	374D	clr     SEG20EN
+0256	30C1	set     PC1
+				;140						if(lcd_data[0]&0x08)	{_seg22en=0;SEG2=1;}
+				_L43:
+0257	4701	mov     a, lcd_data[0]
+0258	40A8	mov     ra10, a
+0259	5F29	clr     rb10
+025A	0F08	mov     a, 8H
+025B	46A8	andm    a, ra10
+025C	0F00	mov     a, 0H
+025D	46A9	andm    a, rb10
+025E	4728	mov     a, ra10
+025F	4529	or      a, rb10
+0260	3D0A	sz      Z
+0261	2A64	jmp     _L44
+0262	344E	clr     SEG22EN
+0263	3241	set     PC4
+				;141						if(lcd_data[1]&0x80)	{_com3en=0;SEG3=1;}
+				_L44:
+0264	4702	mov     a, lcd_data[1]
+0265	40A8	mov     ra10, a
+0266	7BA8	snz     ra10.7
+0267	2A6A	jmp     _L45
+0268	35CA	clr     COM3EN
+0269	3194	set     PA3
+				;142						if(lcd_data[1]&0x08)	{_seg19en=0;SEG0=1;}
+				_L45:
+026A	4702	mov     a, lcd_data[1]
+026B	40A8	mov     ra10, a
+026C	5F29	clr     rb10
+026D	0F08	mov     a, 8H
+026E	46A8	andm    a, ra10
+026F	0F00	mov     a, 0H
+0270	46A9	andm    a, rb10
+0271	4728	mov     a, ra10
+0272	4529	or      a, rb10
+0273	3D0A	sz      Z
+0274	2A77	jmp     _L46
+0275	36CD	clr     SEG19EN
+0276	3041	set     PC0
+				;143						_com4en=0; COM3=0; 	
+				_L46:
+0277	374B	clr     COM4EN
+0278	3725	clr     PB6
+				;144						break;	 
+				_L6:
+0279	2AAF	jmp     _L1
+				;145				}
+				;146			}
+				;147			else
+				;148			{
+				;149				_com3en=0;
+				_L5:
+027A	35CA	clr     COM3EN
+				;150				K1C=1;
+027B	3395	set     PAC7
+				;151				K1UP=1;
+027C	3396	set     PAPU7
+				;152				_com4en=1;
+027D	334B	set     COM4EN
+				;153	
+				;154				if(!K1)
+027E	0714	mov     a, PA
+027F	40A8	mov     ra10, a
+0280	0F80	mov     a, 80H
+0281	46A8	andm    a, ra10
+0282	50A8	sz      ra10
+0283	2A9A	jmp     _L47
+				;155				{
+				;156					a_k1_high=0;
+0284	5F09	clr     a_k1_high[0]
+				;157					if(f_k1_buf==0)
+0285	4713	mov     a, f_flag[0]
+0286	40A8	mov     ra10, a
+0287	0F20	mov     a, 20H
+0288	46A8	andm    a, ra10
+0289	50A8	sz      ra10
+028A	2AAF	jmp     _L1
+				;158					{
+				;159						a_k1_low++;
+028B	470A	mov     a, a_k1_low[0]
+028C	40A8	mov     ra10, a
+028D	54A8	inc     ra10
+028E	4728	mov     a, ra10
+028F	408A	mov     a_k1_low[0], a
+				;160						if(a_k1_low>=5)
+0290	470A	mov     a, a_k1_low[0]
+0291	40A8	mov     ra10, a
+0292	0F04	mov     a, 4H
+0293	4228	sub     a, ra10
+0294	3C0A	sz      C
+0295	2AAF	jmp     _L1
+				;161						{
+				;162							a_k1_low=0;
+0296	5F0A	clr     a_k1_low[0]
+				;163							f_k1=1;
+0297	7013	set     f_flag[0].0
+				;164							f_k1_buf=1;	
+0298	7293	set     f_flag[0].5
+0299	2AAF	jmp     _L1
+				;165						}
+				;166					}
+				;167				}
+				;168				else 
+				;169				{	
+				;170					a_k1_low=0;
+				_L47:
+029A	5F0A	clr     a_k1_low[0]
+				;171					if(f_k1_buf==1)
+029B	4713	mov     a, f_flag[0]
+029C	40A8	mov     ra10, a
+029D	0F20	mov     a, 20H
+029E	46A8	andm    a, ra10
+029F	50A8	sz      ra10
+02A0	2AA2	jmp     _LI2
+02A1	2AAF	jmp     _L1
+				;172					{
+				;173						a_k1_high++;
+				_LI2:
+02A2	4709	mov     a, a_k1_high[0]
+02A3	40A8	mov     ra10, a
+02A4	54A8	inc     ra10
+02A5	4728	mov     a, ra10
+02A6	4089	mov     a_k1_high[0], a
+				;174						if(a_k1_high>=5)
+02A7	4709	mov     a, a_k1_high[0]
+02A8	40A8	mov     ra10, a
+02A9	0F04	mov     a, 4H
+02AA	4228	sub     a, ra10
+02AB	3C0A	sz      C
+02AC	2AAF	jmp     _L1
+				;175						{
+				;176							a_k1_high=0;
+02AD	5F09	clr     a_k1_high[0]
+				;177							f_k1_buf=0;
+02AE	7693	clr     f_flag[0].5
+				_L1:
+02AF	4727	mov     a, r210
+02B0	008A	mov     STATUS, a
+02B1	4726	mov     a, r110
+02B2	0004	reti
+				;178						}	
+				;179					}
+				;180				}	
+				;181			}
+				;182	
+				;183	
+				;184	
+				;185		}
+				;186	}
+				;187	
+				;188	void FIFO_WRITE(unsigned char len)
+				;189	{	
+				_FIFO_WRITE:
+				_FIFO_WRITE:
+02B3	40AD	mov     len[0], a
+				;190		unsigned char i,j,data;
+				;191		CSB=1;
+02B4	3152	set     PD2
+				;192		FCSB=0;
+02B5	34D2	clr     PD1
+				;193		SCLK=0;
+02B6	3425	clr     PB0
+				;194		SDIOC=0;
+02B7	34A6	clr     PBC1
+				;195		for(j=0;j<len;j++)
+02B8	5F2B	clr     j[0]
+02B9	2AEB	jmp     L02EB
+02E7	472B	mov     a, j[0]
+02E8	40A2	mov     ra, a
+02E9	5422	inca    ra
+02EA	40AB	mov     j[0], a
+				L02EB:
+02EB	472B	mov     a, j[0]
+02EC	422D	sub     a, len[0]
+02ED	380A	snz     C
+02EE	2ABA	jmp     L02BA
+				;196		{
+				;197			FCSB=0;
+				L02BA:
+02BA	34D2	clr     PD1
+				;198			data=a_tx[j];
+02BB	472B	mov     a, j[0]
+02BC	40A2	mov     ra, a
+02BD	5F23	clr     rb
+02BE	0F97	mov     a, 97H
+02BF	43A2	addm    a, ra
+02C0	0F00	mov     a, 0H
+02C1	53A3	adcm    a, rb
+02C2	4722	mov     a, ra
+02C3	0083	mov     MP1, a
+02C4	4723	mov     a, rb
+02C5	0081	mov     MP0, a
+02C6	2746	call    L0746
+02C7	40AC	mov     data[0], a
+				;199			for(i=0;i<8;i++)
+02C8	5F2A	clr     i[0]
+02C9	2ADD	jmp     L02DD
+02D9	472A	mov     a, i[0]
+02DA	40A2	mov     ra, a
+02DB	5422	inca    ra
+02DC	40AA	mov     i[0], a
+				L02DD:
+02DD	0F07	mov     a, 7H
+02DE	422A	sub     a, i[0]
+02DF	3C0A	sz      C
+02E0	2ACA	jmp     L02CA
+				;200			{
+				;201				SCLK=0;
+				L02CA:
+02CA	3425	clr     PB0
+				;202				if(data&0x80)	SDIO=1;
+02CB	472C	mov     a, data[0]
+02CC	40A2	mov     ra, a
+02CD	7BA2	snz     ra.7
+02CE	2AD1	jmp     L02D1
+02CF	30A5	set     PB1
+02D0	2AD2	jmp     L02D2
+				;203				else 			SDIO=0;
+				L02D1:
+02D1	34A5	clr     PB1
+				;204				SCLK=1;
+				L02D2:
+02D2	3025	set     PB0
+				;205				data<<=1;
+02D3	472C	mov     a, data[0]
+02D4	40A2	mov     ra, a
+02D5	4722	mov     a, ra
+02D6	43A2	addm    a, ra
+02D7	4722	mov     a, ra
+02D8	40AC	mov     data[0], a
+				;206			}
+				;207			SCLK=0;
+02E1	3425	clr     PB0
+				;208			GCC_DELAY(10);
+02E2	0F01	mov     a, 1H
+02E3	200A	call    L000A
+				;209			FCSB=1;
+02E4	30D2	set     PD1
+				;210			GCC_DELAY(10);
+02E5	0F01	mov     a, 1H
+02E6	200A	call    L000A
+				;211		}
+				;212		SCLK=0;
+02EF	3425	clr     PB0
+				;213		FCSB=1;
+02F0	30D2	set     PD1
+02F1	0003	ret
+				;214	}
+				;215	
+				;216	void SPI_WRITE(unsigned char address,unsigned char data)
+				;217	{
+				_SPI_WRITE:
+				_SPI_WRITE:
+02F2	40AC	mov     address[0], a
+				;218		unsigned char i;
+				;219		address&=0x7f;
+02F3	77AC	clr     address[0].7
+				;220		FCSB=1;
+02F4	30D2	set     PD1
+				;221		CSB=0;
+02F5	3552	clr     PD2
+				;222		SDIOC=0;
+02F6	34A6	clr     PBC1
+				;223		SCLK=0;
+02F7	3425	clr     PB0
+				;224		for(i=0;i<8;i++)
+02F8	5F2B	clr     i[0]
+02F9	2B0D	jmp     L030D
+0309	472B	mov     a, i[0]
+030A	40A2	mov     ra, a
+030B	5422	inca    ra
+030C	40AB	mov     i[0], a
+				L030D:
+030D	0F07	mov     a, 7H
+030E	422B	sub     a, i[0]
+030F	3C0A	sz      C
+0310	2AFA	jmp     L02FA
+				;225		{
+				;226			SCLK=0;
+				L02FA:
+02FA	3425	clr     PB0
+				;227			if(address&0x80)	SDIO=1;
+02FB	472C	mov     a, address[0]
+02FC	40A2	mov     ra, a
+02FD	7BA2	snz     ra.7
+02FE	2B01	jmp     L0301
+02FF	30A5	set     PB1
+0300	2B02	jmp     L0302
+				;228			else                SDIO=0;
+				L0301:
+0301	34A5	clr     PB1
+				;229			SCLK=1;
+				L0302:
+0302	3025	set     PB0
+				;230			address<<=1;
+0303	472C	mov     a, address[0]
+0304	40A2	mov     ra, a
+0305	4722	mov     a, ra
+0306	43A2	addm    a, ra
+0307	4722	mov     a, ra
+0308	40AC	mov     address[0], a
+				;231		}
+				;232		for(i=0;i<8;i++)
+0311	5F2B	clr     i[0]
+0312	2B26	jmp     L0326
+0322	472B	mov     a, i[0]
+0323	40A2	mov     ra, a
+0324	5422	inca    ra
+0325	40AB	mov     i[0], a
+				L0326:
+0326	0F07	mov     a, 7H
+0327	422B	sub     a, i[0]
+0328	3C0A	sz      C
+0329	2B13	jmp     L0313
+				;233		{
+				;234			SCLK=0;
+				L0313:
+0313	3425	clr     PB0
+				;235			if(data&0x80)		SDIO=1;
+0314	472A	mov     a, data[0]
+0315	40A2	mov     ra, a
+0316	7BA2	snz     ra.7
+0317	2B1A	jmp     L031A
+0318	30A5	set     PB1
+0319	2B1B	jmp     L031B
+				;236			else				SDIO=0;
+				L031A:
+031A	34A5	clr     PB1
+				;237			data<<=1;
+				L031B:
+031B	472A	mov     a, data[0]
+031C	40A2	mov     ra, a
+031D	4722	mov     a, ra
+031E	43A2	addm    a, ra
+031F	4722	mov     a, ra
+0320	40AA	mov     data[0], a
+				;238			SCLK=1;
+0321	3025	set     PB0
+				;239		}
+				;240		SCLK=0;
+032A	3425	clr     PB0
+				;241		GCC_DELAY(5);
+032B	2004	call    L0004
+				;242		SDIO=0;
+032C	34A5	clr     PB1
+				;243		CSB=1;
+032D	3152	set     PD2
+032E	0003	ret
+				;244	}
+				;245	
+				;246	unsigned char SPI_READ(unsigned char address)
+				;247	{
+				_SPI_READ:
+				_SPI_READ:
+032F	40AC	mov     address[0], a
+				;248		unsigned char i,data;
+				;249		FCSB=1;
+0330	30D2	set     PD1
+				;250		CSB=0;	
+0331	3552	clr     PD2
+				;251		SCLK=0;
+0332	3425	clr     PB0
+				;252		SDIOC=0;
+0333	34A6	clr     PBC1
+				;253		address|=0x80;
+0334	73AC	set     address[0].7
+				;254		for(i=0;i<8;i++)
+0335	5F2A	clr     i[0]
+0336	2B4B	jmp     L034B
+0347	472A	mov     a, i[0]
+0348	40A2	mov     ra, a
+0349	5422	inca    ra
+034A	40AA	mov     i[0], a
+				L034B:
+034B	0F07	mov     a, 7H
+034C	422A	sub     a, i[0]
+034D	3C0A	sz      C
+034E	2B37	jmp     L0337
+				;255		{
+				;256			SCLK=0;
+				L0337:
+0337	3425	clr     PB0
+				;257			if(address&0x80)	SDIO=1;
+0338	472C	mov     a, address[0]
+0339	40A2	mov     ra, a
+033A	7BA2	snz     ra.7
+033B	2B3E	jmp     L033E
+033C	30A5	set     PB1
+033D	2B3F	jmp     L033F
+				;258			else 				SDIO=0;
+				L033E:
+033E	34A5	clr     PB1
+				;259			_nop();
+				L033F:
+033F	0000	nop
+				;260			SCLK=1;
+0340	3025	set     PB0
+				;261			address<<=1;
+0341	472C	mov     a, address[0]
+0342	40A2	mov     ra, a
+0343	4722	mov     a, ra
+0344	43A2	addm    a, ra
+0345	4722	mov     a, ra
+0346	40AC	mov     address[0], a
+				;262		}
+				;263		SDIOC=1;
+034F	30A6	set     PBC1
+				;264		SCLK=0;
+0350	3425	clr     PB0
+				;265		data=0;
+0351	5F2B	clr     data[0]
+				;266		for(i=0;i<8;i++)
+0352	5F2A	clr     i[0]
+0353	2B69	jmp     L0369
+0365	472A	mov     a, i[0]
+0366	40A2	mov     ra, a
+0367	5422	inca    ra
+0368	40AA	mov     i[0], a
+				L0369:
+0369	0F07	mov     a, 7H
+036A	422A	sub     a, i[0]
+036B	3C0A	sz      C
+036C	2B54	jmp     L0354
+				;267		{
+				;268			data<<=1;
+				L0354:
+0354	472B	mov     a, data[0]
+0355	40A2	mov     ra, a
+0356	4722	mov     a, ra
+0357	43A2	addm    a, ra
+0358	4722	mov     a, ra
+0359	40AB	mov     data[0], a
+				;269			SCLK=1;
+035A	3025	set     PB0
+				;270			if(SDIO)		data|=1;
+035B	0725	mov     a, PB
+035C	40A2	mov     ra, a
+035D	0F02	mov     a, 2H
+035E	46A2	andm    a, ra
+035F	50A2	sz      ra
+0360	2B62	jmp     L0362
+0361	2B63	jmp     L0363
+				L0362:
+0362	702B	set     data[0].0
+				;271			_nop();
+				L0363:
+0363	0000	nop
+				;272			SCLK=0;
+0364	3425	clr     PB0
+				;273		}
+				;274		SCLK=0;
+036D	3425	clr     PB0
+				;275		SDIOC=0;
+036E	34A6	clr     PBC1
+				;276		SDIO=0;
+036F	34A5	clr     PB1
+				;277		CSB=1;	
+0370	3152	set     PD2
+				;278		return data;
+0371	472B	mov     a, data[0]
+0372	40A2	mov     ra, a
+				;279	}
+0373	4722	mov     a, ra
+0374	0003	ret
+				;280	
+				;281	void CMT_init()
+				;282	{
+				;283		unsigned char tmp,back;
+				;284		SPI_WRITE(0x7F,0xFF);		//Soft Reset 
+				_CMT_init:
+				_CMT_init:
+0375	5FAA	set     i
+0376	0F7F	mov     a, 7FH
+0377	22F2	call    _SPI_WRITE
+				;285		GCC_DELAY(40000);			//20ms
+0378	0F26	mov     a, 26H
+0379	40AA	mov     i, a
+037A	0FFB	mov     a, FBH
+037B	2726	call    L0726
+				;286		SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_STBY);	//go_stdby
+037C	0F02	mov     a, 2H
+037D	40AA	mov     i, a
+037E	0F60	mov     a, 60H
+037F	22F2	call    _SPI_WRITE
+				;287		
+				;288		tmp=SPI_READ(CMT2300A_CUS_MODE_STA);				//address 0x61
+0380	0F61	mov     a, 61H
+0381	232F	call    _SPI_READ
+0382	40A2	mov     ra, a
+0383	4722	mov     a, ra
+0384	40AD	mov     tmp[0], a
+				;289		tmp|=CMT2300A_MASK_CFG_RETAIN;						//Enable CFG_RETAIN 
+0385	722D	set     tmp[0].4
+				;290		tmp&=(unsigned char)~CMT2300A_MASK_RSTN_IN_EN;		//Disable RSTN_IN 
+0386	76AD	clr     tmp[0].5
+				;291		SPI_WRITE(CMT2300A_CUS_MODE_STA,tmp);
+0387	472D	mov     a, tmp[0]
+0388	40AA	mov     i, a
+0389	0F61	mov     a, 61H
+038A	22F2	call    _SPI_WRITE
+				;292		
+				;293		tmp=SPI_READ(CMT2300A_CUS_EN_CTL);		//adress 0x60
+038B	0F62	mov     a, 62H
+038C	232F	call    _SPI_READ
+038D	40A2	mov     ra, a
+038E	4722	mov     a, ra
+038F	40AD	mov     tmp[0], a
+				;294		tmp|=CMT2300A_MASK_LOCKING_EN;			//LOCKING_EN=1;
+0390	72AD	set     tmp[0].5
+				;295		SPI_WRITE(CMT2300A_CUS_EN_CTL, tmp);
+0391	472D	mov     a, tmp[0]
+0392	40AA	mov     i, a
+0393	0F62	mov     a, 62H
+0394	22F2	call    _SPI_WRITE
+				;296		
+				;297		tmp=SPI_READ(CMT2300A_CUS_SYS2);
+0395	0F0D	mov     a, DH
+0396	232F	call    _SPI_READ
+0397	40A2	mov     ra, a
+0398	4722	mov     a, ra
+0399	40AD	mov     tmp[0], a
+				;298	    tmp &= (unsigned char)~CMT2300A_MASK_LFOSC_RECAL_EN;
+039A	77AD	clr     tmp[0].7
+				;299	    tmp &= (unsigned char)~CMT2300A_MASK_LFOSC_CAL1_EN;
+039B	772D	clr     tmp[0].6
+				;300	    tmp &=(unsigned char) ~CMT2300A_MASK_LFOSC_CAL2_EN;
+039C	76AD	clr     tmp[0].5
+				;301		SPI_WRITE(CMT2300A_CUS_SYS2,tmp);
+039D	472D	mov     a, tmp[0]
+039E	40AA	mov     i, a
+039F	0F0D	mov     a, DH
+03A0	22F2	call    _SPI_WRITE
+				;302		
+				;303		SPI_WRITE(CMT2300A_CUS_INT_CLR1,0xff);
+03A1	5FAA	set     i
+03A2	0F6A	mov     a, 6AH
+03A3	22F2	call    _SPI_WRITE
+				;304		SPI_WRITE(CMT2300A_CUS_INT_CLR2,0xff);
+03A4	5FAA	set     i
+03A5	0F6B	mov     a, 6BH
+03A6	22F2	call    _SPI_WRITE
+				;305		
+				;306		for(tmp=0;tmp<0x60;tmp++)
+03A7	5F2D	clr     tmp[0]
+03A8	2BBF	jmp     _L75
+03BB	472D	mov     a, tmp[0]
+03BC	40A2	mov     ra, a
+03BD	5422	inca    ra
+03BE	40AD	mov     tmp[0], a
+				_L75:
+03BF	0F5F	mov     a, 5FH
+03C0	422D	sub     a, tmp[0]
+03C1	3C0A	sz      C
+03C2	2BA9	jmp     _L76
+				;307		{
+				;308			SPI_WRITE(tmp,c_cmt_init[tmp]);
+				_L76:
+03A9	472D	mov     a, tmp[0]
+03AA	40A2	mov     ra, a
+03AB	5F23	clr     rb
+03AC	0F32	mov     a, 32H
+03AD	43A2	addm    a, ra
+03AE	0F80	mov     a, 80H
+03AF	53A3	adcm    a, rb
+03B0	4722	mov     a, ra
+03B1	0083	mov     MP1, a
+03B2	4723	mov     a, rb
+03B3	0081	mov     MP0, a
+03B4	2746	call    L0746
+03B5	40A2	mov     ra, a
+03B6	4722	mov     a, ra
+03B7	40AA	mov     i, a
+03B8	472D	mov     a, tmp[0]
+03B9	22F2	call    _SPI_WRITE
+				;309			_clrwdt();	
+03BA	0001	clr     wdt
+				;310		}
+				;311	
+				;312	//	tmp=((unsigned char)~0x07)&SPI_READ(CMT2300A_CUS_CMT10);		//RFPDK 1.46以后，可忽略
+				;313	//	SPI_WRITE(CMT2300A_CUS_CMT10, tmp|0x02);
+				;314	//	SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_SLEEP);	//go_sleep	
+				;315	
+				;316		SPI_WRITE(CMT2300A_CUS_IO_SEL,CMT2300A_GPIO1_SEL_DOUT|CMT2300A_GPIO2_SEL_DOUT|CMT2300A_GPIO3_SEL_INT2);	//INT1 > GPIO1   ,INT2 > GPIO3
+03C3	0F28	mov     a, 28H
+03C4	40AA	mov     i, a
+03C5	0F65	mov     a, 65H
+03C6	22F2	call    _SPI_WRITE
+				;317		tmp=CMT2300A_INT_SEL_TX_FIFO_NMTY;
+03C7	0F10	mov     a, 10H
+03C8	40AD	mov     tmp[0], a
+				;318		tmp|=CMT2300A_INT_POLAR_SEL_1;
+03C9	72AD	set     tmp[0].5
+				;319		SPI_WRITE(CMT2300A_CUS_INT1_CTL, tmp);
+03CA	472D	mov     a, tmp[0]
+03CB	40AA	mov     i, a
+03CC	0F66	mov     a, 66H
+03CD	22F2	call    _SPI_WRITE
+				;320		
+				;321	//	SPI_WRITE(CMT2300A_CUS_IO_SEL,CMT2300A_GPIO3_SEL_INT2);	//INT2 > GPIO3
+				;322	//	tmp=SPI_READ(CMT2300A_CUS_INT2_CTL);
+				;323		tmp=CMT2300A_INT_SEL_TX_DONE;						//0有效
+03CE	0F0A	mov     a, AH
+03CF	40AD	mov     tmp[0], a
+				;324		SPI_WRITE(CMT2300A_CUS_INT2_CTL, tmp);				//CMT2300A_INT1_SEL_TX_DONE
+03D0	472D	mov     a, tmp[0]
+03D1	40AA	mov     i, a
+03D2	0F67	mov     a, 67H
+03D3	22F2	call    _SPI_WRITE
+				;325		SPI_WRITE(CMT2300A_CUS_INT_EN,CMT2300A_MASK_TX_DONE_EN);	//CMT2300A_MASK_TX_DONE_EN
+03D4	0F20	mov     a, 20H
+03D5	40AA	mov     i, a
+03D6	0F68	mov     a, 68H
+03D7	22F2	call    _SPI_WRITE
+				;326		SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_SLEEP);	//go_sleep
+03D8	0F10	mov     a, 10H
+03D9	40AA	mov     i, a
+03DA	0F60	mov     a, 60H
+03DB	22F2	call    _SPI_WRITE
+				;327		GCC_DELAY(60000);
+03DC	0F3A	mov     a, 3AH
+03DD	40AA	mov     i, a
+03DE	0F79	mov     a, 79H
+03DF	2726	call    L0726
+				;328		//测试CMT是否存在
+				;329		back = SPI_READ(CMT2300A_CUS_PKT17);
+03E0	0F48	mov     a, 48H
+03E1	232F	call    _SPI_READ
+03E2	40A2	mov     ra, a
+03E3	4722	mov     a, ra
+03E4	40AE	mov     back[0], a
+				;330	    SPI_WRITE(CMT2300A_CUS_PKT17, 0xAA);
+03E5	0FAA	mov     a, AAH
+03E6	40AA	mov     i, a
+03E7	0F48	mov     a, 48H
+03E8	22F2	call    _SPI_WRITE
+				;331	    tmp = SPI_READ(CMT2300A_CUS_PKT17);
+03E9	0F48	mov     a, 48H
+03EA	232F	call    _SPI_READ
+03EB	40A2	mov     ra, a
+03EC	4722	mov     a, ra
+03ED	40AD	mov     tmp[0], a
+				;332	    SPI_WRITE(CMT2300A_CUS_PKT17, back);
+03EE	472E	mov     a, back[0]
+03EF	40AA	mov     i, a
+03F0	0F48	mov     a, 48H
+03F1	22F2	call    _SPI_WRITE
+				;333	    if(tmp!=0xAA) while(1);
+03F2	472D	mov     a, tmp[0]
+03F3	0AAA	sub     a, AAH
+03F4	3D0A	sz      Z
+03F5	2BF7	jmp     _L74
+				_L78:
+03F6	2BF6	jmp     $
+				_L74:
+03F7	0003	ret
+				;334	  	
+				;335	}
+				;336	
+				;337	void CMT_TX()
+				;338	{
+				;339		unsigned char tmp;
+				;340		if(f_txen)
+				_CMT_TX:
+				_CMT_TX:
+03F8	4714	mov     a, f_flag[1]
+03F9	40A2	mov     ra, a
+03FA	0F10	mov     a, 10H
+03FB	46A2	andm    a, ra
+03FC	50A2	sz      ra
+03FD	2BFF	jmp     _LI4
+03FE	2C7C	jmp     _L80
+				;341		{
+				;342			if(!f_tx)             //发射使用标志位进行控制
+				_LI4:
+03FF	4714	mov     a, f_flag[1]
+0400	40A2	mov     ra, a
+0401	0F08	mov     a, 8H
+0402	46A2	andm    a, ra
+0403	50A2	sz      ra
+0404	2C7C	jmp     _L80
+				;343			{
+				;344			   	a_tx_count++;
+0405	471B	mov     a, a_tx_count[0]
+0406	40A2	mov     ra, a
+0407	54A2	inc     ra
+0408	4722	mov     a, ra
+0409	409B	mov     a_tx_count[0], a
+				;345			   	if(a_tx_count>=a_set_count)
+040A	471B	mov     a, a_tx_count[0]
+040B	40A3	mov     rb, a
+040C	471C	mov     a, a_set_count[0]
+040D	40A2	mov     ra, a
+040E	4723	mov     a, rb
+040F	4222	sub     a, ra
+0410	380A	snz     C
+0411	2C5D	jmp     _L81
+				;346			   	{
+				;347			   		f_txen=0;
+0412	7614	clr     f_flag[1].4
+				;348			   		a_tx_count=0;
+0413	5F1B	clr     a_tx_count[0]
+				;349			   		a_count++;                          //发射次数LCD显示，用于调试
+0414	4704	mov     a, a_count[0]
+0415	40A2	mov     ra, a
+0416	54A2	inc     ra
+0417	4722	mov     a, ra
+0418	4084	mov     a_count[0], a
+				;350					if(a_count>16)	
+0419	4704	mov     a, a_count[0]
+041A	40A2	mov     ra, a
+041B	0F10	mov     a, 10H
+041C	4222	sub     a, ra
+041D	3C0A	sz      C
+041E	2C20	jmp     _L82
+				;351	                {            
+				;352	                    a_count=0;
+041F	5F04	clr     a_count[0]
+				;353	                }
+				;354	
+				;355	                if(a_count>9)
+				_L82:
+0420	4704	mov     a, a_count[0]
+0421	40A2	mov     ra, a
+0422	0F09	mov     a, 9H
+0423	4222	sub     a, ra
+0424	3C0A	sz      C
+0425	2C28	jmp     _L83
+				;356	                {
+				;357	                    a_10count=1;
+0426	0F01	mov     a, 1H
+0427	4085	mov     a_10count[0], a
+				;358	                }
+				;359	                lcd_data[0]=c_num[a_count-10*a_10count];
+				_L83:
+0428	4704	mov     a, a_count[0]
+0429	40A2	mov     ra, a
+042A	4722	mov     a, ra
+042B	40A4	mov     rc, a
+042C	5F25	clr     rd
+042D	4705	mov     a, a_10count[0]
+042E	40A2	mov     ra, a
+042F	5F23	clr     rb
+0430	4722	mov     a, ra
+0431	40AA	mov     i, a
+0432	4723	mov     a, rb
+0433	40AB	mov     sum, a
+0434	0FF6	mov     a, F6H
+0435	40AC	mov     address, a
+0436	0FFF	mov     a, FFH
+0437	40AD	mov     ad_max, a
+0438	2732	call    L0732
+0439	472E	mov     a, back
+043A	40A2	mov     ra, a
+043B	472F	mov     a, ad_min
+043C	40A3	mov     rb, a
+043D	4724	mov     a, rc
+043E	43A2	addm    a, ra
+043F	4725	mov     a, rd
+0440	53A3	adcm    a, rb
+0441	0F28	mov     a, 28H
+0442	43A2	addm    a, ra
+0443	0F80	mov     a, 80H
+0444	53A3	adcm    a, rb
+0445	4722	mov     a, ra
+0446	0083	mov     MP1, a
+0447	4723	mov     a, rb
+0448	0081	mov     MP0, a
+0449	2746	call    L0746
+044A	40A2	mov     ra, a
+044B	4722	mov     a, ra
+044C	4081	mov     lcd_data[0], a
+				;360	                lcd_data[0]&=0x7F;
+044D	4701	mov     a, lcd_data[0]
+044E	40A2	mov     ra, a
+044F	77A2	clr     ra.7
+0450	4722	mov     a, ra
+0451	4081	mov     lcd_data[0], a
+				;361	                if(a_10count)
+0452	4705	mov     a, a_10count[0]
+0453	40A2	mov     ra, a
+0454	50A2	sz      ra
+0455	2C57	jmp     _LI5
+0456	2C5D	jmp     _L81
+				;362	                {
+				;363	                    lcd_data[0]|=0x80;
+				_LI5:
+0457	4701	mov     a, lcd_data[0]
+0458	40A2	mov     ra, a
+0459	73A2	set     ra.7
+045A	4722	mov     a, ra
+045B	4081	mov     lcd_data[0], a
+				;364	                    a_10count=0;
+045C	5F05	clr     a_10count[0]
+				;365	                }
+				;366			   	}	
+				;367				f_tx=1;
+				_L81:
+045D	7194	set     f_flag[1].3
+				;368				SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_STBY);	//go_stdby
+045E	0F02	mov     a, 2H
+045F	40AA	mov     i, a
+0460	0F60	mov     a, 60H
+0461	22F2	call    _SPI_WRITE
+				;369				SPI_WRITE(CMT2300A_CUS_INT_CLR1,CMT2300A_MASK_TX_DONE_CLR);  //clr TX_DONE int flag	
+0462	0F04	mov     a, 4H
+0463	40AA	mov     i, a
+0464	0F6A	mov     a, 6AH
+0465	22F2	call    _SPI_WRITE
+				;370				//enable write fifo
+				;371				tmp=SPI_READ(CMT2300A_CUS_FIFO_CTL);
+0466	0F69	mov     a, 69H
+0467	232F	call    _SPI_READ
+0468	40A2	mov     ra, a
+0469	4722	mov     a, ra
+046A	40B0	mov     tmp[0], a
+				;372				tmp |= (unsigned char)CMT2300A_MASK_SPI_FIFO_RD_WR_SEL; 
+046B	7030	set     tmp[0].0
+				;373			   	tmp |= (unsigned char)CMT2300A_MASK_FIFO_RX_TX_SEL;
+046C	7130	set     tmp[0].2
+				;374			   	SPI_WRITE(CMT2300A_CUS_FIFO_CTL,tmp);
+046D	4730	mov     a, tmp[0]
+046E	40AA	mov     i, a
+046F	0F69	mov     a, 69H
+0470	22F2	call    _SPI_WRITE
+				;375			   	//clr tx fifo
+				;376			   	SPI_WRITE(CMT2300A_CUS_FIFO_CLR,CMT2300A_MASK_FIFO_CLR_TX);
+0471	0F01	mov     a, 1H
+0472	40AA	mov     i, a
+0473	0F6C	mov     a, 6CH
+0474	22F2	call    _SPI_WRITE
+				;377				FIFO_WRITE(4);
+0475	0F04	mov     a, 4H
+0476	22B3	call    _FIFO_WRITE
+				;378				//go_tx
+				;379			   	SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_TX);
+0477	0F40	mov     a, 40H
+0478	40AA	mov     i, a
+0479	0F60	mov     a, 60H
+047A	22F2	call    _SPI_WRITE
+				;380			   	LED=1;
+047B	32A5	set     PB5
+				;381			}	
+				;382		}
+				;383		if(f_tx)
+				_L80:
+047C	4714	mov     a, f_flag[1]
+047D	40A2	mov     ra, a
+047E	0F08	mov     a, 8H
+047F	46A2	andm    a, ra
+0480	50A2	sz      ra
+0481	2C83	jmp     _LI6
+0482	2CA8	jmp     _L79
+				;384		{
+				;385			LED^=1;
+				_LI6:
+0483	0725	mov     a, PB
+0484	40A2	mov     ra, a
+0485	5122	swapa   ra
+0486	1985	rr      ACC
+0487	0E07	and     a, 7H
+0488	40A2	mov     ra, a
+0489	0F01	mov     a, 1H
+048A	46A2	andm    a, ra
+048B	0F01	mov     a, 1H
+048C	44A2	xorm    a, ra
+048D	0F01	mov     a, 1H
+048E	46A2	andm    a, ra
+048F	0F01	mov     a, 1H
+0490	46A2	andm    a, ra
+0491	5122	swapa   ra
+0492	1885	rl      ACC
+0493	0EE0	and     a, E0H
+0494	40A2	mov     ra, a
+0495	36A5	clr     PB5
+0496	4722	mov     a, ra
+0497	05A5	orm     a, PB
+				;386			if(!RF_IO3)
+0498	0714	mov     a, PA
+0499	40A2	mov     ra, a
+049A	0F04	mov     a, 4H
+049B	46A2	andm    a, ra
+049C	50A2	sz      ra
+049D	2CA8	jmp     _L79
+				;387			{
+				;388				f_tx=0;	
+049E	7594	clr     f_flag[1].3
+				;389				LED=0;
+049F	36A5	clr     PB5
+				;390				SPI_WRITE(CMT2300A_CUS_INT_CLR1,CMT2300A_MASK_TX_DONE_CLR); //clr TX_DONE int flag
+04A0	0F04	mov     a, 4H
+04A1	40AA	mov     i, a
+04A2	0F6A	mov     a, 6AH
+04A3	22F2	call    _SPI_WRITE
+				;391				SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_SLEEP);	//go_sleep
+04A4	0F10	mov     a, 10H
+04A5	40AA	mov     i, a
+04A6	0F60	mov     a, 60H
+04A7	22F2	call    _SPI_WRITE
+				_L79:
+04A8	0003	ret
+				;392			}	
+				;393		}	
+				;394	}
+				;395	
+				;396	void KEY()
+				;397	{
+				;398		K2C=1;
+				_KEY:
+				_KEY:
+04A9	3315	set     PAC6
+				;399		K2UP=1;
+04AA	3316	set     PAPU6
+				;400		if(!K2)
+04AB	0714	mov     a, PA
+04AC	40A2	mov     ra, a
+04AD	0F40	mov     a, 40H
+04AE	46A2	andm    a, ra
+04AF	50A2	sz      ra
+04B0	2CC6	jmp     _L86
+				;401		{
+				;402			a_k2_high=0;
+04B1	5F0B	clr     a_k2_high[0]
+				;403			if(!f_k2_buf)
+04B2	4713	mov     a, f_flag[0]
+04B3	40A2	mov     ra, a
+04B4	0F40	mov     a, 40H
+04B5	46A2	andm    a, ra
+04B6	50A2	sz      ra
+04B7	2CDA	jmp     _L88
+				;404			{
+				;405				a_k2_low++;
+04B8	470C	mov     a, a_k2_low[0]
+04B9	40A2	mov     ra, a
+04BA	54A2	inc     ra
+04BB	4722	mov     a, ra
+04BC	408C	mov     a_k2_low[0], a
+				;406				if(a_k2_low>=5)
+04BD	470C	mov     a, a_k2_low[0]
+04BE	40A2	mov     ra, a
+04BF	0F04	mov     a, 4H
+				L04C0:
+04C0	4222	sub     a, ra
+04C1	3C0A	sz      C
+04C2	2CDA	jmp     _L88
+				;407				{
+				;408					f_k2=1;
+04C3	7093	set     f_flag[0].1
+				;409					f_k2_buf=1;
+04C4	7313	set     f_flag[0].6
+04C5	2CDA	jmp     _L88
+				;410				}
+				;411			}
+				;412		}
+				;413		else 
+				;414		{
+				;415			a_k2_low=0;
+				_L86:
+04C6	5F0C	clr     a_k2_low[0]
+				;416			if(f_k2_buf)
+04C7	4713	mov     a, f_flag[0]
+04C8	40A2	mov     ra, a
+04C9	0F40	mov     a, 40H
+04CA	46A2	andm    a, ra
+04CB	50A2	sz      ra
+04CC	2CCE	jmp     _LI7
+04CD	2CDA	jmp     _L88
+				;417			{
+				;418				a_k2_high++;
+				_LI7:
+04CE	470B	mov     a, a_k2_high[0]
+04CF	40A2	mov     ra, a
+04D0	54A2	inc     ra
+04D1	4722	mov     a, ra
+04D2	408B	mov     a_k2_high[0], a
+				;419				if(a_k2_high>=5)
+04D3	470B	mov     a, a_k2_high[0]
+04D4	40A2	mov     ra, a
+04D5	0F04	mov     a, 4H
+04D6	4222	sub     a, ra
+04D7	3C0A	sz      C
+04D8	2CDA	jmp     _L88
+				;420				{
+				;421					f_k2_buf=0;
+04D9	7713	clr     f_flag[0].6
+				;422				}	
+				;423			}
+				;424		}	
+				;425		
+				;426		K3C=1;
+				_L88:
+04DA	3295	set     PAC5
+				;427		K3UP=1;
+04DB	3296	set     PAPU5
+				;428		if(!K3)
+04DC	0714	mov     a, PA
+04DD	40A2	mov     ra, a
+04DE	0F20	mov     a, 20H
+04DF	46A2	andm    a, ra
+04E0	50A2	sz      ra
+04E1	2CF8	jmp     _L89
+				;429		{
+				;430			a_k3_high=0;
+04E2	5F0D	clr     a_k3_high[0]
+				;431			if(f_k3_buf==0)
+04E3	4713	mov     a, f_flag[0]
+04E4	40A2	mov     ra, a
+04E5	0F80	mov     a, 80H
+04E6	46A2	andm    a, ra
+04E7	50A2	sz      ra
+04E8	2D0D	jmp     _L85
+				;432			{
+				;433				a_k3_low++;
+04E9	470E	mov     a, a_k3_low[0]
+04EA	40A2	mov     ra, a
+04EB	54A2	inc     ra
+04EC	4722	mov     a, ra
+04ED	408E	mov     a_k3_low[0], a
+				;434				if(a_k3_low>=5)
+04EE	470E	mov     a, a_k3_low[0]
+04EF	40A2	mov     ra, a
+04F0	0F04	mov     a, 4H
+04F1	4222	sub     a, ra
+04F2	3C0A	sz      C
+04F3	2D0D	jmp     _L85
+				;435				{
+				;436					a_k3_low=0;
+04F4	5F0E	clr     a_k3_low[0]
+				;437					f_k3=1;
+04F5	7113	set     f_flag[0].2
+				;438					f_k3_buf=1;	
+04F6	7393	set     f_flag[0].7
+04F7	2D0D	jmp     _L85
+				;439				}
+				;440			}
+				;441		}
+				;442		else 
+				;443		{	
+				;444			a_k3_low=0;
+				_L89:
+04F8	5F0E	clr     a_k3_low[0]
+				;445			if(f_k3_buf==1)
+04F9	4713	mov     a, f_flag[0]
+04FA	40A2	mov     ra, a
+04FB	0F80	mov     a, 80H
+04FC	46A2	andm    a, ra
+04FD	50A2	sz      ra
+04FE	2D00	jmp     _LI8
+04FF	2D0D	jmp     _L85
+				;446			{
+				;447				a_k3_high++;
+				_LI8:
+0500	470D	mov     a, a_k3_high[0]
+0501	40A2	mov     ra, a
+0502	54A2	inc     ra
+0503	4722	mov     a, ra
+0504	408D	mov     a_k3_high[0], a
+				;448				if(a_k3_high>=5)
+0505	470D	mov     a, a_k3_high[0]
+0506	40A2	mov     ra, a
+0507	0F04	mov     a, 4H
+0508	4222	sub     a, ra
+0509	3C0A	sz      C
+050A	2D0D	jmp     _L85
+				;449				{
+				;450					a_k3_high=0;
+050B	5F0D	clr     a_k3_high[0]
+				;451					f_k3_buf=0;
+050C	7793	clr     f_flag[0].7
+				_L85:
+050D	0003	ret
+				;452	            }
+				;453			}
+				;454		}
+				;455	}
+				;456	
+				;457	void initail()
+				;458	{
+				;459		_dmbp0=0;
+				_initail:
+				_initail:
+050E	3404	clr     DMBP0
+				;460		for(_mp1=0x80;_mp1<0xff;_mp1++)	_iar1=0;
+050F	0F80	mov     a, 80H
+0510	0083	mov     MP1, a
+0511	2D18	jmp     _L93
+				_L94:
+0512	1F02	clr     __iar1[0]
+0513	0703	mov     a, MP1
+0514	40A2	mov     ra, a
+0515	54A2	inc     ra
+0516	4722	mov     a, ra
+0517	0083	mov     MP1, a
+				_L93:
+0518	0703	mov     a, MP1
+0519	40A2	mov     ra, a
+051A	5622	siza    ra
+051B	2D12	jmp     _L94
+				;461		_iar1=0;
+051C	1F02	clr     __iar1[0]
+				;462		_dmbp0=1;
+051D	3004	set     DMBP0
+				;463		for(_mp1=0x80;_mp1<0xff;_mp1++)	_iar1=0;
+051E	0F80	mov     a, 80H
+051F	0083	mov     MP1, a
+0520	2D27	jmp     _L95
+				_L96:
+0521	1F02	clr     __iar1[0]
+0522	0703	mov     a, MP1
+0523	40A2	mov     ra, a
+0524	54A2	inc     ra
+0525	4722	mov     a, ra
+0526	0083	mov     MP1, a
+				_L95:
+0527	0703	mov     a, MP1
+0528	40A2	mov     ra, a
+0529	5622	siza    ra
+052A	2D21	jmp     _L96
+				;464		_iar1=0;
+052B	1F02	clr     __iar1[0]
+				;465		//
+				;466		_csel=0;
+052C	37BF	clr     CSEL
+				;467		_cos=1;
+052D	31BF	set     COS
+				;468		_acerl=0;
+052E	1F44	clr     ACERL
+				;469		COM0C=0;
+052F	3542	clr     PCC2
+				;470		COM1C=0;
+0530	36C2	clr     PCC5
+				;471		COM2C=0;
+0531	3495	clr     PAC1
+				;472		COM3C=0;
+0532	3726	clr     PBC6
+				;473		SEG0C=0;
+0533	3442	clr     PCC0
+				;474		SEG1C=0;
+0534	34C2	clr     PCC1
+				;475		SEG2C=0;
+0535	3642	clr     PCC4
+				;476		SEG3C=0;
+0536	3595	clr     PAC3
+				;477		
+				;478		COM0=0;
+0537	3541	clr     PC2
+				;479		COM1=0;
+0538	36C1	clr     PC5
+				;480		COM2=0;
+0539	3494	clr     PA1
+				;481		COM3=0;
+053A	3725	clr     PB6
+				;482		SEG0=0;
+053B	3441	clr     PC0
+				;483		SEG1=0;
+053C	34C1	clr     PC1
+				;484		SEG2=0;
+053D	3641	clr     PC4
+				;485		SEG3=0;
+053E	3594	clr     PA3
+				;486		_lcden=1;
+053F	324A	set     LCDEN
+				;487		_isel1=1;
+0540	334A	set     ISEL1
+				;488		_isel0=1;
+0541	32CA	set     ISEL0
+				;489		
+				;490		RF_IO3C=1;	
+0542	3115	set     PAC2
+				;491		RF_IO3UP=1;
+0543	3116	set     PAPU2
+				;492		FCSBC=0;
+0544	34D3	clr     PDC1
+				;493		CSBC=0;
+0545	3553	clr     PDC2
+				;494		SCLKC=0;
+0546	3426	clr     PBC0
+				;495		SDIOC=0;
+0547	34A6	clr     PBC1
+				;496		SCLK=1;
+0548	3025	set     PB0
+				;497		LEDC=0;
+0549	36A6	clr     PBC5
+				;498		LED=0;
+054A	36A5	clr     PB5
+				;499		BLC=0;
+054B	3626	clr     PBC4
+				;500		//
+				;501		_adcen=1;
+054C	32A2	set     ADCEN
+				;502		//high 8bit
+				;503		_adrfs=0;
+054D	3622	clr     ADRFS
+				;504		//external input
+				;505		_sains2=0;
+054E	37A3	clr     SAINS2
+				;506		_sains1=0;
+054F	3723	clr     SAINS1
+				;507		_sains0=0;
+0550	36A3	clr     SAINS0
+				;508		//
+				;509		_adpgaen=1;
+0551	33A4	set     ADPGAEN
+				;510		_vbgen=1;
+0552	3324	set     VBGEN
+				;511		//Vref=1.04*2
+				;512		_savrs3=1;
+0553	31A4	set     SAVRS3
+				;513		_savrs2=0;
+0554	3524	clr     SAVRS2
+				;514		_savrs1=1;
+0555	30A4	set     SAVRS1
+				;515		_savrs0=0;
+0556	3424	clr     SAVRS0
+				;516		//fsys/8
+				;517		_sacks2=0;
+0557	3523	clr     SACKS2
+				;518		_sacks1=1;
+0558	30A3	set     SACKS1
+				;519		_sacks0=1;
+0559	3023	set     SACKS0
+				;520		//AD PIN AN7
+				;521		_ace7=1;
+055A	33C4	set     ACE7
+				;522		//AN7 channle
+				;523		_sacs2=1;
+055B	3122	set     SACS2
+				;524		_sacs1=1;
+055C	30A2	set     SACS1
+				;525		_sacs0=1;
+055D	3022	set     SACS0
+				;526	
+				;527		
+				;528		//1250us
+				;529		_tm1al=0x71;
+055E	0F71	mov     a, 71H
+055F	00BB	mov     TM1AL, a
+				;530		_tm1ah=0x2;
+0560	0F02	mov     a, 2H
+0561	00BC	mov     TM1AH, a
+				;531		//fsys/16
+				;532		_t1ck2=0;
+0562	3737	clr     T1CK2
+				;533		_t1ck1=1;
+0563	32B7	set     T1CK1
+				;534		_t1ck0=0;
+0564	3637	clr     T1CK0
+				;535		//TM0
+				;536		_t1m1=1;
+0565	33B8	set     T1M1
+				;537		_t1m0=1;
+0566	3338	set     T1M0
+				;538		//a cclr
+				;539		_t1cclr=1;
+0567	3038	set     T1CCLR
+				;540		//
+				;541		_t1on=1;
+0568	31B7	set     T1ON
+				;542		_t1ae=1;
+0569	3092	set     T1AE
+				;543		_mf1e=1;
+056A	300F	set     MF1E
+				;544		_emi=1;
+056B	300E	set     EMI
+				;545		lcd_data[0]=0;
+056C	5F01	clr     lcd_data[0]
+				;546		lcd_data[1]=0;
+056D	5F02	clr     lcd_data[1]
+				;547		
+				;548		BL=1;
+056E	3225	set     PB4
+				;549		CMT_init();             //2119B初始化设置，可以上电时初始化一次，后续无需再初始化
+056F	2375	call    _CMT_init
+				;550		a_tx[0]=0x55;
+0570	0F55	mov     a, 55H
+0571	4097	mov     a_tx[0], a
+				;551		a_tx[1]=0xaa;
+0572	0FAA	mov     a, AAH
+0573	4098	mov     a_tx[1], a
+				;552		a_tx[2]=0xaa;
+0574	0FAA	mov     a, AAH
+0575	4099	mov     a_tx[2], a
+				;553		a_tx[3]=0x55;
+0576	0F55	mov     a, 55H
+0577	409A	mov     a_tx[3], a
+				;554		lcd_data[0]=c_num[a_count];
+0578	4704	mov     a, a_count[0]
+0579	40A2	mov     ra, a
+057A	5F23	clr     rb
+057B	0F28	mov     a, 28H
+057C	43A2	addm    a, ra
+057D	0F80	mov     a, 80H
+057E	53A3	adcm    a, rb
+057F	4722	mov     a, ra
+0580	0083	mov     MP1, a
+0581	4723	mov     a, rb
+0582	0081	mov     MP0, a
+0583	2746	call    L0746
+0584	40A2	mov     ra, a
+0585	4722	mov     a, ra
+0586	4081	mov     lcd_data[0], a
+				;555		a_set_count=3;
+0587	0F03	mov     a, 3H
+0588	409C	mov     a_set_count[0], a
+				;556		
+				;557		_idlen=0;
+0589	348B	clr     IDLEN
+				;558		_lvden=0;
+058A	360C	clr     LVDEN
+				;559	    SWITCHWU=1;
+058B	3017	set     PAWU0
+				;560	    K1WU=1;
+058C	3397	set     PAWU7
+				;561		K2WU=1;
+058D	3317	set     PAWU6
+				;562	    K3WU=1;
+058E	3297	set     PAWU5
+058F	0003	ret
+				;563	}
+				;564	
+				;565	#if 0
+				;566	
+				;567	//MCU 3.3V 分压：104 104(R17,R16) 告警电压：3.51V
+				;568	//       A/D:4096
+				;569	//bat   1:充电完成未进行电量检测;0:正常状态
+				;570	//elec_level 0:告警(<3.51) 1:低电量(3.51~3.6)  2:中电量(3.6~3.9) 3:满格(>3.9)
+				;571	void check_vr()
+				;572	{
+				;573		uchar vr_high8=0;
+				;574		//uchar vr_low4=0;
+				;575		
+				;576		_ade = 0;
+				;577		_sadc1 = 0x03;    //设置AD时钟
+				;578		_adcen = 1;       //ad使能
+				;579		_acerl = 0x07;    //AN7
+				;580		_sadc0 = 0x27;    //Enable, AN7 
+				;581	    _adrfs = 0;
+				;582	    
+				;583	//	_acerl=ADER_1channel;
+				;584	//	_adcr0=ADCR_1channel;
+				;585	//	_adcr1=AD_clk_fsys;
+				;586	//	
+				;587	//	//_delay(1000);    //added on 2017/07/06
+				;588	//	_delay(1000);    //added on 2017/07/06
+				;589		
+				;590		_start=0;
+				;591		_start=1;
+				;592		_start=0;
+				;593		
+				;594		//while(_eocb);
+				;595		while(_adbz);   //等待转换结束
+				;596	
+				;597		vr_high8 = _sadoh;
+				;598		//vr_low4 = _sadol>>4;
+				;599			
+				;600		//if(VrData>2662)  //3.9V以上
+				;601		//if ((vr_high8>0xA6)||((vr_high8==0xA6)&&(vr_low4>0x06)))
+				;602		//if ((vr_high8>=0xA6))  //精简算法
+				;603		if ((vr_high8>=0x97))  //精简算法
+				;604		{
+				;605			if(f_bat)     //锁定保护
+				;606			{
+				;607				elec_level = 3;
+				;608				//bat = 0;
+				;609			}
+				;610		}
+				;611		//else if (VrData>2587)  //3.79V~3.9V
+				;612		//else if ((vr_high8>0xA1)||((vr_high8==0xA1)&&(vr_low4>0x0B)))
+				;613		//else if ((vr_high8>0xA1))  //精简算法
+				;614		else if ((vr_high8>=0x8C))  //精简算法
+				;615		{
+				;616			if ((f_bat) || (elec_level>=2))
+				;617			{
+				;618				elec_level = 2;
+				;619				//bat = 0;
+				;620			}
+				;621		}
+				;622		//else if (VrData>2450)  //3.6V~3.79V
+				;623		//else if ((vr_high8>0x99)||((vr_high8==0x99)&&(vr_low4>0x02)))
+				;624		//else if ((vr_high8>=0x99))  //精简算法
+				;625		else if ((vr_high8>0x88))  //精简算法
+				;626		{	
+				;627			if ((f_bat) || (elec_level>=1))
+				;628			{
+				;629				elec_level = 1;
+				;630				//bat = 0;
+				;631			}
+				;632		}
+				;633		else
+				;634		{
+				;635			elec_level = 0;
+				;636		}
+				;637		
+				;638		f_bat = 0;
+				;639		
+				;640		lcd_data[1]=(lcd_data[1]|0xF0)&c_eleclevel[elec_level];     //LCD显示电量级别 for debug
+				;641		
+				;642		_adcen = 0;   //ad除能 
+				;643		//_adonb = 1; //added on 2017/07/19			
+				;644	}
+				;645	
+				;646	//充电检测,仅进行检测，不进行状态指示
+				;647	void charge_detect()
+				;648	{
+				;649		   //第一次充电点亮背光灯
+				;650		   if ((!chargein)&&(!DCinflag))
+				;651		   {
+				;652		   	  GCC_DELAY(10);               
+				;653		   	  if ((!chargein)&&(!DCinflag))
+				;654		   	  {
+				;655	//	   	  	Timer1min_high = 0;
+				;656	//	   	  	Timer1min_low = 0;
+				;657	//	   	  	
+				;658	//	   	  	led_count_high = 0;
+				;659	//	   	  	led_count_low = 0;
+				;660	
+				;661	            BL = 1;         //点亮背光
+				;662	
+				;663	            DCinflag = 1;	   	    //set DCinflag
+				;664	            f_bat = 1;              //set f_bat
+				;665	            //chargeflag = 1;       //added on 2016/07/15
+				;666	
+				;667	            //_adcen = 1;   //ad使能
+				;668		   	  }
+				;669		   }
+				;670	
+				;671	       //点亮LED，充电时每次都要进来？？？
+				;672		   if ((!chargein) && (chargeout))
+				;673		   {
+				;674		   	  GCC_DELAY(10); 
+				;675		   	  //if ((!chargest) && (!DCin))     //added on 2016/06/30
+				;676		   	  if ((!chargein) && (chargeout))
+				;677		   	  {
+				;678		   	  
+				;679		   	    //bat = 1;     //noted on 2016/03/29
+				;680		   	    chargeflag = 1;
+				;681		   	    
+				;682		   	    //是否需要在这里点亮？与DCin检测有点近
+				;683				//ledc = 0;        //noted on 2016/02/02
+				;684				//_delay(20);
+				;685	  					
+				;686				LED = 1; 				
+				;687		    	//ledc = 0;
+				;688		     	//led = 1;
+				;689		   	  }	     	
+				;690		   }
+				;691		   
+				;692		   if ((chargein) && (chargeout))   
+				;693		   {
+				;694		   	 GCC_DELAY(10); 
+				;695		   	 if ((chargein) && (chargeout))    
+				;696		   	 { 
+				;697		   	   chargeoutc = 1;
+				;698		   	   chargeoutpu = 0;
+				;699		   	   
+				;700		   	   GCC_DELAY(100); 
+				;701		   	   
+				;702		   	   if (!chargein)    //已充满
+				;703		   	   {
+				;704		       		//bat = 1;         //noted on 2016/03/29
+				;705		       		chargeflag = 2;
+				;706		       
+				;707		   	   		DCinflag = 1;	   	  //set DCinflag
+				;708		   	   
+				;709	  		   		//if (led_count > 500)   //1s刷新一次LED,内置，不应该在这里处理
+				;710	  		   		if (led_count_high >= 2)
+				;711	  		   		{
+				;712	  			  		//ledc = 0;         //noted on 2016/02/02
+				;713	  			  		//_delay(20);
+				;714	  					
+				;715	  			  		//ledstatus = ~ledstatus;  			  
+				;716	  			  		//led = ledstatus;
+				;717	  			  		LED = ~LED;
+				;718	  			  
+				;719	  			  		//led_count = 0;
+				;720	  			  		led_count_high = 0;
+				;721	  			  		led_count_low = 0;
+				;722	  		   		}
+				;723		   	   }
+				;724		   	   else if (chargein)     //充电插已拔下
+				;725		   	   {
+				;726		   	   	   GCC_DELAY(10); 
+				;727		   	   	   
+				;728		   	   	   if (chargein)
+				;729		   	   	   {
+				;730	       	   			chargeflag = 0;
+				;731	       	   			LED = 0;    
+				;732	       	   
+				;733	       	   			DCinflag = 0;  //clr DCinflag
+				;734	           
+				;735	           			if(f_bat)  //如果是充电完成，且拔下充电插，则计数器清零，并进行电量检测
+				;736	           			{
+				;737	           				BL = 1;          
+				;738	       	   				
+				;739	//       	   				Timer1min_high = 0;
+				;740	//       	   				Timer1min_low = 0;
+				;741	       	   				
+				;742	       	   				check_vr();  //added on 2016/05/13
+				;743	           			}
+				;744	           			
+				;745	           			_adcen = 0;    //clr ad
+				;746		   	   	   }
+				;747		   	   }
+				;748		   	   
+				;749		   	   chargeoutc = 0;
+				;750		   	   chargeout = 1;
+				;751		   	 }	       
+				;752		   }
+				;753	}
+				;754	#endif
+				;755	
+				;756	unsigned int AD_channel()
+				;757	{
+				;758		unsigned char i;
+				;759		unsigned int  sum,ad_max,ad_min;
+				;760	//	_adcen=1;
+				;761		sum=0;
+				_AD_channel:
+				_AD_channel:
+0590	5F2B	clr     sum[0]
+0591	5F2C	clr     sum[1]
+				;762		ad_max=0;
+0592	5F2D	clr     ad_max[0]
+0593	5F2E	clr     ad_max[1]
+				;763		ad_min=0xffff;
+0594	5FAF	set     ad_min[0]
+0595	5FB0	set     ad_min[1]
+				;764		for(i=0;i<18;i++)
+0596	5F2A	clr     i[0]
+0597	2DC9	jmp     _L98
+				_L101:
+05C5	472A	mov     a, i[0]
+05C6	40A2	mov     ra, a
+05C7	5422	inca    ra
+05C8	40AA	mov     i[0], a
+				_L98:
+05C9	0F11	mov     a, 11H
+05CA	422A	sub     a, i[0]
+05CB	3C0A	sz      C
+05CC	2D98	jmp     _L102
+				;765		{
+				;766			_start=0;
+				_L102:
+0598	37A2	clr     START
+				;767			_start=1;
+0599	33A2	set     START
+				;768			_start=0;
+059A	37A2	clr     START
+				;769			while(_adbz);	
+				_L99:
+059B	0722	mov     a, SADC0
+059C	40A2	mov     ra, a
+059D	0F40	mov     a, 40H
+059E	46A2	andm    a, ra
+059F	50A2	sz      ra
+05A0	2D9B	jmp     _L99
+				;770			sum+=_sadoh;
+05A1	0721	mov     a, SADOH
+05A2	40A2	mov     ra, a
+05A3	5F23	clr     rb
+05A4	4722	mov     a, ra
+05A5	43AB	addm    a, sum[0]
+05A6	4723	mov     a, rb
+05A7	53AC	adcm    a, sum[1]
+				;771			if(_sadoh>ad_max) 		ad_max=_sadoh;
+05A8	0721	mov     a, SADOH
+05A9	40A2	mov     ra, a
+05AA	5F23	clr     rb
+05AB	472D	mov     a, ad_max[0]
+05AC	4222	sub     a, ra
+05AD	472E	mov     a, ad_max[1]
+05AE	5223	sbc     a, rb
+05AF	3C0A	sz      C
+05B0	2DB7	jmp     _L100
+05B1	0721	mov     a, SADOH
+05B2	40A2	mov     ra, a
+05B3	4722	mov     a, ra
+05B4	40AD	mov     ad_max[0], a
+05B5	5F2E	clr     ad_max[1]
+05B6	2DC5	jmp     _L101
+				;772			else if(_sadoh<ad_min) 	ad_min=_sadoh;
+				_L100:
+05B7	0721	mov     a, SADOH
+05B8	40A2	mov     ra, a
+05B9	5F23	clr     rb
+05BA	4722	mov     a, ra
+05BB	422F	sub     a, ad_min[0]
+05BC	4723	mov     a, rb
+05BD	5230	sbc     a, ad_min[1]
+05BE	3C0A	sz      C
+05BF	2DC5	jmp     _L101
+05C0	0721	mov     a, SADOH
+05C1	40A2	mov     ra, a
+05C2	4722	mov     a, ra
+05C3	40AF	mov     ad_min[0], a
+05C4	5F30	clr     ad_min[1]
+				;773		}
+				;774		sum-=ad_max;
+05CD	472B	mov     a, sum[0]
+05CE	422D	sub     a, ad_max[0]
+05CF	40AB	mov     sum[0], a
+05D0	472C	mov     a, sum[1]
+05D1	522E	sbc     a, ad_max[1]
+05D2	40AC	mov     sum[1], a
+				;775		sum-=ad_min;
+05D3	472B	mov     a, sum[0]
+05D4	422F	sub     a, ad_min[0]
+05D5	40AB	mov     sum[0], a
+05D6	472C	mov     a, sum[1]
+05D7	5230	sbc     a, ad_min[1]
+05D8	40AC	mov     sum[1], a
+				;776		sum>>=4;
+05D9	0F04	mov     a, 4H
+				_LI9:
+05DA	340A	clr     C
+05DB	5BAC	rrc     sum[1]
+05DC	5BAB	rrc     sum[0]
+05DD	1785	sdz     ACC
+05DE	2DDA	jmp     _LI9
+				;777	//	_adoff=1;
+				;778		return sum;
+05DF	472B	mov     a, sum[0]
+05E0	40A2	mov     ra, a
+05E1	472C	mov     a, sum[1]
+05E2	40A3	mov     rb, a
+05E3	0003	ret
+				;779	}	
+				;780	
+				;781	
+				;782	
+				;783	void Voltage()
+				;784	{
+				;785		ad_data=AD_channel();
+				_Voltage:
+				_Voltage:
+05E4	2590	call    _AD_channel
+05E5	4722	mov     a, ra
+05E6	409D	mov     ad_data[0], a
+				;786		if(a_voltage_count<16)
+05E7	471E	mov     a, a_voltage_count[0]
+05E8	40A2	mov     ra, a
+05E9	0F0F	mov     a, FH
+05EA	4222	sub     a, ra
+05EB	380A	snz     C
+05EC	2E04	jmp     _L105
+				;787		{
+				;788			a_voltage_count++;
+05ED	471E	mov     a, a_voltage_count[0]
+05EE	40A2	mov     ra, a
+05EF	54A2	inc     ra
+05F0	4722	mov     a, ra
+05F1	409E	mov     a_voltage_count[0], a
+				;789			ad_voltage_buf+=ad_data;
+05F2	471D	mov     a, ad_data[0]
+05F3	40A2	mov     ra, a
+05F4	4722	mov     a, ra
+05F5	40A4	mov     rc, a
+05F6	5F25	clr     rd
+05F7	4720	mov     a, ad_voltage_buf[0]
+05F8	40A2	mov     ra, a
+05F9	4721	mov     a, ad_voltage_buf[1]
+05FA	40A3	mov     rb, a
+05FB	4724	mov     a, rc
+05FC	43A2	addm    a, ra
+05FD	4725	mov     a, rd
+05FE	53A3	adcm    a, rb
+05FF	4722	mov     a, ra
+0600	40A0	mov     ad_voltage_buf[0], a
+0601	4723	mov     a, rb
+0602	40A1	mov     ad_voltage_buf[1], a
+0603	2E5C	jmp     _L106
+				;790		}
+				;791		else
+				;792		{
+				;793			a_voltage_count=0;
+				_L105:
+0604	5F1E	clr     a_voltage_count[0]
+				;794			ad_voltage_buf>>=4;	
+0605	4720	mov     a, ad_voltage_buf[0]
+0606	40A2	mov     ra, a
+0607	4721	mov     a, ad_voltage_buf[1]
+0608	40A3	mov     rb, a
+0609	0F04	mov     a, 4H
+				_LI10:
+060A	340A	clr     C
+060B	5BA3	rrc     rb
+060C	5BA2	rrc     ra
+060D	1785	sdz     ACC
+060E	2E0A	jmp     _LI10
+060F	4722	mov     a, ra
+0610	40A0	mov     ad_voltage_buf[0], a
+0611	4723	mov     a, rb
+0612	40A1	mov     ad_voltage_buf[1], a
+				;795			if(ad_voltage_buf>=c_voltage_3V9)
+0613	4720	mov     a, ad_voltage_buf[0]
+0614	40A2	mov     ra, a
+0615	4721	mov     a, ad_voltage_buf[1]
+0616	40A3	mov     rb, a
+0617	0FEE	mov     a, EEH
+0618	4222	sub     a, ra
+0619	0F00	mov     a, 0H
+061A	5223	sbc     a, rb
+061B	3C0A	sz      C
+061C	2E26	jmp     _L107
+				;796			{
+				;797				if(!f_voltage_buf0)	a_voltage_level=3;		
+061D	4714	mov     a, f_flag[1]
+061E	40A2	mov     ra, a
+061F	0F20	mov     a, 20H
+0620	46A2	andm    a, ra
+0621	50A2	sz      ra
+0622	2E5A	jmp     _L109
+0623	0F03	mov     a, 3H
+0624	409F	mov     a_voltage_level[0], a
+0625	2E5A	jmp     _L109
+				;798			}
+				;799			else if(ad_voltage_buf>=c_voltage_3V6)	
+				_L107:
+0626	4720	mov     a, ad_voltage_buf[0]
+0627	40A2	mov     ra, a
+0628	4721	mov     a, ad_voltage_buf[1]
+0629	40A3	mov     rb, a
+062A	0FDC	mov     a, DCH
+062B	4222	sub     a, ra
+062C	0F00	mov     a, 0H
+062D	5223	sbc     a, rb
+062E	3C0A	sz      C
+062F	2E3A	jmp     _L110
+				;800			{
+				;801				if(!f_voltage_buf1)
+0630	4714	mov     a, f_flag[1]
+0631	40A2	mov     ra, a
+0632	0F40	mov     a, 40H
+0633	46A2	andm    a, ra
+0634	50A2	sz      ra
+0635	2E5A	jmp     _L109
+				;802				{
+				;803					a_voltage_level=2;
+0636	0F02	mov     a, 2H
+0637	409F	mov     a_voltage_level[0], a
+				;804					f_voltage_buf0=1;
+0638	7294	set     f_flag[1].5
+0639	2E5A	jmp     _L109
+				;805				}
+				;806			}
+				;807			else if(ad_voltage_buf>=c_voltage_3V51)	
+				_L110:
+063A	4720	mov     a, ad_voltage_buf[0]
+063B	40A2	mov     ra, a
+063C	4721	mov     a, ad_voltage_buf[1]
+063D	40A3	mov     rb, a
+063E	0FD6	mov     a, D6H
+063F	4222	sub     a, ra
+0640	0F00	mov     a, 0H
+0641	5223	sbc     a, rb
+0642	3C0A	sz      C
+0643	2E4F	jmp     _L112
+				;808			{
+				;809				if(!f_voltage_buf2)
+0644	4714	mov     a, f_flag[1]
+0645	40A2	mov     ra, a
+0646	0F80	mov     a, 80H
+0647	46A2	andm    a, ra
+0648	50A2	sz      ra
+0649	2E5A	jmp     _L109
+				;810				{
+				;811					a_voltage_level=1;	
+064A	0F01	mov     a, 1H
+064B	409F	mov     a_voltage_level[0], a
+				;812					f_voltage_buf0=1;
+064C	7294	set     f_flag[1].5
+				;813					f_voltage_buf1=1;
+064D	7314	set     f_flag[1].6
+064E	2E5A	jmp     _L109
+				;814				}
+				;815			}
+				;816			else 
+				;817			{
+				;818				if(!f_voltage_buf3)
+				_L112:
+064F	4715	mov     a, f_flag[2]
+0650	40A2	mov     ra, a
+0651	0F01	mov     a, 1H
+0652	46A2	andm    a, ra
+0653	50A2	sz      ra
+0654	2E5A	jmp     _L109
+				;819				{
+				;820					a_voltage_level=0;			
+0655	5F1F	clr     a_voltage_level[0]
+				;821					f_voltage_buf0=1;
+0656	7294	set     f_flag[1].5
+				;822					f_voltage_buf1=1;
+0657	7314	set     f_flag[1].6
+				;823					f_voltage_buf2=1;
+0658	7394	set     f_flag[1].7
+				;824					f_voltage_buf3=1;
+0659	7015	set     f_flag[2].0
+				;825				}	
+				;826			}
+				;827			ad_voltage_buf=0;		
+				_L109:
+065A	5F20	clr     ad_voltage_buf[0]
+065B	5F21	clr     ad_voltage_buf[1]
+				;828		}
+				;829		switch(a_voltage_level)
+				_L106:
+065C	471F	mov     a, a_voltage_level[0]
+065D	40A2	mov     ra, a
+065E	5F23	clr     rb
+065F	4722	mov     a, ra
+0660	4523	or      a, rb
+0661	3D0A	sz      Z
+0662	2E73	jmp     _L115
+0663	4722	mov     a, ra
+0664	0C01	xor     a, 1H
+0665	4523	or      a, rb
+0666	3D0A	sz      Z
+0667	2E89	jmp     _L116
+0668	4722	mov     a, ra
+0669	0C02	xor     a, 2H
+066A	4523	or      a, rb
+066B	3D0A	sz      Z
+066C	2E96	jmp     _L117
+066D	4722	mov     a, ra
+066E	0C03	xor     a, 3H
+066F	4523	or      a, rb
+0670	3D0A	sz      Z
+0671	2EA3	jmp     _L118
+0672	2EA9	jmp     _L104
+				;830		{
+				;831			case 0:
+				;832				lcd_data[1]&=0x1f;
+				_L115:
+0673	4702	mov     a, lcd_data[1]
+0674	40A2	mov     ra, a
+0675	0F1F	mov     a, 1FH
+0676	46A2	andm    a, ra
+0677	4722	mov     a, ra
+0678	4082	mov     lcd_data[1], a
+				;833				if(f_voltage_500ms)
+0679	4715	mov     a, f_flag[2]
+067A	40A2	mov     ra, a
+067B	0F02	mov     a, 2H
+067C	46A2	andm    a, ra
+067D	50A2	sz      ra
+067E	2E80	jmp     _LI11
+067F	2E88	jmp     _L119
+				;834				{
+				;835					f_voltage_500ms=0;
+				_LI11:
+0680	7495	clr     f_flag[2].1
+				;836					lcd_data[1]^=0x10;	
+0681	4702	mov     a, lcd_data[1]
+0682	40A2	mov     ra, a
+0683	0F10	mov     a, 10H
+0684	44A2	xorm    a, ra
+0685	4722	mov     a, ra
+0686	4082	mov     lcd_data[1], a
+				;837				}
+				;838				break;
+0687	2EA9	jmp     _L104
+				_L119:
+0688	2EA9	jmp     _L104
+				;839			case 1:
+				;840				lcd_data[1]&=0x0f;
+				_L116:
+0689	4702	mov     a, lcd_data[1]
+068A	40A2	mov     ra, a
+068B	0F0F	mov     a, FH
+068C	46A2	andm    a, ra
+068D	4722	mov     a, ra
+068E	4082	mov     lcd_data[1], a
+				;841				lcd_data[1]|=0x50;
+068F	4702	mov     a, lcd_data[1]
+0690	40A2	mov     ra, a
+0691	0F50	mov     a, 50H
+0692	45A2	orm     a, ra
+0693	4722	mov     a, ra
+0694	4082	mov     lcd_data[1], a
+				;842				break;
+0695	2EA9	jmp     _L104
+				;843			case 2:
+				;844				lcd_data[1]&=0x0f;
+				_L117:
+0696	4702	mov     a, lcd_data[1]
+0697	40A2	mov     ra, a
+0698	0F0F	mov     a, FH
+0699	46A2	andm    a, ra
+069A	4722	mov     a, ra
+069B	4082	mov     lcd_data[1], a
+				;845				lcd_data[1]|=0xd0;
+069C	4702	mov     a, lcd_data[1]
+069D	40A2	mov     ra, a
+069E	0FD0	mov     a, D0H
+069F	45A2	orm     a, ra
+06A0	4722	mov     a, ra
+06A1	4082	mov     lcd_data[1], a
+				;846				break;
+06A2	2EA9	jmp     _L104
+				;847			case 3:
+				;848				lcd_data[1]|=0xf0;
+				_L118:
+06A3	4702	mov     a, lcd_data[1]
+06A4	40A2	mov     ra, a
+06A5	0FF0	mov     a, F0H
+06A6	45A2	orm     a, ra
+06A7	4722	mov     a, ra
+06A8	4082	mov     lcd_data[1], a
+				;849				break;				
+				_L104:
+06A9	0003	ret
+				;850		}	
+				;851	}	
+				;852	
+				;853	void Switch()
+				;854	{    
+				;855	    SWICHC=1;
+				_Switch:
+				_Switch:
+06AA	3015	set     PAC0
+				;856	    SWICHUP=1;
+06AB	3016	set     PAPU0
+				;857	    if(!SWICH)
+06AC	0714	mov     a, PA
+06AD	40A2	mov     ra, a
+06AE	0F01	mov     a, 1H
+06AF	46A2	andm    a, ra
+06B0	50A2	sz      ra
+06B1	2EBE	jmp     _L121
+				;858	    {
+				;859	        lcd_data[1]&=0xF0;
+06B2	4702	mov     a, lcd_data[1]
+06B3	40A2	mov     ra, a
+06B4	0FF0	mov     a, F0H
+06B5	46A2	andm    a, ra
+06B6	4722	mov     a, ra
+06B7	4082	mov     lcd_data[1], a
+				;860	        lcd_data[1]|=0x04;
+06B8	4702	mov     a, lcd_data[1]
+06B9	40A2	mov     ra, a
+06BA	7122	set     ra.2
+06BB	4722	mov     a, ra
+06BC	4082	mov     lcd_data[1], a
+06BD	2EC9	jmp     _L120
+				;861	    }
+				;862	    else
+				;863	    {
+				;864	        lcd_data[1]&=0xF0;
+				_L121:
+06BE	4702	mov     a, lcd_data[1]
+06BF	40A2	mov     ra, a
+06C0	0FF0	mov     a, F0H
+06C1	46A2	andm    a, ra
+06C2	4722	mov     a, ra
+06C3	4082	mov     lcd_data[1], a
+				;865	        lcd_data[1]|=0x08;
+06C4	4702	mov     a, lcd_data[1]
+06C5	40A2	mov     ra, a
+06C6	71A2	set     ra.3
+06C7	4722	mov     a, ra
+06C8	4082	mov     lcd_data[1], a
+				_L120:
+06C9	0003	ret
+				;866	    }
+				;867	}
+				;868	
+				;869	
+				;870	void main()
+				;871	{
+				@code .SECTION 'CODE'
+				include HT66F0185.inc
+0000	2801	jmp     _main_startup1
+				@start .SECTION 'CODE'
+				_main_startup1:
+				@start .SECTION 'CODE'
+0001	2ECA	jmp     _main
+0002	0000	nop
+0003	0000	nop
+				L0004:
+0004	0000	nop
+0005	0003	ret
+0006	0000	nop
+0007	0000	nop
+0008	0000	nop
+0009	0000	nop
+				L000A:
+000A	0000	nop
+000B	0000	nop
+				L000C:
+000C	0000	nop
+000D	1785	sdz     ACC
+000E	280C	jmp     L000C
+000F	0003	ret
+				;872		initail();
+				_main:
+				_main:
+06CA	250E	call    _initail
+				;873		while(1)
+				;874		{
+				;875			if(f_halt)
+				_L128:
+06CB	4715	mov     a, f_flag[2]
+06CC	40A2	mov     ra, a
+06CD	0F08	mov     a, 8H
+06CE	46A2	andm    a, ra
+06CF	50A2	sz      ra
+06D0	2ED2	jmp     _LI12
+06D1	2EEE	jmp     _L124
+				;876			{
+				;877				f_halt=0;
+				_LI12:
+06D2	7595	clr     f_flag[2].3
+				;878				_lcden=0;
+06D3	364A	clr     LCDEN
+				;879				_adcen=0;
+06D4	36A2	clr     ADCEN
+				;880				_adpgaen=0;
+06D5	37A4	clr     ADPGAEN
+				;881				_vbgen=0;
+06D6	3724	clr     VBGEN
+				;882				LED=0;
+06D7	36A5	clr     PB5
+				;883				BL=0;
+06D8	3625	clr     PB4
+				;884				f_1min=0;	
+06D9	7515	clr     f_flag[2].2
+				;885				
+				;886				SEG3C=0;
+06DA	3595	clr     PAC3
+				;887				COM0=0;
+06DB	3541	clr     PC2
+				;888				COM1=0;
+06DC	36C1	clr     PC5
+				;889				COM2=0;
+06DD	3494	clr     PA1
+				;890				COM3=0;
+06DE	3725	clr     PB6
+				;891				SEG0=0;
+06DF	3441	clr     PC0
+				;892				SEG1=0;
+06E0	34C1	clr     PC1
+				;893				SEG2=0;
+06E1	3641	clr     PC4
+				;894				SEG3=0;
+06E2	3594	clr     PA3
+				;895				_slcdc0=0;
+06E3	1F4A	clr     SLCDC0
+				;896				_slcdc1=0;
+06E4	1F4B	clr     SLCDC1
+				;897				_slcdc3=0;
+06E5	1F4D	clr     SLCDC3
+				;898				_slcdc4=0;
+06E6	1F4E	clr     SLCDC4
+				;899				_wdtc=0xa8;
+06E7	0FA8	mov     a, A8H
+06E8	009A	mov     WDTC, a
+				;900				
+				;901				_halt();
+06E9	0002	halt
+				;902				
+				;903				f_halt_buf=1;
+06EA	7215	set     f_flag[2].4
+				;904				_wdtc=0x53;	
+06EB	0F53	mov     a, 53H
+06EC	009A	mov     WDTC, a
+				;905				_lcden=1;		
+06ED	324A	set     LCDEN
+				;906			}
+				;907	
+				;908			CMT_TX();
+				_L124:
+06EE	23F8	call    _CMT_TX
+				;909			_clrwdt();
+06EF	0001	clr     wdt
+				;910			if(f_10ms)
+06F0	4714	mov     a, f_flag[1]
+06F1	40A2	mov     ra, a
+06F2	0F04	mov     a, 4H
+06F3	46A2	andm    a, ra
+06F4	50A2	sz      ra
+06F5	2EF7	jmp     _LI13
+06F6	2F22	jmp     _L125
+				;911			{
+				;912			    BL=1;
+				_LI13:
+06F7	3225	set     PB4
+				;913				f_10ms=0;
+06F8	7514	clr     f_flag[1].2
+				;914	            Switch();
+06F9	26AA	call    _Switch
+				;915				KEY();	
+06FA	24A9	call    _KEY
+				;916				Voltage();
+06FB	25E4	call    _Voltage
+				;917				if(f_k2 || f_k3 || f_k1)
+06FC	4713	mov     a, f_flag[0]
+06FD	40A2	mov     ra, a
+06FE	0F02	mov     a, 2H
+06FF	46A2	andm    a, ra
+0700	50A2	sz      ra
+0701	2F0F	jmp     _L126
+0702	4713	mov     a, f_flag[0]
+0703	40A2	mov     ra, a
+0704	0F04	mov     a, 4H
+0705	46A2	andm    a, ra
+0706	50A2	sz      ra
+0707	2F0F	jmp     _L126
+0708	4713	mov     a, f_flag[0]
+0709	40A2	mov     ra, a
+070A	0F01	mov     a, 1H
+070B	46A2	andm    a, ra
+070C	50A2	sz      ra
+070D	2F0F	jmp     _L126
+070E	2F22	jmp     _L125
+				;918				{
+				;919				    f_k1=0;
+				_L126:
+				_LI14:
+070F	7413	clr     f_flag[0].0
+				;920					f_k2=0;
+0710	7493	clr     f_flag[0].1
+				;921	                f_k3=0;
+0711	7513	clr     f_flag[0].2
+				;922	
+				;923					f_txen=1;
+0712	7214	set     f_flag[1].4
+				;924					a_1min=0;
+0713	5F08	clr     a_1min[0]
+				;925					if(f_halt_buf)	
+0714	4715	mov     a, f_flag[2]
+0715	40A2	mov     ra, a
+0716	0F10	mov     a, 10H
+0717	46A2	andm    a, ra
+0718	50A2	sz      ra
+0719	2F1B	jmp     _LI15
+071A	2F1F	jmp     _L127
+				;926					{
+				;927						f_halt_buf=0;
+				_LI15:
+071B	7615	clr     f_flag[2].4
+				;928						a_set_count=c_count8;
+071C	0F08	mov     a, 8H
+071D	409C	mov     a_set_count[0], a
+071E	2F22	jmp     _L125
+				;929					}	
+				;930					else a_set_count=c_count2;
+				_L127:
+071F	0F02	mov     a, 2H
+0720	409C	mov     a_set_count[0], a
+				;931				}
+				;932			}
+				;933		}
+0721	2ECB	jmp     _L128
+				_L125:
+0722	2ECB	jmp     _L128
+0723	2F23	jmp     $
+				@dummy .SECTION 'CODE'
+0724	0000	nop
+0725	0000	nop
+				L0726:
+0726	0000	nop
+0727	0000	nop
+0728	0000	nop
+				L0729:
+0729	0000	nop
+072A	1785	sdz     ACC
+072B	2F29	jmp     L0729
+				L072C:
+072C	0000	nop
+072D	1785	sdz     ACC
+072E	2F2C	jmp     L072C
+072F	57AA	sdz     i
+0730	2F2C	jmp     L072C
+0731	0003	ret
+				L0732:
+0732	5F2E	clr     back
+0733	5F2F	clr     ad_min
+				L0734:
+0734	782C	snz     address.0
+0735	2F3A	jmp     L073A
+0736	472A	mov     a, i
+0737	43AE	addm    a, back
+0738	472B	mov     a, sum
+0739	53AF	adcm    a, ad_min
+				L073A:
+073A	340A	clr     C
+073B	5AAA	rlc     i
+073C	5AAB	rlc     sum
+073D	340A	clr     C
+073E	5BAD	rrc     ad_max
+073F	5BAC	rrc     address
+0740	472C	mov     a, address
+0741	452D	or      a, ad_max
+0742	390A	snz     Z
+0743	2F34	jmp     L0734
+0744	0003	ret
+0745	1483	inc     MP1
+				L0746:
+0746	3F81	sz      MP0.7
+0747	2F4C	jmp     L074C
+0748	0701	mov     a, MP0
+0749	0084	mov     BP, a
+074A	0702	mov     a, __iar1[0]
+074B	0003	ret
+				L074C:
+074C	1B01	rrca    MP0
+074D	0E3F	and     a, 3FH
+074E	0089	mov     TBHP, a
+074F	1B03	rrca    MP1
+0750	0087	mov     TBLP, a
+0751	1D05	tabrd   ACC
+0752	3C0A	sz      C
+0753	0708	mov     a, TBLH
+0754	0003	ret
+				L076B:
+				org	076bh
+076B	0000	nop
+				L0800:
+				org	0800h
+0800	0000	nop
+				L08CA:
+				org	08cah
+08CA	0000	nop
+				L0E40:
+				org	0e40h
+0E40	0000	nop
+				;934	}
+				data .SECTION 'DATA'
+				__iar1 DB DUP (?) ; __iar1
+				__mp1 DB DUP (?) ; __mp1
+				__bp DB DUP (?) ; __bp
+				__smod DB DUP (?) ; __smod
+				__lvdc DB DUP (?) ; __lvdc
+				__intc0 DB DUP (?) ; __intc0
+				__intc1 DB DUP (?) ; __intc1
+				__mfi1 DB DUP (?) ; __mfi1
+				__pa DB DUP (?) ; __pa
+				__pac DB DUP (?) ; __pac
+				__papu DB DUP (?) ; __papu
+				__pawu DB DUP (?) ; __pawu
+				__wdtc DB DUP (?) ; __wdtc
+				__sadoh DB DUP (?) ; __sadoh
+				__sadc0 DB DUP (?) ; __sadc0
+				__sadc1 DB DUP (?) ; __sadc1
+				__sadc2 DB DUP (?) ; __sadc2
+				__pb DB DUP (?) ; __pb
+				__pbc DB DUP (?) ; __pbc
+				__tm1c0 DB DUP (?) ; __tm1c0
+				__tm1c1 DB DUP (?) ; __tm1c1
+				__tm1al DB DUP (?) ; __tm1al
+				__tm1ah DB DUP (?) ; __tm1ah
+				__cpc DB DUP (?) ; __cpc
+				__pc DB DUP (?) ; __pc
+				__pcc DB DUP (?) ; __pcc
+				__acerl DB DUP (?) ; __acerl
+				__slcdc0 DB DUP (?) ; __slcdc0
+				__slcdc1 DB DUP (?) ; __slcdc1
+				__slcdc3 DB DUP (?) ; __slcdc3
+				__slcdc4 DB DUP (?) ; __slcdc4
+				__pd DB DUP (?) ; __pd
+				__pdc DB DUP (?) ; __pdc
+				a_lcd_count DB DUP (?) ; a_lcd_count
+				lcd_data DB DUP (?) ; lcd_data
+				a_100ms DB DUP (?) ; a_100ms
+				a_count DB DUP (?) ; a_count
+				a_10count DB DUP (?) ; a_10count
+				a_10ms DB DUP (?) ; a_10ms
+				a_500ms DB DUP (?) ; a_500ms
+				a_1min DB DUP (?) ; a_1min
+				a_k1_high DB DUP (?) ; a_k1_high
+				a_k1_low DB DUP (?) ; a_k1_low
+				a_k2_high DB DUP (?) ; a_k2_high
+				a_k2_low DB DUP (?) ; a_k2_low
+				a_k3_high DB DUP (?) ; a_k3_high
+				a_k3_low DB DUP (?) ; a_k3_low
+				a_k4_high DB DUP (?) ; a_k4_high
+				a_k4_low DB DUP (?) ; a_k4_low
+				a_k5_high DB DUP (?) ; a_k5_high
+				a_k5_low DB DUP (?) ; a_k5_low
+				f_flag DB DUP (?) ; f_flag
+				a_data DB DUP (?) ; a_data
+				a_tx DB DUP (?) ; a_tx
+				a_tx_count DB DUP (?) ; a_tx_count
+				a_set_count DB DUP (?) ; a_set_count
+				ad_data DB DUP (?) ; ad_data
+				a_voltage_count DB DUP (?) ; a_voltage_count
+				a_voltage_level DB DUP (?) ; a_voltage_level
+				ad_voltage_buf DB 2 DUP (?) ; ad_voltage_buf
+				ra DB DUP (?)
+				rb DB DUP (?)
+				rc DB DUP (?)
+				rd DB DUP (?)
+				r110 DB DUP (?)
+				r210 DB DUP (?)
+				ra10 DB DUP (?)
+				rb10 DB DUP (?)
+				i DB DUP (?) ; i
+				sum DB 2 DUP (?) ; sum
+				address DB DUP (?) ; address
+				ad_max DB 2 DUP (?) ; ad_max
+				back DB DUP (?) ; back
+				ad_min DB 2 DUP (?) ; ad_min
+				tmp DB DUP (?) ; tmp

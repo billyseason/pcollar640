@@ -1,0 +1,1252 @@
+文件：HT46R064B.c  盛群编译器版本 3.00 页次1
+
+
+
+;  33: const unsigned char c_cmt_init[0x60]={
+  33  0000              _c_cmt_init .SECTION INPAGE PRIVATE 'CODE'
+  33  0000              PUBLIC l_c_cmt_init
+  33  0000              l_c_cmt_init:
+  33  0000  0386        ADDM A,[06h]
+  33  0001              _c_cmt_init:
+  33  0001  0940        RET A,64
+  33  0002  0966        RET A,102
+  33  0003  09EC        RET A,236
+  33  0004  091C        RET A,28
+  33  0005  09F0        RET A,240
+  33  0006  0980        RET A,128
+  33  0007  0914        RET A,20
+  33  0008  0908        RET A,8
+  33  0009  0991        RET A,145
+  33  000A  0902        RET A,2
+  33  000B  0902        RET A,2
+  33  000C  09D0        RET A,208
+  33  000D  09AE        RET A,174
+  33  000E  09E0        RET A,224
+  33  000F  0935        RET A,53
+  33  0010  0900        RET A,0
+  33  0011  0900        RET A,0
+  33  0012  09F4        RET A,244
+  33  0013  0910        RET A,16
+  33  0014  09E2        RET A,226
+  33  0015  0942        RET A,66
+  33  0016  0920        RET A,32
+  33  0017  0900        RET A,0
+  33  0018  0981        RET A,129
+  33  0019  0942        RET A,66
+  33  001A  0971        RET A,113
+  33  001B  09CE        RET A,206
+  33  001C  091C        RET A,28
+  33  001D  0942        RET A,66
+  33  001E  095B        RET A,91
+  33  001F  091C        RET A,28
+  33  0020  091C        RET A,28
+  33  0021  0932        RET A,50
+  33  0022  0918        RET A,24
+  33  0023  0900        RET A,0
+  33  0024  0999        RET A,153
+  33  0025  09C1        RET A,193
+  33  0026  099B        RET A,155
+  33  0027  0906        RET A,6
+  33  0028  090A        RET A,10
+  33  0029  099F        RET A,159
+  33  002A  0939        RET A,57
+  33  002B  0929        RET A,41
+  33  002C  0929        RET A,41
+  33  002D  09C0        RET A,192
+  33  002E  0951        RET A,81
+  33  002F  092A        RET A,42
+  33  0030  0953        RET A,83
+  33  0031  0900        RET A,0
+  33  0032  0900        RET A,0
+  33  0033  09B4        RET A,180
+文件：HT46R064B.c  盛群编译器版本 3.00 页次2 
+
+文件：HT46R064B.c  盛群编译器版本 3.00 页次2
+
+  33  0034  0900        RET A,0
+  33  0035  0900        RET A,0
+  33  0036  0901        RET A,1
+  33  0037  0900        RET A,0
+  33  0038  0900        RET A,0
+  33  0039  0912        RET A,18
+  33  003A  0908        RET A,8
+  33  003B  0900        RET A,0
+  33  003C  09AA        RET A,170
+  33  003D  0902        RET A,2
+  33  003E  0900        RET A,0
+  33  003F  0900        RET A,0
+  33  0040  0900        RET A,0
+  33  0041  0900        RET A,0
+  33  0042  0900        RET A,0
+  33  0043  0900        RET A,0
+  33  0044  09D4        RET A,212
+  33  0045  092D        RET A,45
+  33  0046  0900        RET A,0
+  33  0047  0903        RET A,3
+  33  0048  0900        RET A,0
+  33  0049  0900        RET A,0
+  33  004A  0900        RET A,0
+  33  004B  0900        RET A,0
+  33  004C  0900        RET A,0
+  33  004D  0900        RET A,0
+  33  004E  0900        RET A,0
+  33  004F  0900        RET A,0
+  33  0050  0960        RET A,96
+  33  0051  09FF        RET A,255
+  33  0052  0900        RET A,0
+  33  0053  0900        RET A,0
+  33  0054  091F        RET A,31
+  33  0055  0910        RET A,16
+  33  0056  0950        RET A,80
+  33  0057  0926        RET A,38
+  33  0058  0903        RET A,3
+  33  0059  0900        RET A,0
+  33  005A  0942        RET A,66
+  33  005B  09B0        RET A,176
+  33  005C  0900        RET A,0
+  33  005D  0937        RET A,55
+  33  005E  090A        RET A,10
+  33  005F  093F        RET A,63
+  33  0060  097F        RET A,127
+
+;  53: {	
+  53  0061              __acsr EQU [023H]
+  53  0061              __adcr EQU [022H]
+  53  0061              __adrh EQU [021H]
+  53  0061              __adrl EQU [020H]
+  53  0061              __pwm0 EQU [01fH]
+  53  0061              __intc1 EQU [01eH]
+  53  0061              __ctrl1 EQU [01bH]
+  53  0061              __ctrl0 EQU [01aH]
+  53  0061              __pcpu EQU [019H]
+  53  0061              __pcc EQU [018H]
+  53  0061              __pc EQU [017H]
+文件：HT46R064B.c  盛群编译器版本 3.00 页次3 
+
+  53  0061              __pbpu EQU [016H]
+  53  0061              __pbc EQU [015H]
+  53  0061              __pb EQU [014H]
+文件：HT46R064B.c  盛群编译器版本 3.00 页次3
+
+  53  0061              __pawk EQU [013H]
+  53  0061              __papu EQU [012H]
+  53  0061              __pac EQU [011H]
+  53  0061              __pa EQU [010H]
+  53  0061              __tmr0c EQU [0dH]
+  53  0061              __tmr0 EQU [0cH]
+  53  0061              __intc0 EQU [0bH]
+  53  0061              __status EQU [0aH]
+  53  0061              __wdts EQU [09H]
+  53  0061              __tblh EQU [08H]
+  53  0061              __tblp EQU [07H]
+  53  0061              __pcl EQU [06H]
+  53  0061              __acc EQU [05H]
+  53  0061              __mp1 EQU [03H]
+  53  0061              __mp0 EQU [01H]
+  53  0061              __iar1 EQU [02H]
+  53  0061              __iar0 EQU [00H]
+  53  0000              @FIFO_WRITE .SECTION 'CODE'
+  53  0000              PUBLIC _FIFO_WRITE
+  53  0000              _FIFO_WRITE PROC
+
+;  52: void FIFO_WRITE(unsigned char len)
+  52  0000              PUBLIC FIFO_WRITE0
+  52  0000  00          LOCAL FIFO_WRITE0 DB ? ; len
+
+;  55: 	CSB=1;
+  55  0000  3090        SET [010H].1
+
+;  56: 	FCSB=0;
+  56  0001  3410        CLR [010H].0
+
+;  57: 	SCLK=0;
+  57  0002  3590        CLR [010H].3
+
+;  58: 	SDIOC=0;
+  58  0003  3511        CLR [011H].2
+
+;  59: 	for(j=0;j<len;j++)
+  59  0004  1F00     R  CLR CR3
+  59  0005  2800     R  JMP L5
+  59  0006              L2:
+
+;  61: 		FCSB=0;
+  61  0006  3410        CLR [010H].0
+
+;  62: 		data=a_tx[0];
+  62  0007  0700     R  MOV A,_a_tx
+  62  0008  0080     R  MOV CR2,A
+
+;  63: 		for(i=0;i<8;i++)
+  63  0009  1F00     R  CLR CR1
+  63  000A  2800     R  JMP L9
+  63  000B              L6:
+
+;  65: 			SCLK=0;
+文件：HT46R064B.c  盛群编译器版本 3.00 页次4 
+
+  65  000B  3590        CLR [010H].3
+
+;  66: 			if(data&0x80)	SDIO=1;
+  66  000C  3800     R  SNZ CR2.7
+  66  000D  2800     R  JMP L10
+  66  000E  3110        SET [010H].2
+  66  000F  2800     R  JMP L11
+文件：HT46R064B.c  盛群编译器版本 3.00 页次4
+
+  66  0010              L10:
+
+;  67: 			else 			SDIO=0;	
+  67  0010  3510        CLR [010H].2
+  67  0011              L11:
+
+;  68: 			SCLK=1;
+  68  0011  3190        SET [010H].3
+
+;  69: 			data<<=1;
+  69  0012  340A        CLR [0AH].0
+  69  0013  1A80     R  RLC CR2
+  69  0014              L7:
+
+;  63: 		for(i=0;i<8;i++)
+  63  0014  1480     R  INC CR1
+  63  0015              L9:
+  63  0015  0700     R  MOV A,CR1
+  63  0016  0A08        SUB A,08h
+  63  0017  380A        SNZ [0ah].0
+  63  0018  2800     R  JMP L6
+
+;  71: 		SCLK=0;
+  71  0019  3590        CLR [010H].3
+
+;  72: 		_delay(10);
+  72  001A  0F01        MOV A,01H
+  72  001B  2000     E  CALL __DELAYX2
+
+;  73: 		FCSB=1;	
+  73  001C  3010        SET [010H].0
+
+;  74: 		_delay(10);	
+  74  001D  0F01        MOV A,01H
+  74  001E  2000     E  CALL __DELAYX2
+  74  001F              L3:
+
+;  59: 	for(j=0;j<len;j++)
+  59  001F  1480     R  INC CR3
+  59  0020              L5:
+  59  0020  0700     R  MOV A,CR3
+  59  0021  0200     R  SUB A,FIFO_WRITE0
+  59  0022  380A        SNZ [0ah].0
+  59  0023  2800     R  JMP L2
+
+;  76: 	SCLK=0;	
+  76  0024  3590        CLR [010H].3
+
+;  77: 	FCSB=1;	
+  77  0025  3010        SET [010H].0
+  77  0026              L1:
+文件：HT46R064B.c  盛群编译器版本 3.00 页次5 
+
+  77  0026  0003        RET
+
+;  54: 	unsigned char i,j,data;	
+  54  0001  00          LOCAL CR1 DB ? ; i
+  54  0002  00          LOCAL CR2 DB ? ; data
+  54  0003  00          LOCAL CR3 DB ? ; j
+  54  0027              _FIFO_WRITE ENDP
+
+;  81: {
+  81  0000              @SPI_WRITE .SECTION 'CODE'
+  81  0000              PUBLIC _SPI_WRITE
+  81  0000              _SPI_WRITE PROC
+文件：HT46R064B.c  盛群编译器版本 3.00 页次5
+
+
+;  80: void SPI_WRITE(unsigned char address,unsigned char data)
+  80  0000              PUBLIC SPI_WRITE0
+  80  0000  00          LOCAL SPI_WRITE0 DB ? ; address
+  80  0000              PUBLIC SPI_WRITE1
+  80  0001  00          LOCAL SPI_WRITE1 DB ? ; data
+
+;  83: 	address&=0x7f;
+  83  0000  3400     R  CLR SPI_WRITE0.7
+
+;  84: 	FCSB=1;
+  84  0001  3010        SET [010H].0
+
+;  85: 	CSB=0;	
+  85  0002  3490        CLR [010H].1
+
+;  86: 	SDIOC=0;
+  86  0003  3511        CLR [011H].2
+
+;  87: 	SCLK=0;
+  87  0004  3590        CLR [010H].3
+
+;  88: 	for(i=0;i<8;i++)
+  88  0005  1F00     R  CLR CR4
+  88  0006  2800     R  JMP L16
+  88  0007              L13:
+
+;  90: 		SCLK=0;
+  90  0007  3590        CLR [010H].3
+
+;  91: 		if(address&0x80)	SDIO=1;
+  91  0008  3800     R  SNZ SPI_WRITE0.7
+  91  0009  2800     R  JMP L17
+  91  000A  3110        SET [010H].2
+  91  000B  2800     R  JMP L18
+  91  000C              L17:
+
+;  92: 		else 				SDIO=0;	
+  92  000C  3510        CLR [010H].2
+  92  000D              L18:
+
+;  93: 		SCLK=1;
+  93  000D  3190        SET [010H].3
+
+;  94: 		address<<=1;
+  94  000E  340A        CLR [0AH].0
+文件：HT46R064B.c  盛群编译器版本 3.00 页次6 
+
+  94  000F  1A80     R  RLC SPI_WRITE0
+  94  0010              L14:
+
+;  88: 	for(i=0;i<8;i++)
+  88  0010  1480     R  INC CR4
+  88  0011              L16:
+  88  0011  0700     R  MOV A,CR4
+  88  0012  0A08        SUB A,08h
+  88  0013  380A        SNZ [0ah].0
+  88  0014  2800     R  JMP L13
+
+;  96: 	for(i=0;i<8;i++)
+  96  0015  1F00     R  CLR CR4
+  96  0016  2800     R  JMP L22
+  96  0017              L19:
+
+;  98: 		SCLK=0;
+文件：HT46R064B.c  盛群编译器版本 3.00 页次6
+
+  98  0017  3590        CLR [010H].3
+
+;  99: 		if(data&0x80)		SDIO=1;
+  99  0018  3800     R  SNZ SPI_WRITE1.7
+  99  0019  2800     R  JMP L23
+  99  001A  3110        SET [010H].2
+  99  001B  2800     R  JMP L24
+  99  001C              L23:
+
+; 100: 		else				SDIO=0;
+ 100  001C  3510        CLR [010H].2
+ 100  001D              L24:
+
+; 101: 		data<<=1;
+ 101  001D  340A        CLR [0AH].0
+ 101  001E  1A80     R  RLC SPI_WRITE1
+
+; 102: 		SCLK=1;			
+ 102  001F  3190        SET [010H].3
+ 102  0020              L20:
+
+;  96: 	for(i=0;i<8;i++)
+  96  0020  1480     R  INC CR4
+  96  0021              L22:
+  96  0021  0700     R  MOV A,CR4
+  96  0022  0A08        SUB A,08h
+  96  0023  380A        SNZ [0ah].0
+  96  0024  2800     R  JMP L19
+
+; 104: 	SCLK=0;
+ 104  0025  3590        CLR [010H].3
+
+; 105: 	_delay(5);
+ 105  0026  2000     E  CALL __DELAY1
+
+; 106: 	SDIO=0;
+ 106  0027  3510        CLR [010H].2
+
+; 107: 	CSB=1;
+ 107  0028  3090        SET [010H].1
+ 107  0029              L12:
+文件：HT46R064B.c  盛群编译器版本 3.00 页次7 
+
+ 107  0029  0003        RET
+
+;  82: 	unsigned char i;
+  82  0002  00          LOCAL CR4 DB ? ; i
+  82  002A              _SPI_WRITE ENDP
+
+; 111: {
+ 111  0000              @SPI_READ .SECTION 'CODE'
+ 111  0000              PUBLIC _SPI_READ
+ 111  0000              _SPI_READ PROC
+
+; 110: unsigned char SPI_READ(unsigned char address)
+ 110  0000              PUBLIC SPI_READ0
+ 110  0000  00          LOCAL SPI_READ0 DB ? ; address
+
+; 113: 	FCSB=1;
+ 113  0000  3010        SET [010H].0
+
+; 114: 	CSB=0;	
+ 114  0001  3490        CLR [010H].1
+
+; 115: 	SCLK=0;
+ 115  0002  3590        CLR [010H].3
+
+; 116: 	SDIOC=0;
+ 116  0003  3511        CLR [011H].2
+
+; 117: 	address|=0x80;
+文件：HT46R064B.c  盛群编译器版本 3.00 页次7
+
+ 117  0004  3000     R  SET SPI_READ0.7
+
+; 118: 	for(i=0;i<8;i++)
+ 118  0005  1F00     R  CLR CR5
+ 118  0006  2800     R  JMP L29
+ 118  0007              L26:
+
+; 120: 		SCLK=0;
+ 120  0007  3590        CLR [010H].3
+
+; 121: 		if(address&0x80)	SDIO=1;
+ 121  0008  3800     R  SNZ SPI_READ0.7
+ 121  0009  2800     R  JMP L30
+ 121  000A  3110        SET [010H].2
+ 121  000B  2800     R  JMP L31
+ 121  000C              L30:
+
+; 122: 		else 				SDIO=0;	
+ 122  000C  3510        CLR [010H].2
+ 122  000D              L31:
+
+; 123: 		_nop();
+ 123  000D  0000        NOP
+
+; 124: 		SCLK=1;
+ 124  000E  3190        SET [010H].3
+
+; 125: 		address<<=1;
+ 125  000F  340A        CLR [0AH].0
+ 125  0010  1A80     R  RLC SPI_READ0
+文件：HT46R064B.c  盛群编译器版本 3.00 页次8 
+
+ 125  0011              L27:
+
+; 118: 	for(i=0;i<8;i++)
+ 118  0011  1480     R  INC CR5
+ 118  0012              L29:
+ 118  0012  0700     R  MOV A,CR5
+ 118  0013  0A08        SUB A,08h
+ 118  0014  380A        SNZ [0ah].0
+ 118  0015  2800     R  JMP L26
+
+; 127: 	SDIOC=1;
+ 127  0016  3111        SET [011H].2
+
+; 128: 	SCLK=0;
+ 128  0017  3590        CLR [010H].3
+
+; 129: 	data=0;
+ 129  0018  1F00     R  CLR CR6
+
+; 130: 	for(i=0;i<8;i++)
+ 130  0019  1F00     R  CLR CR5
+ 130  001A  2800     R  JMP L35
+ 130  001B              L32:
+
+; 132: 		data<<=1;
+ 132  001B  340A        CLR [0AH].0
+ 132  001C  1A80     R  RLC CR6
+
+; 133: 		SCLK=1;
+ 133  001D  3190        SET [010H].3
+
+; 134: 		if(SDIO)		data|=1;	
+ 134  001E  3910        SNZ [010H].2
+ 134  001F  2800     R  JMP L36
+ 134  0020  3000     R  SET CR6.0
+ 134  0021              L36:
+文件：HT46R064B.c  盛群编译器版本 3.00 页次8
+
+
+; 135: 		_nop();	
+ 135  0021  0000        NOP
+
+; 136: 		SCLK=0;			
+ 136  0022  3590        CLR [010H].3
+ 136  0023              L33:
+
+; 130: 	for(i=0;i<8;i++)
+ 130  0023  1480     R  INC CR5
+ 130  0024              L35:
+ 130  0024  0700     R  MOV A,CR5
+ 130  0025  0A08        SUB A,08h
+ 130  0026  380A        SNZ [0ah].0
+ 130  0027  2800     R  JMP L32
+
+; 138: 	SCLK=0;
+ 138  0028  3590        CLR [010H].3
+
+; 139: 	SDIOC=0;
+ 139  0029  3511        CLR [011H].2
+
+; 140: 	SDIO=0;
+文件：HT46R064B.c  盛群编译器版本 3.00 页次9 
+
+ 140  002A  3510        CLR [010H].2
+
+; 141: 	CSB=1;	
+ 141  002B  3090        SET [010H].1
+
+; 142: 	return data;
+ 142  002C  0700     R  MOV A,CR6
+ 142  002D              L25:
+ 142  002D  0003        RET
+
+; 112: 	unsigned char i,data;
+ 112  0001  00          LOCAL CR5 DB ? ; i
+ 112  0002  00          LOCAL CR6 DB ? ; data
+ 112  002E              _SPI_READ ENDP
+
+; 146: {
+ 146  0000              @CMT_init .SECTION 'CODE'
+ 146  0000              PUBLIC _CMT_init
+ 146  0000              _CMT_init PROC
+
+; 148: 	SPI_WRITE(0x7F,0xFF);		//Soft Reset 
+ 148  0000  0F7F        MOV A,07fh
+ 148  0001  0080     R  MOV SPI_WRITE0,A
+ 148  0002  0FFF        MOV A,0ffh
+ 148  0003  0080     R  MOV SPI_WRITE1,A
+ 148  0004  2000     R  CALL _SPI_WRITE
+
+; 149: 	_delay(40000);			//20ms
+ 149  0005  0F26        MOV A,026H
+ 149  0006  0080     E  MOV RH,A
+ 149  0007  0FFB        MOV A,0fbH
+ 149  0008  2000     E  CALL __DELAYY3
+
+; 150: 	SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_STBY);	//go_stdby
+ 150  0009  0F60        MOV A,060h
+ 150  000A  0080     R  MOV SPI_WRITE0,A
+ 150  000B  0F02        MOV A,02h
+ 150  000C  0080     R  MOV SPI_WRITE1,A
+ 150  000D  2000     R  CALL _SPI_WRITE
+
+; 152: 	tmp=SPI_READ(CMT2300A_CUS_MODE_STA);				//address 0x61
+ 152  000E  0F61        MOV A,061h
+ 152  000F  0080     R  MOV SPI_READ0,A
+ 152  0010  2000     R  CALL _SPI_READ
+ 152  0011  0080     R  MOV CR7,A
+文件：HT46R064B.c  盛群编译器版本 3.00 页次9
+
+
+; 153: 	tmp|=CMT2300A_MASK_CFG_RETAIN;						//Enable CFG_RETAIN 
+ 153  0012  3000     R  SET CR7.4
+
+; 154: 	tmp&=(unsigned char)~CMT2300A_MASK_RSTN_IN_EN;		//Disable RSTN_IN 
+ 154  0013  0FDF        MOV A,0dfh
+ 154  0014  0080     R  MOV b0_4,A
+ 154  0015  0700     R  MOV A,b0_4
+ 154  0016  0680     R  ANDM A,CR7
+
+; 155: 	SPI_WRITE(CMT2300A_CUS_MODE_STA,tmp);
+ 155  0017  0F61        MOV A,061h
+ 155  0018  0080     R  MOV SPI_WRITE0,A
+文件：HT46R064B.c  盛群编译器版本 3.00 页次10 
+
+ 155  0019  0700     R  MOV A,CR7
+ 155  001A  0080     R  MOV SPI_WRITE1,A
+ 155  001B  2000     R  CALL _SPI_WRITE
+
+; 157: 	tmp=SPI_READ(CMT2300A_CUS_EN_CTL);		//adress 0x60
+ 157  001C  0F62        MOV A,062h
+ 157  001D  0080     R  MOV SPI_READ0,A
+ 157  001E  2000     R  CALL _SPI_READ
+ 157  001F  0080     R  MOV CR7,A
+
+; 158: 	tmp|=CMT2300A_MASK_LOCKING_EN;			//LOCKING_EN=1;
+ 158  0020  3000     R  SET CR7.5
+
+; 159: 	SPI_WRITE(CMT2300A_CUS_EN_CTL, tmp);
+ 159  0021  0F62        MOV A,062h
+ 159  0022  0080     R  MOV SPI_WRITE0,A
+ 159  0023  0700     R  MOV A,CR7
+ 159  0024  0080     R  MOV SPI_WRITE1,A
+ 159  0025  2000     R  CALL _SPI_WRITE
+
+; 161: 	tmp=SPI_READ(CMT2300A_CUS_SYS2);		
+ 161  0026  0F0D        MOV A,0dh
+ 161  0027  0080     R  MOV SPI_READ0,A
+ 161  0028  2000     R  CALL _SPI_READ
+ 161  0029  0080     R  MOV CR7,A
+
+; 162:     tmp &= (unsigned char)~CMT2300A_MASK_LFOSC_RECAL_EN;
+ 162  002A  0F7F        MOV A,07fh
+ 162  002B  0680     R  ANDM A,CR7
+
+; 163:     tmp &= (unsigned char)~CMT2300A_MASK_LFOSC_CAL1_EN;
+ 163  002C  0FBF        MOV A,0bfh
+ 163  002D  0080     R  MOV b0_4,A
+ 163  002E  0700     R  MOV A,b0_4
+ 163  002F  0680     R  ANDM A,CR7
+
+; 164:     tmp &=(unsigned char) ~CMT2300A_MASK_LFOSC_CAL2_EN;			
+ 164  0030  0FDF        MOV A,0dfh
+ 164  0031  0080     R  MOV b0_4,A
+ 164  0032  0700     R  MOV A,b0_4
+ 164  0033  0680     R  ANDM A,CR7
+
+; 165: 	SPI_WRITE(CMT2300A_CUS_SYS2,tmp);
+ 165  0034  0F0D        MOV A,0dh
+ 165  0035  0080     R  MOV SPI_WRITE0,A
+ 165  0036  0700     R  MOV A,CR7
+ 165  0037  0080     R  MOV SPI_WRITE1,A
+ 165  0038  2000     R  CALL _SPI_WRITE
+
+; 167: 	SPI_WRITE(CMT2300A_CUS_INT_CLR1,0xff);
+ 167  0039  0F6A        MOV A,06ah
+ 167  003A  0080     R  MOV SPI_WRITE0,A
+ 167  003B  0FFF        MOV A,0ffh
+ 167  003C  0080     R  MOV SPI_WRITE1,A
+ 167  003D  2000     R  CALL _SPI_WRITE
+
+; 168: 	SPI_WRITE(CMT2300A_CUS_INT_CLR2,0xff);
+ 168  003E  0F6B        MOV A,06bh
+ 168  003F  0080     R  MOV SPI_WRITE0,A
+ 168  0040  0FFF        MOV A,0ffh
+文件：HT46R064B.c  盛群编译器版本 3.00 页次11 
+
+文件：HT46R064B.c  盛群编译器版本 3.00 页次10
+
+ 168  0041  0080     R  MOV SPI_WRITE1,A
+ 168  0042  2000     R  CALL _SPI_WRITE
+
+; 170: 	for(tmp=0;tmp<0x60;tmp++)
+ 170  0043  1F00     R  CLR CR7
+ 170  0044  2800     R  JMP L42
+ 170  0045              L39:
+
+; 172: 		SPI_WRITE(tmp,c_cmt_init[tmp]);
+ 172  0045  0700     R  MOV A,CR7
+ 172  0046  0080     R  MOV SPI_WRITE0,A
+ 172  0047  0F00        MOV A,0
+ 172  0048  0300     R  ADD A,CR7
+ 172  0049  2000     R  CALL l_c_cmt_init
+ 172  004A  0080     R  MOV b0_4,A
+ 172  004B  0700     R  MOV A,b0_4
+ 172  004C  0080     R  MOV SPI_WRITE1,A
+ 172  004D  2000     R  CALL _SPI_WRITE
+
+; 173: 		_clrwdt();	
+ 173  004E  0001        CLR WDT
+ 173  004F              L40:
+
+; 170: 	for(tmp=0;tmp<0x60;tmp++)
+ 170  004F  1480     R  INC CR7
+ 170  0050              L42:
+ 170  0050  0700     R  MOV A,CR7
+ 170  0051  0A60        SUB A,060h
+ 170  0052  380A        SNZ [0ah].0
+ 170  0053  2800     R  JMP L39
+
+; 180: 	SPI_WRITE(CMT2300A_CUS_IO_SEL,CMT2300A_GPIO1_SEL_INT1|CMT2300A_GPIO3_SEL_INT2);	//INT1 > GPIO1   ,INT2 > GPIO3
+ 180  0054  0F65        MOV A,065h
+ 180  0055  0080     R  MOV SPI_WRITE0,A
+ 180  0056  0F21        MOV A,021h
+ 180  0057  0080     R  MOV SPI_WRITE1,A
+ 180  0058  2000     R  CALL _SPI_WRITE
+
+; 181: 	tmp=CMT2300A_INT_SEL_TX_FIFO_NMTY;
+ 181  0059  0F10        MOV A,010h
+ 181  005A  0080     R  MOV CR7,A
+
+; 182: 	tmp|=CMT2300A_INT_POLAR_SEL_1;
+ 182  005B  3000     R  SET CR7.5
+
+; 183: 	SPI_WRITE(CMT2300A_CUS_INT1_CTL, tmp);	
+ 183  005C  0F66        MOV A,066h
+ 183  005D  0080     R  MOV SPI_WRITE0,A
+ 183  005E  0700     R  MOV A,CR7
+ 183  005F  0080     R  MOV SPI_WRITE1,A
+ 183  0060  2000     R  CALL _SPI_WRITE
+
+; 187: 	tmp=CMT2300A_INT_SEL_TX_DONE;						//0有效
+ 187  0061  0F0A        MOV A,0ah
+ 187  0062  0080     R  MOV CR7,A
+
+; 188: 	SPI_WRITE(CMT2300A_CUS_INT2_CTL, tmp);				//CMT2300A_INT1_SEL_TX_DONE
+ 188  0063  0F67        MOV A,067h
+文件：HT46R064B.c  盛群编译器版本 3.00 页次12 
+
+ 188  0064  0080     R  MOV SPI_WRITE0,A
+ 188  0065  0700     R  MOV A,CR7
+ 188  0066  0080     R  MOV SPI_WRITE1,A
+ 188  0067  2000     R  CALL _SPI_WRITE
+
+; 189: 	SPI_WRITE(CMT2300A_CUS_INT_EN,CMT2300A_MASK_TX_DONE_EN);	//CMT2300A_MASK_TX_DONE_EN
+ 189  0068  0F68        MOV A,068h
+ 189  0069  0080     R  MOV SPI_WRITE0,A
+ 189  006A  0F20        MOV A,020h
+文件：HT46R064B.c  盛群编译器版本 3.00 页次11
+
+ 189  006B  0080     R  MOV SPI_WRITE1,A
+ 189  006C  2000     R  CALL _SPI_WRITE
+
+; 190: 	SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_SLEEP);	//go_sleep
+ 190  006D  0F60        MOV A,060h
+ 190  006E  0080     R  MOV SPI_WRITE0,A
+ 190  006F  0F10        MOV A,010h
+ 190  0070  0080     R  MOV SPI_WRITE1,A
+ 190  0071  2000     R  CALL _SPI_WRITE
+
+; 191: 	_delay(60000);
+ 191  0072  0F3A        MOV A,03aH
+ 191  0073  0080     E  MOV RH,A
+ 191  0074  0F79        MOV A,079H
+ 191  0075  2000     E  CALL __DELAYY3
+ 191  0076              L38:
+ 191  0076  0003        RET
+ 191  0000  00          LOCAL b0_4 DB ?
+
+; 147: 	unsigned char tmp,back;
+ 147  0001  00          LOCAL CR7 DB ? ; tmp
+ 147  0077              _CMT_init ENDP
+
+; 202: {
+ 202  0000              @CMT_TX .SECTION 'CODE'
+ 202  0000              PUBLIC _CMT_TX
+ 202  0000              _CMT_TX PROC
+
+; 204: 	if(f_k2)
+ 204  0000  1080     R  SZ _f_k2
+ 204  0001  2800     R  JMP L55
+ 204  0002  2800     R  JMP L44
+ 204  0003              L55:
+
+; 206: 		f_k2=0;
+ 206  0003  1F00     R  CLR _f_k2
+
+; 207: 		if(!f_tx)
+ 207  0004  1080     R  SZ _f_tx
+ 207  0005  2800     R  JMP L46
+
+; 209: 			f_tx=1;
+ 209  0006  0F01        MOV A,01h
+ 209  0007  0080     R  MOV _f_tx,A
+
+; 210: 			tmp=SPI_READ(CMT2300A_CUS_INT_FLAG);		
+ 210  0008  0F6D        MOV A,06dh
+ 210  0009  0080     R  MOV SPI_READ0,A
+ 210  000A  2000     R  CALL _SPI_READ
+文件：HT46R064B.c  盛群编译器版本 3.00 页次13 
+
+ 210  000B  0080     R  MOV CR8,A
+
+; 211: 			SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_STBY);	//go_stdby
+ 211  000C  0F60        MOV A,060h
+ 211  000D  0080     R  MOV SPI_WRITE0,A
+ 211  000E  0F02        MOV A,02h
+ 211  000F  0080     R  MOV SPI_WRITE1,A
+ 211  0010  2000     R  CALL _SPI_WRITE
+
+; 212: 			tmp=SPI_READ(CMT2300A_CUS_INT_FLAG);
+ 212  0011  0F6D        MOV A,06dh
+ 212  0012  0080     R  MOV SPI_READ0,A
+ 212  0013  2000     R  CALL _SPI_READ
+ 212  0014  0080     R  MOV CR8,A
+
+; 214: 			SPI_WRITE(CMT2300A_CUS_INT_CLR1,0xff);
+ 214  0015  0F6A        MOV A,06ah
+ 214  0016  0080     R  MOV SPI_WRITE0,A
+ 214  0017  0FFF        MOV A,0ffh
+文件：HT46R064B.c  盛群编译器版本 3.00 页次12
+
+ 214  0018  0080     R  MOV SPI_WRITE1,A
+ 214  0019  2000     R  CALL _SPI_WRITE
+
+; 215: 			SPI_WRITE(CMT2300A_CUS_INT_CLR2,0xff);
+ 215  001A  0F6B        MOV A,06bh
+ 215  001B  0080     R  MOV SPI_WRITE0,A
+ 215  001C  0FFF        MOV A,0ffh
+ 215  001D  0080     R  MOV SPI_WRITE1,A
+ 215  001E  2000     R  CALL _SPI_WRITE
+
+; 216: 			tmp=SPI_READ(CMT2300A_CUS_INT_FLAG);
+ 216  001F  0F6D        MOV A,06dh
+ 216  0020  0080     R  MOV SPI_READ0,A
+ 216  0021  2000     R  CALL _SPI_READ
+ 216  0022  0080     R  MOV CR8,A
+
+; 218: 			tmp=SPI_READ(CMT2300A_CUS_FIFO_CTL);
+ 218  0023  0F69        MOV A,069h
+ 218  0024  0080     R  MOV SPI_READ0,A
+ 218  0025  2000     R  CALL _SPI_READ
+ 218  0026  0080     R  MOV CR8,A
+
+; 219: 			tmp |= (unsigned char)CMT2300A_MASK_SPI_FIFO_RD_WR_SEL; 
+ 219  0027  3000     R  SET CR8.0
+
+; 220: 		   	tmp |= (unsigned char)CMT2300A_MASK_FIFO_RX_TX_SEL;
+ 220  0028  3000     R  SET CR8.2
+
+; 221: 		   	SPI_WRITE(CMT2300A_CUS_FIFO_CTL,tmp);
+ 221  0029  0F69        MOV A,069h
+ 221  002A  0080     R  MOV SPI_WRITE0,A
+ 221  002B  0700     R  MOV A,CR8
+ 221  002C  0080     R  MOV SPI_WRITE1,A
+ 221  002D  2000     R  CALL _SPI_WRITE
+
+; 223: 		   	SPI_WRITE(CMT2300A_CUS_FIFO_CLR,CMT2300A_MASK_FIFO_CLR_TX);		   	
+ 223  002E  0F6C        MOV A,06ch
+ 223  002F  0080     R  MOV SPI_WRITE0,A
+ 223  0030  0F01        MOV A,01h
+文件：HT46R064B.c  盛群编译器版本 3.00 页次14 
+
+ 223  0031  0080     R  MOV SPI_WRITE1,A
+ 223  0032  2000     R  CALL _SPI_WRITE
+
+; 224: 			FIFO_WRITE(32);	
+ 224  0033  0F20        MOV A,020h
+ 224  0034  0080     R  MOV FIFO_WRITE0,A
+ 224  0035  2000     R  CALL _FIFO_WRITE
+
+; 225: 			tmp=SPI_READ(CMT2300A_CUS_INT_FLAG);
+ 225  0036  0F6D        MOV A,06dh
+ 225  0037  0080     R  MOV SPI_READ0,A
+ 225  0038  2000     R  CALL _SPI_READ
+ 225  0039  0080     R  MOV CR8,A
+
+; 227: 		   	SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_TX);
+ 227  003A  0F60        MOV A,060h
+ 227  003B  0080     R  MOV SPI_WRITE0,A
+ 227  003C  0F40        MOV A,040h
+ 227  003D  0080     R  MOV SPI_WRITE1,A
+ 227  003E  2000     R  CALL _SPI_WRITE
+ 227  003F  2800     R  JMP L49
+ 227  0040              L48:
+
+; 230: 			   	tmp=SPI_READ(CMT2300A_CUS_MODE_CTL);
+ 230  0040  0F60        MOV A,060h
+ 230  0041  0080     R  MOV SPI_READ0,A
+ 230  0042  2000     R  CALL _SPI_READ
+ 230  0043  0080     R  MOV CR8,A
+
+; 231: 			   	tmp=SPI_READ(CMT2300A_CUS_IO_SEL);
+ 231  0044  0F65        MOV A,065h
+文件：HT46R064B.c  盛群编译器版本 3.00 页次13
+
+ 231  0045  0080     R  MOV SPI_READ0,A
+ 231  0046  2000     R  CALL _SPI_READ
+ 231  0047  0080     R  MOV CR8,A
+
+; 232: 			   	tmp=SPI_READ(CMT2300A_CUS_INT_FLAG);
+ 232  0048  0F6D        MOV A,06dh
+ 232  0049  0080     R  MOV SPI_READ0,A
+ 232  004A  2000     R  CALL _SPI_READ
+ 232  004B  0080     R  MOV CR8,A
+
+; 233: 			   	tmp=SPI_READ(CMT2300A_CUS_INT_EN);
+ 233  004C  0F68        MOV A,068h
+ 233  004D  0080     R  MOV SPI_READ0,A
+ 233  004E  2000     R  CALL _SPI_READ
+ 233  004F  0080     R  MOV CR8,A
+
+; 234: 			   	tmp=SPI_READ(CMT2300A_CUS_INT1_CTL);
+ 234  0050  0F66        MOV A,066h
+ 234  0051  0080     R  MOV SPI_READ0,A
+ 234  0052  2000     R  CALL _SPI_READ
+ 234  0053  0080     R  MOV CR8,A
+
+; 235: 			   	tmp=SPI_READ(CMT2300A_CUS_INT2_CTL);
+ 235  0054  0F67        MOV A,067h
+ 235  0055  0080     R  MOV SPI_READ0,A
+ 235  0056  2000     R  CALL _SPI_READ
+ 235  0057  0080     R  MOV CR8,A
+文件：HT46R064B.c  盛群编译器版本 3.00 页次15 
+
+
+; 236: 			   	_nop();
+ 236  0058  0000        NOP
+
+; 237: 			   	_clrwdt();
+ 237  0059  0001        CLR WDT
+
+; 238: 			   	SPI_WRITE(CMT2300A_CUS_INT_CLR1,CMT2300A_MASK_TX_DONE_CLR); //clr TX_DONE int flag
+ 238  005A  0F6A        MOV A,06ah
+ 238  005B  0080     R  MOV SPI_WRITE0,A
+ 238  005C  0F04        MOV A,04h
+ 238  005D  0080     R  MOV SPI_WRITE1,A
+ 238  005E  2000     R  CALL _SPI_WRITE
+
+; 239: 				SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_SLEEP);	//go_sleep
+ 239  005F  0F60        MOV A,060h
+ 239  0060  0080     R  MOV SPI_WRITE0,A
+ 239  0061  0F10        MOV A,010h
+ 239  0062  0080     R  MOV SPI_WRITE1,A
+ 239  0063  2000     R  CALL _SPI_WRITE
+ 239  0064              L49:
+
+; 228: 		   	while(1)
+ 228  0064  2800     R  JMP L48
+ 228  0065              L46:
+ 228  0065              L44:
+
+; 243: 	if(f_tx)
+ 243  0065  1080     R  SZ _f_tx
+ 243  0066  2800     R  JMP L56
+ 243  0067  2800     R  JMP L51
+ 243  0068              L56:
+
+; 245: 		if(!RF_IO3)
+ 245  0068  3C94        SZ [014H].1
+ 245  0069  2800     R  JMP L53
+
+; 247: 			f_tx=0;	
+ 247  006A  1F00     R  CLR _f_tx
+
+; 248: 			SPI_WRITE(CMT2300A_CUS_INT_CLR1,CMT2300A_MASK_TX_DONE_CLR); //clr TX_DONE int flag
+ 248  006B  0F6A        MOV A,06ah
+文件：HT46R064B.c  盛群编译器版本 3.00 页次14
+
+ 248  006C  0080     R  MOV SPI_WRITE0,A
+ 248  006D  0F04        MOV A,04h
+ 248  006E  0080     R  MOV SPI_WRITE1,A
+ 248  006F  2000     R  CALL _SPI_WRITE
+
+; 249: 			SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_SLEEP);	//go_sleep
+ 249  0070  0F60        MOV A,060h
+ 249  0071  0080     R  MOV SPI_WRITE0,A
+ 249  0072  0F10        MOV A,010h
+ 249  0073  0080     R  MOV SPI_WRITE1,A
+ 249  0074  2000     R  CALL _SPI_WRITE
+ 249  0075              L53:
+ 249  0075              L51:
+ 249  0075              L43:
+ 249  0075  0003        RET
+
+; 203: 	unsigned char tmp;
+文件：HT46R064B.c  盛群编译器版本 3.00 页次16 
+
+ 203  0000  00          LOCAL CR8 DB ? ; tmp
+ 203  0076              _CMT_TX ENDP
+
+; 255: {
+ 255  0000              @KEY .SECTION 'CODE'
+ 255  0000              PUBLIC _KEY
+ 255  0000              _KEY PROC
+
+; 256: 	K2C=1;
+ 256  0000  3115        SET [015H].2
+
+; 257: 	K2UP=1;
+ 257  0001  3116        SET [016H].2
+
+; 258: 	if(!K2)
+ 258  0002  3D14        SZ [014H].2
+ 258  0003  2800     R  JMP L58
+
+; 260: 		a_k2_high=0;
+ 260  0004  1F00     R  CLR _a_k2_high
+
+; 261: 		if(!f_k2_buf)
+ 261  0005  1080     R  SZ _f_k2_buf
+ 261  0006  2800     R  JMP L59
+
+; 263: 			a_k2_low++;
+ 263  0007  1480     R  INC _a_k2_low
+
+; 264: 			if(a_k2_low>=5)
+ 264  0008  0700     R  MOV A,_a_k2_low
+ 264  0009  0A05        SUB A,05h
+ 264  000A  380A        SNZ [0ah].0
+ 264  000B  2800     R  JMP L59
+
+; 266: 				f_k2=1;
+ 266  000C  0F01        MOV A,01h
+ 266  000D  0080     R  MOV _f_k2,A
+
+; 267: 				f_k2_buf=1;	
+ 267  000E  0F01        MOV A,01h
+ 267  000F  0080     R  MOV _f_k2_buf,A
+
+; 270: 	}
+ 270  0010  2800     R  JMP L59
+ 270  0011              L58:
+
+; 273: 		a_k2_low=0;
+ 273  0011  1F00     R  CLR _a_k2_low
+
+; 274: 		if(f_k2_buf)
+ 274  0012  1080     R  SZ _f_k2_buf
+文件：HT46R064B.c  盛群编译器版本 3.00 页次15
+
+ 274  0013  2800     R  JMP L68
+ 274  0014  2800     R  JMP L64
+ 274  0015              L68:
+
+; 276: 			a_k2_high++;
+ 276  0015  1480     R  INC _a_k2_high
+
+; 277: 			if(a_k2_high>=5)
+文件：HT46R064B.c  盛群编译器版本 3.00 页次17 
+
+ 277  0016  0700     R  MOV A,_a_k2_high
+ 277  0017  0A05        SUB A,05h
+ 277  0018  380A        SNZ [0ah].0
+ 277  0019  2800     R  JMP L66
+
+; 279: 				f_k2_buf=0;
+ 279  001A  1F00     R  CLR _f_k2_buf
+ 279  001B              L66:
+ 279  001B              L64:
+ 279  001B              L59:
+ 279  001B              L57:
+ 279  001B  0003        RET
+ 279  001C              _KEY ENDP
+
+; 286: {
+ 286  0000              @initail .SECTION 'CODE'
+ 286  0000              PUBLIC _initail
+ 286  0000              _initail PROC
+
+; 287: 	for(_mp0=0x40;_mp0<0xff;_mp0++)	_iar0=0;
+ 287  0000  0F40        MOV A,040h
+ 287  0001  0081        MOV __mp0,A
+ 287  0002  2800     R  JMP L73
+ 287  0003              L70:
+ 287  0003  1F00        CLR __iar0
+ 287  0004              L71:
+ 287  0004  1481        INC __mp0
+ 287  0005              L73:
+ 287  0005  0701        MOV A,__mp0
+ 287  0006  0AFF        SUB A,0ffh
+ 287  0007  380A        SNZ [0AH].0
+ 287  0008  2800     R  JMP L70
+
+; 288: 	_iar0=0;
+ 288  0009  1F00        CLR __iar0
+
+; 289: 	FCSBC=0;
+ 289  000A  3411        CLR [011H].0
+
+; 290: 	CSBC=0;
+ 290  000B  3491        CLR [011H].1
+
+; 291: 	SCLKC=0;
+ 291  000C  3591        CLR [011H].3
+
+; 292: 	SDIOC=0;
+ 292  000D  3511        CLR [011H].2
+
+; 293: 	FCSB=1;
+ 293  000E  3010        SET [010H].0
+
+; 294: 	CSB=1;
+ 294  000F  3090        SET [010H].1
+
+; 295: 	SCLK=0;
+ 295  0010  3590        CLR [010H].3
+
+; 296: 	SDIO=0;	
+ 296  0011  3510        CLR [010H].2
+文件：HT46R064B.c  盛群编译器版本 3.00 页次16
+文件：HT46R064B.c  盛群编译器版本 3.00 页次18 
+
+
+
+; 297: 	SDIOUP=1;
+ 297  0012  3112        SET [012H].2
+
+; 299: 	a_tx[0]=0x55;
+ 299  0013  0F55        MOV A,055h
+ 299  0014  0080     R  MOV _a_tx,A
+
+; 300: 	a_tx[1]=0xaa;
+ 300  0015  0FAA        MOV A,0aah
+ 300  0016  0080     R  MOV _a_tx[1],A
+
+; 301: 	f_k2=1;
+ 301  0017  0F01        MOV A,01h
+ 301  0018  0080     R  MOV _f_k2,A
+
+; 302: 	RF_IO3C=1;
+ 302  0019  3095        SET [015H].1
+
+; 303: 	RF_IO3UP=1;
+ 303  001A  3096        SET [016H].1
+
+; 305: 	CMT_init();
+ 305  001B  2000     R  CALL _CMT_init
+ 305  001C              L69:
+ 305  001C  0003        RET
+ 305  001D              _initail ENDP
+
+; 309: {
+ 309  0000              @MAIN .SECTION 'CODE'
+ 309  0000              _main PROC
+ 309  0000              begin:
+
+; 311: 	initail();
+ 311  0000  2000     R  CALL _initail
+ 311  0001  2800     R  JMP L77
+ 311  0002              L76:
+
+; 314: 		_clrwdt();
+ 314  0002  0001        CLR WDT
+
+; 319: 		CMT_TX();
+ 319  0003  2000     R  CALL _CMT_TX
+
+; 320: 		_nop();
+ 320  0004  0000        NOP
+ 320  0005              L77:
+
+; 312: 	while(1)
+ 312  0005  2800     R  JMP L76
+ 312  0006              L75:
+
+; 322: }
+ 322  0006  2800     R  JMP $
+ 322  0007              _main ENDP
+ 322  0007              PUBLIC _a_tx
+ 322  0000              @a_tx .SECTION 'DATA'
+
+;  30: unsigned char a_data,a_count,a_tx[2];
+文件：HT46R064B.c  盛群编译器版本 3.00 页次19 
+
+  30  0000  0002[       _a_tx DB 2 DUP (?) ; a_tx
+            00
+            ]
+  30  0002              PUBLIC _a_data
+  30  0000              @a_data .SECTION 'DATA'
+  30  0000  00          _a_data DB ? ; a_data
+  30  0001              PUBLIC _f_10ms
+  30  0000              @f_10ms .SECTION 'DATA'
+文件：HT46R064B.c  盛群编译器版本 3.00 页次17
+
+
+;  29: unsigned char f_k1,f_k2,f_tx,f_k1_buf,f_k2_buf,f_10ms;
+  29  0000  00          _f_10ms DB ? ; f_10ms
+  29  0001              PUBLIC _f_k2_buf
+  29  0000              @f_k2_buf .SECTION 'DATA'
+  29  0000  00          _f_k2_buf DB ? ; f_k2_buf
+  29  0001              PUBLIC _f_k1_buf
+  29  0000              @f_k1_buf .SECTION 'DATA'
+  29  0000  00          _f_k1_buf DB ? ; f_k1_buf
+  29  0001              PUBLIC _f_tx
+  29  0000              @f_tx .SECTION 'DATA'
+  29  0000  00          _f_tx DB ? ; f_tx
+  29  0001              PUBLIC _f_k2
+  29  0000              @f_k2 .SECTION 'DATA'
+  29  0000  00          _f_k2 DB ? ; f_k2
+  29  0001              PUBLIC _f_k1
+  29  0000              @f_k1 .SECTION 'DATA'
+  29  0000  00          _f_k1 DB ? ; f_k1
+  29  0001              PUBLIC _a_k5_low
+  29  0000              @a_k5_low .SECTION 'DATA'
+
+;  28: unsigned char a_k1_high,a_k1_low,a_k2_high,a_k2_low,a_k3_high,a_k3_low,a_k4_high,a_k4_low,a_k5_high,a_k5_low;
+  28  0000  00          _a_k5_low DB ? ; a_k5_low
+  28  0001              PUBLIC _a_k5_high
+  28  0000              @a_k5_high .SECTION 'DATA'
+  28  0000  00          _a_k5_high DB ? ; a_k5_high
+  28  0001              PUBLIC _a_k4_low
+  28  0000              @a_k4_low .SECTION 'DATA'
+  28  0000  00          _a_k4_low DB ? ; a_k4_low
+  28  0001              PUBLIC _a_k4_high
+  28  0000              @a_k4_high .SECTION 'DATA'
+  28  0000  00          _a_k4_high DB ? ; a_k4_high
+  28  0001              PUBLIC _a_k3_low
+  28  0000              @a_k3_low .SECTION 'DATA'
+  28  0000  00          _a_k3_low DB ? ; a_k3_low
+  28  0001              PUBLIC _a_k3_high
+  28  0000              @a_k3_high .SECTION 'DATA'
+  28  0000  00          _a_k3_high DB ? ; a_k3_high
+  28  0001              PUBLIC _a_k2_low
+  28  0000              @a_k2_low .SECTION 'DATA'
+文件：HT46R064B.c  盛群编译器版本 3.00 页次18
+
+  28  0000  00          _a_k2_low DB ? ; a_k2_low
+  28  0001              PUBLIC _a_k2_high
+  28  0000              @a_k2_high .SECTION 'DATA'
+  28  0000  00          _a_k2_high DB ? ; a_k2_high
+  28  0001              PUBLIC _a_k1_low
+  28  0000              @a_k1_low .SECTION 'DATA'
+  28  0000  00          _a_k1_low DB ? ; a_k1_low
+  28  0001              PUBLIC _a_k1_high
+文件：HT46R064B.c  盛群编译器版本 3.00 页次20 
+
+  28  0000              @a_k1_high .SECTION 'DATA'
+  28  0000  00          _a_k1_high DB ? ; a_k1_high
+  28  0001              PUBLIC _a_10ms
+  28  0000              @a_10ms .SECTION 'DATA'
+
+;  27: unsigned char a_lcd_count,lcd_data[2],a_100ms,a_count,a_10ms;
+  27  0000  00          _a_10ms DB ? ; a_10ms
+  27  0001              PUBLIC _a_count
+  27  0000              @a_count .SECTION 'DATA'
+
+;  30: unsigned char a_data,a_count,a_tx[2];
+  30  0000  00          _a_count DB ? ; a_count
+  30  0001              PUBLIC _a_100ms
+  30  0000              @a_100ms .SECTION 'DATA'
+
+;  27: unsigned char a_lcd_count,lcd_data[2],a_100ms,a_count,a_10ms;
+  27  0000  00          _a_100ms DB ? ; a_100ms
+  27  0001              PUBLIC _lcd_data
+  27  0000              @lcd_data .SECTION 'DATA'
+  27  0000  0002[       _lcd_data DB 2 DUP (?) ; lcd_data
+            00
+            ]
+  27  0002              PUBLIC _a_lcd_count
+  27  0000              @a_lcd_count .SECTION 'DATA'
+  27  0000  00          _a_lcd_count DB ? ; a_lcd_count
+  27  0001              rambank 0 @a_rx
+  27  0000              @a_rx .SECTION AT 040H 'DATA'
+  27  0000              PUBLIC _a_rx
+
+;  26: unsigned char a_rx[0x10]	@0x40;
+  26  0000  0010[       _a_rx DB 16 DUP (?) ; a_rx
+            00
+            ]
+
+; 308: void main()
+ 308  0000              STARTSEC .SECTION  COM_L 'CODE'
+ 308  0000              STARTUP:
+ 308  0000              STARTSEC .SECTION  COM_E 'CODE'
+ 308  0000  0003        RET
+文件：HT46R064B.c  盛群编译器版本 3.00 页次19
+
+ 308  0001              EXTERN RH:BYTE
+ 308  0001              EXTERN __DELAY0:NEAR
+ 308  0001              EXTERN __DELAY1:NEAR
+ 308  0001              EXTERN __DELAY2:NEAR
+ 308  0001              EXTERN __DELAY3:NEAR
+ 308  0001              EXTERN __DELAYX0:NEAR
+ 308  0001              EXTERN __DELAYX1:NEAR
+ 308  0001              EXTERN __DELAYX2:NEAR
+ 308  0001              EXTERN __DELAYX3:NEAR
+ 308  0001              EXTERN __DELAYX4:NEAR
+ 308  0001              EXTERN __DELAYX5:NEAR
+ 308  0001              EXTERN __DELAYX6:NEAR
+ 308  0001              EXTERN __DELAYY0:NEAR
+ 308  0001              EXTERN __DELAYY1:NEAR
+ 308  0001              EXTERN __DELAYY2:NEAR
+ 308  0001              EXTERN __DELAYY3:NEAR
+ 308  0001              EXTERN __DELAYY4:NEAR
+ 308  0001              EXTERN __DELAYY5:NEAR
+ 308  0000              @CODE .SECTION AT 0 'CODE'
+文件：HT46R064B.c  盛群编译器版本 3.00 页次21 
+
+ 308  0000  2000     R  CALL STARTUP
+ 308  0001  2800     R  JMP begin
+ 308  0002              @DUMMY PROC
+ 308  0002  2000     R  CALL _main
+ 308  0003              @DUMMY ENDP
+
+
+        0 Errors

@@ -1,0 +1,1131 @@
+				;file G:\xml\640\HT66F018\HT66F018.c
+				;1	#include "HT66F018.h"
+				;2	#include "head.h"
+				;3	#include "cmt2300a_defs.h"
+				;4	
+				;5	
+				;6	volatile unsigned char a_100ms,a_count,a_10ms;
+				;7	unsigned char a_k1_high,a_k1_low,a_k2_high,a_k2_low,a_k3_high,a_k3_low,a_k4_high,a_k4_low,a_k5_high,a_k5_low;
+				;8	volatile flag_byte f_flag;
+				;9	volatile unsigned char a_data,a_count,a_rx[4],a_read[0x20];
+				;10	volatile unsigned int a_bz;
+				;11	
+				;12	
+				;13	//1500us
+				;14	void __attribute((interrupt(0x10)))	TM1_int()
+				;15	{
+				@dummy .SECTION 'CODE'
+				@TM1_int_code .SECTION 'CODE'
+0010	40D8	mov     r110, a
+0011	070A	mov     a, STATUS
+0012	40D9	mov     r210, a
+0013	2844	jmp     _TM1_int
+				L0014:
+				@dummy16 .SECTION 'CODE'
+0014	6602	call    E02H
+0015	1CEC	dc	01CECH
+0016	80F0	dc	080F0H
+0017	0814	call    L0014
+0018	0291	subm    a, MFI0
+0019	D002	dc	0D002H
+001A	FAAE	dc	0FAAEH
+001B	D050	dc	0D050H
+001C	F471	dc	0F471H
+001D	5310	adc     a, __cpc[82]
+001E	2072	call    L0072
+001F	0140	cpla    PC
+0020	7142	set     a_read[14].2
+0021	1CCE	dc	01CCEH
+0022	5B42	rrca    a_read[14]
+0023	1C1C	dc	01C1CH
+0024	1832	rla     TM0DH
+0025	9900	dc	09900H
+0026	9BC1	dc	09BC1H
+0027	0A06	sub     a, 6H
+0028	399F	snz     EED.3
+0029	2929	jmp     L0129
+002A	51C0	swap    a_read[12]
+002B	532A	adc     a, a_k4_low[0]
+002C	0000	nop
+002D	00B4	mov     TM0AH, a
+002E	0100	cpla    [00H]
+002F	0000	nop
+0030	0812	dc	00812H
+0031	AA00	dc	0AA00H
+0032	0002	halt
+0033	0000	nop
+0034	0000	nop
+0035	D400	dc	0D400H
+0036	002D	dc	0002DH
+0037	0003	ret
+0038	0000	nop
+0039	0000	nop
+003A	0000	nop
+003B	6000	call    800H
+003C	01FF	cpl     __cpc[65]
+003D	1F00	clr     [00H]
+003E	5010	sza     __cpc[82]
+003F	0326	add     a, PBC
+0040	4200	sub     a, __cpc[66]
+0041	00B0	mov     TM0C1, a
+0042	0101	cpla    MP0
+0043	7F3F	sz      a_read[11].6
+				;16		if(_t1af)
+				_TM1_int:
+				_TM1_int:
+0044	0712	mov     a, MFI1
+0045	40DA	mov     ra10, a
+0046	0F20	mov     a, 20H
+0047	46DA	andm    a, ra10
+0048	50DA	sz      ra10
+0049	284B	jmp     _LI1
+004A	2888	jmp     _L1
+				;17		{
+				;18			_t1af=0;
+				_LI1:
+004B	3692	clr     T1AF
+				;19			if(f_bz)
+004C	472D	mov     a, f_flag[0]
+004D	40DA	mov     ra10, a
+004E	0F01	mov     a, 1H
+004F	46DA	andm    a, ra10
+0050	50DA	sz      ra10
+0051	2853	jmp     _LI2
+0052	2875	jmp     _L3
+				;20			{
+				;21				if(a_bz--)	 BZ^=1;
+				_LI2:
+0053	4754	mov     a, a_bz[0]
+0054	40DA	mov     ra10, a
+0055	4755	mov     a, a_bz[1]
+0056	40DB	mov     rb10, a
+0057	0FFF	mov     a, FFH
+0058	435A	add     a, ra10
+0059	40DC	mov     rc10, a
+005A	0FFF	mov     a, FFH
+005B	535B	adc     a, rb10
+005C	40DD	mov     rd10, a
+005D	475C	mov     a, rc10
+005E	40D4	mov     a_bz[0], a
+005F	475D	mov     a, rd10
+0060	40D5	mov     a_bz[1], a
+0061	475A	mov     a, ra10
+0062	455B	or      a, rb10
+0063	3D0A	sz      Z
+0064	2873	jmp     _L4
+0065	0725	mov     a, PB
+0066	40DA	mov     ra10, a
+0067	0F01	mov     a, 1H
+0068	46DA	andm    a, ra10
+0069	0F01	mov     a, 1H
+006A	44DA	xorm    a, ra10
+006B	0F01	mov     a, 1H
+006C	46DA	andm    a, ra10
+006D	0F01	mov     a, 1H
+006E	46DA	andm    a, ra10
+006F	3425	clr     PB0
+0070	475A	mov     a, ra10
+0071	05A5	orm     a, PB
+				L0072:
+0072	2876	jmp     _L6
+				;22				else         f_bz=0;
+				_L4:
+0073	742D	clr     f_flag[0].0
+0074	2876	jmp     _L6
+				;23			}	 
+				;24			else BZ=0;
+				_L3:
+0075	3425	clr     PB0
+				;25			a_10ms++;
+				_L6:
+0076	4722	mov     a, a_10ms[0]
+0077	40DA	mov     ra10, a
+0078	54DA	inc     ra10
+0079	475A	mov     a, ra10
+007A	40A2	mov     a_10ms[0], a
+				;26			if(a_10ms>=80)
+007B	4722	mov     a, a_10ms[0]
+007C	40DA	mov     ra10, a
+007D	0F4F	mov     a, 4FH
+007E	425A	sub     a, ra10
+007F	3C0A	sz      C
+0080	2883	jmp     _L7
+				;27			{
+				;28				a_10ms=0;
+0081	5F22	clr     a_10ms[0]
+				;29				f_10ms=1;	
+0082	712E	set     f_flag[1].2
+				;30			}
+				;31			a_100ms++;
+				_L7:
+0083	4720	mov     a, a_100ms[0]
+0084	40DA	mov     ra10, a
+0085	54DA	inc     ra10
+0086	475A	mov     a, ra10
+0087	40A0	mov     a_100ms[0], a
+				_L1:
+0088	4759	mov     a, r210
+0089	008A	mov     STATUS, a
+008A	4758	mov     a, r110
+008B	0004	reti
+				;32	//		if(a_100ms>=250)
+				;33	//		{
+				;34	//			a_100ms=0;
+				;35	//			a_count++;
+				;36	//			if(a_count>9)	a_count=0;	
+				;37	//			lcd_data[0]=c_num[a_count];
+				;38	//		}		
+				;39		}
+				;40	}
+				;41	
+				;42	void FIFO_READ(unsigned char len)
+				;43	{	
+				_FIFO_READ:
+				_FIFO_READ:
+008C	40E1	mov     len[0], a
+				;44		unsigned char i,j,data;	
+				;45		CSB=1;
+008D	3394	set     PA7
+				;46		FCSB=0;
+008E	35A5	clr     PB3
+				;47		SCLK=0;
+008F	3614	clr     PA4
+				;48		SDIOC=1;
+0090	3295	set     PAC5
+				;49		for(j=0;j<len;j++)
+0091	5F5F	clr     j[0]
+0092	28D0	jmp     L00D0
+00CC	475F	mov     a, j[0]
+00CD	40D6	mov     ra, a
+00CE	5456	inca    ra
+00CF	40DF	mov     j[0], a
+				L00D0:
+00D0	475F	mov     a, j[0]
+00D1	4261	sub     a, len[0]
+00D2	380A	snz     C
+00D3	2893	jmp     L0093
+				;50		{		
+				;51			FCSB=0;
+				L0093:
+0093	35A5	clr     PB3
+				;52			for(i=0;i<8;i++)
+0094	5F5E	clr     i[0]
+0095	28B6	jmp     L00B6
+00B2	475E	mov     a, i[0]
+00B3	40D6	mov     ra, a
+00B4	5456	inca    ra
+00B5	40DE	mov     i[0], a
+				L00B6:
+00B6	0F07	mov     a, 7H
+00B7	425E	sub     a, i[0]
+00B8	3C0A	sz      C
+00B9	2896	jmp     L0096
+				;53			{
+				;54				data=0;
+				L0096:
+0096	5F60	clr     data[0]
+				;55				for(i=0;i<8;i++)
+0097	5F5E	clr     i[0]
+0098	28AE	jmp     L00AE
+00AA	475E	mov     a, i[0]
+00AB	40D6	mov     ra, a
+00AC	5456	inca    ra
+00AD	40DE	mov     i[0], a
+				L00AE:
+00AE	0F07	mov     a, 7H
+00AF	425E	sub     a, i[0]
+00B0	3C0A	sz      C
+00B1	2899	jmp     L0099
+				;56				{
+				;57					data<<=1;
+				L0099:
+0099	4760	mov     a, data[0]
+009A	40D6	mov     ra, a
+009B	4756	mov     a, ra
+009C	43D6	addm    a, ra
+009D	4756	mov     a, ra
+009E	40E0	mov     data[0], a
+				;58					SCLK=1;
+009F	3214	set     PA4
+				;59					if(SDIO)		data|=1;	
+00A0	0714	mov     a, PA
+00A1	40D6	mov     ra, a
+00A2	0F20	mov     a, 20H
+00A3	46D6	andm    a, ra
+00A4	50D6	sz      ra
+00A5	28A7	jmp     L00A7
+00A6	28A8	jmp     L00A8
+				L00A7:
+00A7	7060	set     data[0].0
+				;60					_nop();	
+				L00A8:
+00A8	0000	nop
+				;61					SCLK=0;			
+00A9	3614	clr     PA4
+				;62				}
+				;63			}
+				;64			a_rx[j]=data;	
+00BA	475F	mov     a, j[0]
+00BB	40D6	mov     ra, a
+00BC	5F57	clr     rb
+00BD	0FB0	mov     a, B0H
+00BE	43D6	addm    a, ra
+00BF	0F00	mov     a, 0H
+00C0	53D7	adcm    a, rb
+00C1	4756	mov     a, ra
+00C2	0083	mov     MP1, a
+00C3	4757	mov     a, rb
+00C4	0081	mov     MP0, a
+00C5	0701	mov     a, MP0
+00C6	0084	mov     BP, a
+00C7	4760	mov     a, data[0]
+00C8	0082	mov     __iar1[0], a
+				;65			FCSB=1;
+00C9	31A5	set     PB3
+				;66			GCC_DELAY(10);
+00CA	0F01	mov     a, 1H
+00CB	2281	call    L0281
+				;67		}
+				;68		SCLK=0;	
+00D4	3614	clr     PA4
+				;69		SDIOC=0;
+00D5	3695	clr     PAC5
+				;70		FCSB=1;	
+00D6	31A5	set     PB3
+00D7	0003	ret
+				;71	}
+				;72	
+				;73	void SPI_WRITE(unsigned char address,unsigned char data)
+				;74	{
+				_SPI_WRITE:
+				_SPI_WRITE:
+00D8	40E0	mov     address[0], a
+				;75		unsigned char i;
+				;76		address&=0x7f;
+00D9	77E0	clr     address[0].7
+				;77		FCSB=1;
+00DA	31A5	set     PB3
+				;78		CSB=0;	
+00DB	3794	clr     PA7
+				;79		SDIOC=0;
+00DC	3695	clr     PAC5
+				;80		SCLK=0;
+00DD	3614	clr     PA4
+				;81		for(i=0;i<8;i++)
+00DE	5F5F	clr     i[0]
+00DF	28F3	jmp     L00F3
+00EF	475F	mov     a, i[0]
+00F0	40D6	mov     ra, a
+00F1	5456	inca    ra
+00F2	40DF	mov     i[0], a
+				L00F3:
+00F3	0F07	mov     a, 7H
+00F4	425F	sub     a, i[0]
+00F5	3C0A	sz      C
+00F6	28E0	jmp     L00E0
+				;82		{
+				;83			SCLK=0;
+				L00E0:
+00E0	3614	clr     PA4
+				;84			if(address&0x80)	SDIO=1;
+00E1	4760	mov     a, address[0]
+00E2	40D6	mov     ra, a
+00E3	7BD6	snz     ra.7
+00E4	28E7	jmp     L00E7
+00E5	3294	set     PA5
+00E6	28E8	jmp     L00E8
+				;85			else 				SDIO=0;	
+				L00E7:
+00E7	3694	clr     PA5
+				;86			SCLK=1;
+				L00E8:
+00E8	3214	set     PA4
+				;87			address<<=1;
+00E9	4760	mov     a, address[0]
+00EA	40D6	mov     ra, a
+00EB	4756	mov     a, ra
+00EC	43D6	addm    a, ra
+00ED	4756	mov     a, ra
+00EE	40E0	mov     address[0], a
+				;88		}
+				;89		for(i=0;i<8;i++)
+00F7	5F5F	clr     i[0]
+00F8	290C	jmp     L010C
+0108	475F	mov     a, i[0]
+0109	40D6	mov     ra, a
+010A	5456	inca    ra
+010B	40DF	mov     i[0], a
+				L010C:
+010C	0F07	mov     a, 7H
+010D	425F	sub     a, i[0]
+010E	3C0A	sz      C
+010F	28F9	jmp     L00F9
+				;90		{
+				;91			SCLK=0;
+				L00F9:
+00F9	3614	clr     PA4
+				;92			if(data&0x80)		SDIO=1;
+00FA	475E	mov     a, data[0]
+00FB	40D6	mov     ra, a
+00FC	7BD6	snz     ra.7
+00FD	2900	jmp     L0100
+00FE	3294	set     PA5
+00FF	2901	jmp     L0101
+				;93			else				SDIO=0;
+				L0100:
+0100	3694	clr     PA5
+				;94			data<<=1;
+				L0101:
+0101	475E	mov     a, data[0]
+0102	40D6	mov     ra, a
+0103	4756	mov     a, ra
+0104	43D6	addm    a, ra
+0105	4756	mov     a, ra
+0106	40DE	mov     data[0], a
+				;95			SCLK=1;			
+0107	3214	set     PA4
+				;96		}
+				;97		SCLK=0;
+0110	3614	clr     PA4
+				;98		GCC_DELAY(5);
+0111	227B	call    L027B
+				;99		SDIO=0;
+0112	3694	clr     PA5
+				;100		CSB=1;
+0113	3394	set     PA7
+0114	0003	ret
+				;101	}
+				;102	
+				;103	unsigned char SPI_READ(unsigned char address)
+				;104	{
+				_SPI_READ:
+				_SPI_READ:
+0115	40E0	mov     address[0], a
+				;105		unsigned char i,data;
+				;106		FCSB=1;
+0116	31A5	set     PB3
+				;107		CSB=0;	
+0117	3794	clr     PA7
+				;108		SCLK=0;
+0118	3614	clr     PA4
+				;109		SDIOC=0;
+0119	3695	clr     PAC5
+				;110		address|=0x80;
+011A	73E0	set     address[0].7
+				;111		for(i=0;i<8;i++)
+011B	5F5E	clr     i[0]
+011C	2932	jmp     L0132
+012E	475E	mov     a, i[0]
+012F	40D6	mov     ra, a
+0130	5456	inca    ra
+0131	40DE	mov     i[0], a
+				L0132:
+0132	0F07	mov     a, 7H
+0133	425E	sub     a, i[0]
+0134	3C0A	sz      C
+0135	291D	jmp     L011D
+				;112		{
+				;113			SCLK=0;
+				L011D:
+011D	3614	clr     PA4
+				;114			if(address&0x80)	SDIO=1;
+011E	4760	mov     a, address[0]
+011F	40D6	mov     ra, a
+0120	7BD6	snz     ra.7
+0121	2924	jmp     L0124
+0122	3294	set     PA5
+0123	2925	jmp     L0125
+				;115			else 				SDIO=0;	
+				L0124:
+0124	3694	clr     PA5
+				;116			_nop();
+				L0125:
+0125	0000	nop
+				;117			_nop();
+0126	0000	nop
+				;118			SCLK=1;
+0127	3214	set     PA4
+				;119			address<<=1;
+0128	4760	mov     a, address[0]
+				L0129:
+0129	40D6	mov     ra, a
+012A	4756	mov     a, ra
+012B	43D6	addm    a, ra
+012C	4756	mov     a, ra
+012D	40E0	mov     address[0], a
+				;120		}
+				;121		SDIOC=1;
+0136	3295	set     PAC5
+				;122		SCLK=0;
+0137	3614	clr     PA4
+				;123		GCC_DELAY(10);
+0138	0F01	mov     a, 1H
+0139	2281	call    L0281
+				;124		data=0;
+013A	5F5F	clr     data[0]
+				;125		for(i=0;i<8;i++)
+013B	5F5E	clr     i[0]
+013C	2952	jmp     L0152
+014E	475E	mov     a, i[0]
+014F	40D6	mov     ra, a
+0150	5456	inca    ra
+0151	40DE	mov     i[0], a
+				L0152:
+0152	0F07	mov     a, 7H
+0153	425E	sub     a, i[0]
+0154	3C0A	sz      C
+0155	293D	jmp     L013D
+				;126		{
+				;127			data<<=1;
+				L013D:
+013D	475F	mov     a, data[0]
+013E	40D6	mov     ra, a
+013F	4756	mov     a, ra
+0140	43D6	addm    a, ra
+0141	4756	mov     a, ra
+0142	40DF	mov     data[0], a
+				;128			SCLK=1;
+0143	3214	set     PA4
+				;129			if(SDIO)		data|=1;	
+0144	0714	mov     a, PA
+0145	40D6	mov     ra, a
+0146	0F20	mov     a, 20H
+0147	46D6	andm    a, ra
+0148	50D6	sz      ra
+0149	294B	jmp     L014B
+014A	294C	jmp     L014C
+				L014B:
+014B	705F	set     data[0].0
+				;130			_nop();	
+				L014C:
+014C	0000	nop
+				;131			SCLK=0;			
+014D	3614	clr     PA4
+				;132		}
+				;133		GCC_DELAY(10);
+0156	0F01	mov     a, 1H
+0157	2281	call    L0281
+				;134		SCLK=0;
+0158	3614	clr     PA4
+				;135		SDIOC=0;
+0159	3695	clr     PAC5
+				;136		SDIO=0;
+015A	3694	clr     PA5
+				;137		CSB=1;	
+015B	3394	set     PA7
+				;138		return data;
+015C	475F	mov     a, data[0]
+015D	40D6	mov     ra, a
+				;139	}
+015E	4756	mov     a, ra
+015F	0003	ret
+				;140	
+				;141	void CMT_init()
+				;142	{
+				;143		unsigned char tmp,back;
+				;144		SPI_WRITE(0x7F,0xFF);		//Soft Reset 
+				_CMT_init:
+				_CMT_init:
+0160	5FDE	set     i
+0161	0F7F	mov     a, 7FH
+0162	20D8	call    _SPI_WRITE
+				;145		GCC_DELAY(40000);			//20ms
+0163	0F26	mov     a, 26H
+0164	40DE	mov     i, a
+0165	0FFB	mov     a, FBH
+0166	2289	call    L0289
+				;146		SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_STBY);	//go_stdby
+0167	0F02	mov     a, 2H
+0168	40DE	mov     i, a
+0169	0F60	mov     a, 60H
+016A	20D8	call    _SPI_WRITE
+				;147		
+				;148		tmp=SPI_READ(CMT2300A_CUS_MODE_STA);				//address 0x61
+016B	0F61	mov     a, 61H
+016C	2115	call    _SPI_READ
+016D	40D6	mov     ra, a
+016E	4756	mov     a, ra
+016F	40E1	mov     tmp[0], a
+				;149		tmp|=CMT2300A_MASK_CFG_RETAIN;						//Enable CFG_RETAIN 
+0170	7261	set     tmp[0].4
+				;150		tmp&=(unsigned char)~CMT2300A_MASK_RSTN_IN_EN;		//Disable RSTN_IN 
+0171	76E1	clr     tmp[0].5
+				;151		SPI_WRITE(CMT2300A_CUS_MODE_STA,tmp);
+0172	4761	mov     a, tmp[0]
+0173	40DE	mov     i, a
+0174	0F61	mov     a, 61H
+0175	20D8	call    _SPI_WRITE
+				;152		
+				;153		//Enable LOCKING
+				;154		tmp=SPI_READ(CMT2300A_CUS_EN_CTL);		//adress 0x60
+0176	0F62	mov     a, 62H
+0177	2115	call    _SPI_READ
+0178	40D6	mov     ra, a
+0179	4756	mov     a, ra
+017A	40E1	mov     tmp[0], a
+				;155		tmp|=CMT2300A_MASK_LOCKING_EN;			//LOCKING_EN=1;
+017B	72E1	set     tmp[0].5
+				;156		SPI_WRITE(CMT2300A_CUS_EN_CTL, tmp);
+017C	4761	mov     a, tmp[0]
+017D	40DE	mov     i, a
+017E	0F62	mov     a, 62H
+017F	20D8	call    _SPI_WRITE
+				;157		
+				;158		//Diable LFOSC 
+				;159		tmp=SPI_READ(CMT2300A_CUS_SYS2);		
+0180	0F0D	mov     a, DH
+0181	2115	call    _SPI_READ
+0182	40D6	mov     ra, a
+0183	4756	mov     a, ra
+0184	40E1	mov     tmp[0], a
+				;160	    tmp &= (unsigned char)~CMT2300A_MASK_LFOSC_RECAL_EN;
+0185	77E1	clr     tmp[0].7
+				;161	    tmp &= (unsigned char)~CMT2300A_MASK_LFOSC_CAL1_EN;
+0186	7761	clr     tmp[0].6
+				;162	    tmp &=(unsigned char) ~CMT2300A_MASK_LFOSC_CAL2_EN;			
+0187	76E1	clr     tmp[0].5
+				;163		SPI_WRITE(CMT2300A_CUS_SYS2,tmp);
+0188	4761	mov     a, tmp[0]
+0189	40DE	mov     i, a
+018A	0F0D	mov     a, DH
+018B	20D8	call    _SPI_WRITE
+				;164		
+				;165		SPI_WRITE(CMT2300A_CUS_INT_CLR1,0xff);
+018C	5FDE	set     i
+018D	0F6A	mov     a, 6AH
+018E	20D8	call    _SPI_WRITE
+				;166		SPI_WRITE(CMT2300A_CUS_INT_CLR2,0xff);
+018F	5FDE	set     i
+0190	0F6B	mov     a, 6BH
+0191	20D8	call    _SPI_WRITE
+				;167		
+				;168		for(tmp=0;tmp<0x60;tmp++)
+0192	5F61	clr     tmp[0]
+0193	29AA	jmp     _L35
+01A6	4761	mov     a, tmp[0]
+01A7	40D6	mov     ra, a
+01A8	5456	inca    ra
+01A9	40E1	mov     tmp[0], a
+				_L35:
+01AA	0F5F	mov     a, 5FH
+01AB	4261	sub     a, tmp[0]
+01AC	3C0A	sz      C
+01AD	2994	jmp     _L36
+				;169		{
+				;170			SPI_WRITE(tmp,c_cmt_init[tmp]);
+				_L36:
+0194	4761	mov     a, tmp[0]
+0195	40D6	mov     ra, a
+0196	5F57	clr     rb
+0197	0F28	mov     a, 28H
+0198	43D6	addm    a, ra
+0199	0F80	mov     a, 80H
+019A	53D7	adcm    a, rb
+019B	4756	mov     a, ra
+019C	0083	mov     MP1, a
+019D	4757	mov     a, rb
+019E	0081	mov     MP0, a
+019F	2296	call    L0296
+01A0	40D6	mov     ra, a
+01A1	4756	mov     a, ra
+01A2	40DE	mov     i, a
+01A3	4761	mov     a, tmp[0]
+01A4	20D8	call    _SPI_WRITE
+				;171			_clrwdt();	
+01A5	0001	clr     wdt
+				;172		}
+				;173	
+				;174	//	tmp=((unsigned char)~0x07)&SPI_READ(CMT2300A_CUS_CMT10);		//RFPDK 1.46以后，可忽略
+				;175	//	SPI_WRITE(CMT2300A_CUS_CMT10, tmp|0x02);
+				;176	
+				;177		SPI_WRITE(CMT2300A_CUS_IO_SEL,CMT2300A_GPIO1_SEL_DOUT|CMT2300A_GPIO3_SEL_INT2);	//INT1 > GPIO1   ,INT2 > GPIO3
+01AE	0F20	mov     a, 20H
+01AF	40DE	mov     i, a
+01B0	0F65	mov     a, 65H
+01B1	20D8	call    _SPI_WRITE
+				;178	//	SPI_WRITE(CMT2300A_CUS_IO_SEL,CMT2300A_GPIO1_SEL_INT1|CMT2300A_GPIO3_SEL_DOUT);
+				;179		tmp|=CMT2300A_INT_POLAR_SEL_1;
+01B2	72E1	set     tmp[0].5
+				;180		SPI_WRITE(CMT2300A_CUS_INT1_CTL, tmp);	
+01B3	4761	mov     a, tmp[0]
+01B4	40DE	mov     i, a
+01B5	0F66	mov     a, 66H
+01B6	20D8	call    _SPI_WRITE
+				;181		tmp=SPI_READ(CMT2300A_CUS_INT1_CTL);
+01B7	0F66	mov     a, 66H
+01B8	2115	call    _SPI_READ
+01B9	40D6	mov     ra, a
+01BA	4756	mov     a, ra
+01BB	40E1	mov     tmp[0], a
+				;182		
+				;183	//	SPI_WRITE(CMT2300A_CUS_IO_SEL,CMT2300A_GPIO3_SEL_INT2);	//INT2 > GPIO3
+				;184	//	tmp=SPI_READ(CMT2300A_CUS_INT2_CTL);
+				;185		tmp=CMT2300A_INT_SEL_PKT_DONE;						//
+01BC	0F19	mov     a, 19H
+01BD	40E1	mov     tmp[0], a
+				;186		SPI_WRITE(CMT2300A_CUS_INT2_CTL, tmp);				//CMT2300A_INT_SEL_PKT_DONE
+01BE	4761	mov     a, tmp[0]
+01BF	40DE	mov     i, a
+01C0	0F67	mov     a, 67H
+01C1	20D8	call    _SPI_WRITE
+				;187		SPI_WRITE(CMT2300A_CUS_INT_EN,CMT2300A_MASK_PKT_DONE_EN);	//CMT2300A_MASK_TX_DONE_EN
+01C2	0F01	mov     a, 1H
+01C3	40DE	mov     i, a
+01C4	0F68	mov     a, 68H
+01C5	20D8	call    _SPI_WRITE
+				;188		
+				;189		
+				;190		//enable read fifo
+				;191		tmp=SPI_READ(CMT2300A_CUS_FIFO_CTL);
+01C6	0F69	mov     a, 69H
+01C7	2115	call    _SPI_READ
+01C8	40D6	mov     ra, a
+01C9	4756	mov     a, ra
+01CA	40E1	mov     tmp[0], a
+				;192		tmp &= ~CMT2300A_MASK_SPI_FIFO_RD_WR_SEL; 
+01CB	7461	clr     tmp[0].0
+				;193		tmp &= ~CMT2300A_MASK_FIFO_RX_TX_SEL;
+01CC	7561	clr     tmp[0].2
+				;194	   	SPI_WRITE(CMT2300A_CUS_FIFO_CTL,tmp);
+01CD	4761	mov     a, tmp[0]
+01CE	40DE	mov     i, a
+01CF	0F69	mov     a, 69H
+01D0	20D8	call    _SPI_WRITE
+				;195	   	//clr rx fifo
+				;196	   	SPI_WRITE(CMT2300A_CUS_FIFO_CLR,CMT2300A_MASK_FIFO_CLR_RX);		 	
+01D1	0F02	mov     a, 2H
+01D2	40DE	mov     i, a
+01D3	0F6C	mov     a, 6CH
+01D4	20D8	call    _SPI_WRITE
+				;197		//go_tx
+				;198	   	SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_RX);
+01D5	0F08	mov     a, 8H
+01D6	40DE	mov     i, a
+01D7	0F60	mov     a, 60H
+01D8	20D8	call    _SPI_WRITE
+				;199		
+				;200		tmp=SPI_READ(CMT2300A_CUS_SYS10);						//SLP13
+01D9	0F15	mov     a, 15H
+01DA	2115	call    _SPI_READ
+01DB	40D6	mov     ra, a
+01DC	4756	mov     a, ra
+01DD	40E1	mov     tmp[0], a
+				;201		tmp|=13;
+01DE	0F0D	mov     a, DH
+01DF	45E1	orm     a, tmp[0]
+				;202		SPI_WRITE(CMT2300A_CUS_SYS10,tmp); 
+01E0	4761	mov     a, tmp[0]
+01E1	40DE	mov     i, a
+01E2	0F15	mov     a, 15H
+01E3	20D8	call    _SPI_WRITE
+				;203		
+				;204		SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_SLEEP);	//go_sleep
+01E4	0F10	mov     a, 10H
+01E5	40DE	mov     i, a
+01E6	0F60	mov     a, 60H
+01E7	20D8	call    _SPI_WRITE
+				;205		GCC_DELAY(60000);
+01E8	0F3A	mov     a, 3AH
+01E9	40DE	mov     i, a
+01EA	0F79	mov     a, 79H
+01EB	2289	call    L0289
+				;206		//测试CMT是否存在
+				;207		back = SPI_READ(CMT2300A_CUS_PKT17);
+01EC	0F48	mov     a, 48H
+01ED	2115	call    _SPI_READ
+01EE	40D6	mov     ra, a
+01EF	4756	mov     a, ra
+01F0	40E2	mov     back[0], a
+				;208	    SPI_WRITE(CMT2300A_CUS_PKT17, 0xAA);
+01F1	0FAA	mov     a, AAH
+01F2	40DE	mov     i, a
+01F3	0F48	mov     a, 48H
+01F4	20D8	call    _SPI_WRITE
+				;209	    tmp = SPI_READ(CMT2300A_CUS_PKT17);
+01F5	0F48	mov     a, 48H
+01F6	2115	call    _SPI_READ
+01F7	40D6	mov     ra, a
+01F8	4756	mov     a, ra
+01F9	40E1	mov     tmp[0], a
+				;210	    SPI_WRITE(CMT2300A_CUS_PKT17, back);
+01FA	4762	mov     a, back[0]
+01FB	40DE	mov     i, a
+01FC	0F48	mov     a, 48H
+01FD	20D8	call    _SPI_WRITE
+				;211	    if(tmp!=0xAA) while(1);    
+01FE	4761	mov     a, tmp[0]
+01FF	0AAA	sub     a, AAH
+0200	3D0A	sz      Z
+0201	2A03	jmp     _L34
+				_L38:
+0202	2A02	jmp     $
+				_L34:
+0203	0003	ret
+				;212	  	
+				;213	}
+				;214	
+				;215	void CMT_RX()
+				;216	{
+				;217		unsigned char tmp;   
+				;218	//	tmp= SPI_READ(CMT2300A_CUS_INT_FLAG);
+				;219		if(!RF_INT)
+				_CMT_RX:
+				_CMT_RX:
+0204	0725	mov     a, PB
+0205	40D6	mov     ra, a
+0206	0F04	mov     a, 4H
+0207	46D6	andm    a, ra
+0208	50D6	sz      ra
+0209	2A3E	jmp     _L39
+				;220		{
+				;221			FIFO_READ(4);
+020A	0F04	mov     a, 4H
+020B	208C	call    _FIFO_READ
+				;222			SPI_WRITE(CMT2300A_CUS_INT_CLR2,CMT2300A_MASK_PKT_DONE_CLR); //clr TX_DONE int flag
+020C	0F01	mov     a, 1H
+020D	40DE	mov     i, a
+020E	0F6B	mov     a, 6BH
+020F	20D8	call    _SPI_WRITE
+				;223			SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_SLEEP);	//go_sleep
+0210	0F10	mov     a, 10H
+0211	40DE	mov     i, a
+0212	0F60	mov     a, 60H
+0213	20D8	call    _SPI_WRITE
+				;224			if((a_rx[0]==0x55)&&(a_rx[1]==0xaa)&&(a_rx[2]==0xaa)&&(a_rx[3]==0x55))
+0214	4730	mov     a, a_rx[0]
+0215	40D6	mov     ra, a
+0216	4756	mov     a, ra
+0217	0A55	sub     a, 55H
+0218	390A	snz     Z
+0219	2A30	jmp     _L41
+021A	4731	mov     a, a_rx[1]
+021B	40D6	mov     ra, a
+021C	4756	mov     a, ra
+021D	0AAA	sub     a, AAH
+021E	390A	snz     Z
+021F	2A30	jmp     _L41
+0220	4732	mov     a, a_rx[2]
+0221	40D6	mov     ra, a
+0222	4756	mov     a, ra
+0223	0AAA	sub     a, AAH
+0224	390A	snz     Z
+0225	2A30	jmp     _L41
+0226	4733	mov     a, a_rx[3]
+0227	40D6	mov     ra, a
+0228	4756	mov     a, ra
+0229	0A55	sub     a, 55H
+022A	390A	snz     Z
+022B	2A30	jmp     _L41
+				;225			{
+				;226				f_bz=1;
+022C	702D	set     f_flag[0].0
+				;227				a_bz=200;	
+022D	0FC8	mov     a, C8H
+022E	40D4	mov     a_bz[0], a
+022F	5F55	clr     a_bz[1]
+				;228			}
+				;229			a_rx[0]=0;
+				_L41:
+0230	5F30	clr     a_rx[0]
+				;230			a_rx[1]=0;
+0231	5F31	clr     a_rx[1]
+				;231			a_rx[2]=0;
+0232	5F32	clr     a_rx[2]
+				;232			a_rx[3]=0;
+0233	5F33	clr     a_rx[3]
+				;233			while(1)
+				;234			{
+				;235	//			if(!f_bz)
+				;236				{
+				;237					_we4=1;
+				_L42:
+0234	339A	set     WE4
+				;238					_we3=0;
+0235	371A	clr     WE3
+				;239					_we2=1;
+0236	329A	set     WE2
+				;240					_we1=0;
+0237	361A	clr     WE1
+				;241					_we0=1;
+0238	319A	set     WE0
+				;242					_emi=0;
+0239	340E	clr     EMI
+				;243					_idlen=0;
+023A	348B	clr     IDLEN
+				;244					_clrwdt();
+023B	0001	clr     wdt
+				;245					GCC_HALT();	
+023C	0002	halt
+				;246				}	
+				;247			}
+023D	2A34	jmp     _L42
+				_L39:
+023E	0003	ret
+				;248		}	
+				;249	}
+				;250	
+				;251	void initail()
+				;252	{
+				;253		_dmbp0=0;
+				_initail:
+				_initail:
+023F	3404	clr     DMBP0
+				;254		for(_mp1=0x80;_mp1<0xff;_mp1++)	_iar1=0;
+0240	0F80	mov     a, 80H
+0241	0083	mov     MP1, a
+0242	2A49	jmp     _L44
+				_L45:
+0243	1F02	clr     __iar1[0]
+0244	0703	mov     a, MP1
+0245	40D6	mov     ra, a
+0246	54D6	inc     ra
+0247	4756	mov     a, ra
+0248	0083	mov     MP1, a
+				_L44:
+0249	0703	mov     a, MP1
+024A	40D6	mov     ra, a
+024B	5656	siza    ra
+024C	2A43	jmp     _L45
+				;255		_iar1=0;	
+024D	1F02	clr     __iar1[0]
+				;256		_dmbp0=1;
+024E	3004	set     DMBP0
+				;257		for(_mp1=0x80;_mp1<0xff;_mp1++)	_iar1=0;
+024F	0F80	mov     a, 80H
+0250	0083	mov     MP1, a
+0251	2A58	jmp     _L46
+				_L47:
+0252	1F02	clr     __iar1[0]
+0253	0703	mov     a, MP1
+0254	40D6	mov     ra, a
+0255	54D6	inc     ra
+0256	4756	mov     a, ra
+0257	0083	mov     MP1, a
+				_L46:
+0258	0703	mov     a, MP1
+0259	40D6	mov     ra, a
+025A	5656	siza    ra
+025B	2A52	jmp     _L47
+				;258		_iar1=0;	
+025C	1F02	clr     __iar1[0]
+				;259		//
+				;260		_csel=0;
+025D	37BE	clr     CSEL
+				;261		_cos=1;
+025E	31BE	set     COS
+				;262		_acerl=0;
+025F	1F24	clr     ACERL
+				;263		
+				;264		RF_INTC=1;	
+0260	3126	set     PBC2
+				;265		RF_INTUP=1;
+0261	3127	set     PBPU2
+				;266		FCSBC=0;
+0262	35A6	clr     PBC3
+				;267		CSBC=0;
+0263	3795	clr     PAC7
+				;268		SCLKC=0;
+0264	3615	clr     PAC4
+				;269		SDIOC=0;
+0265	3695	clr     PAC5
+				;270		SCLK=1;		
+0266	3214	set     PA4
+				;271		BZC=0;
+0267	3426	clr     PBC0
+				;272		BZ=0;
+0268	3425	clr     PB0
+				;273		//
+				;274	
+				;275		//125us
+				;276		_tm1al=250;
+0269	0FFA	mov     a, FAH
+026A	00BA	mov     TM1AL, a
+				;277		_tm1ah=0x0;
+026B	1F3B	clr     TM1AH
+				;278		//fsys/4
+				;279		_t1ck2=0;
+026C	3736	clr     T1CK2
+				;280		_t1ck1=0;
+026D	36B6	clr     T1CK1
+				;281		_t1ck0=0;
+026E	3636	clr     T1CK0
+				;282		//TM0
+				;283		_t1m1=1;
+026F	33B7	set     T1M1
+				;284		_t1m0=1;
+0270	3337	set     T1M0
+				;285		//a cclr
+				;286		_t1cclr=1;
+0271	3037	set     T1CCLR
+				;287		//
+				;288		_t1on=1;
+0272	31B6	set     T1ON
+				;289		_t1ae=1;
+0273	3092	set     T1AE
+				;290		_mf1e=1;
+0274	300F	set     MF1E
+				;291		_emi=1;
+0275	300E	set     EMI
+				;292		
+				;293		CMT_init();
+0276	2160	call    _CMT_init
+				;294		f_k2=1;
+0277	70AD	set     f_flag[0].1
+0278	0003	ret
+0279	0000	nop
+027A	0000	nop
+				L027B:
+027B	0000	nop
+027C	0003	ret
+027D	0000	nop
+027E	0000	nop
+027F	0000	nop
+0280	0000	nop
+				L0281:
+0281	0000	nop
+0282	0000	nop
+				L0283:
+0283	0000	nop
+0284	1785	sdz     ACC
+0285	2A83	jmp     L0283
+0286	0003	ret
+0287	0000	nop
+0288	0000	nop
+				L0289:
+0289	0000	nop
+028A	0000	nop
+028B	0000	nop
+				L028C:
+028C	0000	nop
+028D	1785	sdz     ACC
+028E	2A8C	jmp     L028C
+				L028F:
+028F	0000	nop
+0290	1785	sdz     ACC
+0291	2A8F	jmp     L028F
+0292	57DE	sdz     i
+0293	2A8F	jmp     L028F
+0294	0003	ret
+0295	1483	inc     MP1
+				L0296:
+0296	3F81	sz      MP0.7
+0297	2A9C	jmp     L029C
+0298	0701	mov     a, MP0
+0299	0084	mov     BP, a
+029A	0702	mov     a, __iar1[0]
+029B	0003	ret
+				L029C:
+029C	1B01	rrca    MP0
+029D	0E3F	and     a, 3FH
+029E	0089	mov     TBHP, a
+029F	1B03	rrca    MP1
+02A0	0087	mov     TBLP, a
+02A1	1D05	tabrd   ACC
+02A2	3C0A	sz      C
+02A3	0708	mov     a, TBLH
+02A4	0003	ret
+				L04EC:
+				org	04ech
+04EC	0000	nop
+				L0800:
+				org	0800h
+0800	0000	nop
+				L0E02:
+				org	0e02h
+0E02	0000	nop
+				L10F0:
+				org	010f0h
+10F0	0000	nop
+				;295	}	
+				;296		
+				;297	void main()
+				;298	{
+				@code .SECTION 'CODE'
+				include HT66F018.inc
+0000	2801	jmp     _main_startup1
+				@start .SECTION 'CODE'
+				_main_startup1:
+				@start .SECTION 'CODE'
+0001	2802	jmp     _main
+				;299	//	unsigned char i;
+				;300		initail();
+				_main:
+				_main:
+0002	223F	call    _initail
+				;301		while(1)
+				;302		{
+				;303			_clrwdt();
+				_L50:
+0003	0001	clr     wdt
+				;304			if(f_10ms)
+0004	472E	mov     a, f_flag[1]
+0005	40D6	mov     ra, a
+0006	0F04	mov     a, 4H
+0007	46D6	andm    a, ra
+0008	50D6	sz      ra
+0009	280B	jmp     _LI5
+000A	280E	jmp     _L49
+				;305			{	
+				;306				f_10ms=0;
+				_LI5:
+000B	752E	clr     f_flag[1].2
+				;307				CMT_RX();
+000C	2204	call    _CMT_RX
+				;308			}	
+				;309		}
+000D	2803	jmp     _L50
+				_L49:
+000E	2803	jmp     _L50
+000F	280F	jmp     $
+				;310	}
+				data .SECTION 'DATA'
+				__iar1 DB DUP (?) ; __iar1
+				__mp1 DB DUP (?) ; __mp1
+				__bp DB DUP (?) ; __bp
+				__smod DB DUP (?) ; __smod
+				__intc0 DB DUP (?) ; __intc0
+				__intc1 DB DUP (?) ; __intc1
+				__mfi1 DB DUP (?) ; __mfi1
+				__pa DB DUP (?) ; __pa
+				__pac DB DUP (?) ; __pac
+				__wdtc DB DUP (?) ; __wdtc
+				__acerl DB DUP (?) ; __acerl
+				__pb DB DUP (?) ; __pb
+				__pbc DB DUP (?) ; __pbc
+				__pbpu DB DUP (?) ; __pbpu
+				__tm1c0 DB DUP (?) ; __tm1c0
+				__tm1c1 DB DUP (?) ; __tm1c1
+				__tm1al DB DUP (?) ; __tm1al
+				__tm1ah DB DUP (?) ; __tm1ah
+				__cpc DB DUP (?) ; __cpc
+				a_100ms DB DUP (?) ; a_100ms
+				a_count DB DUP (?) ; a_count
+				a_10ms DB DUP (?) ; a_10ms
+				a_k1_high DB DUP (?) ; a_k1_high
+				a_k1_low DB DUP (?) ; a_k1_low
+				a_k2_high DB DUP (?) ; a_k2_high
+				a_k2_low DB DUP (?) ; a_k2_low
+				a_k3_high DB DUP (?) ; a_k3_high
+				a_k3_low DB DUP (?) ; a_k3_low
+				a_k4_high DB DUP (?) ; a_k4_high
+				a_k4_low DB DUP (?) ; a_k4_low
+				a_k5_high DB DUP (?) ; a_k5_high
+				a_k5_low DB DUP (?) ; a_k5_low
+				f_flag DB DUP (?) ; f_flag
+				a_data DB DUP (?) ; a_data
+				a_rx DB DUP (?) ; a_rx
+				a_read DB DUP (?) ; a_read
+				a_bz DB 2 DUP (?) ; a_bz
+				ra DB DUP (?)
+				rb DB DUP (?)
+				r110 DB DUP (?)
+				r210 DB DUP (?)
+				ra10 DB DUP (?)
+				rb10 DB DUP (?)
+				rc10 DB DUP (?)
+				rd10 DB DUP (?)
+				i DB DUP (?) ; i
+				data DB DUP (?) ; data
+				address DB DUP (?) ; address
+				tmp DB DUP (?) ; tmp
+				back DB DUP (?) ; back

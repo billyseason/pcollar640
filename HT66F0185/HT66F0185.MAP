@@ -1,0 +1,252 @@
+
+连接器　版本8.7.5.171218
+Input Object File: D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ
+Input Object File: D:\Project\pcollar640\HT66F0185\STARTUP1_L.OBJ
+
+Input Library File: D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\LIBHOLTEKGCC.LIB
+Input Library File: D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\v3_tabrd_mrsc.lib
+
+
+     Bank    Start     End      Length     Class    AvgIns    Name
+     00h     0000h     0000h    0001h      CODE               @code (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     0001h     0001h    0001h      CODE               @start (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     0002h     0005h    0004h      CODE               __DELAY (D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\LIBHOLTEKGCC.LIB)
+     00h     0006h     000fh    000ah      CODE               __DELAYX (D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\LIBHOLTEKGCC.LIB)
+     00h     0010h     0013h    0004h      CODE               @TM1_int_code (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     0014h     0048h    0035h      CODE               @crom (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     0049h     02b2h    026ah      CODE               _TM1_int (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     02b3h     02f1h    003fh      CODE               _FIFO_WRITE (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     02f2h     032eh    003dh      CODE               _SPI_WRITE (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     032fh     0374h    0046h      CODE               _SPI_READ (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     0375h     03f7h    0083h      CODE               _CMT_init (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     03f8h     04a8h    00b1h      CODE               _CMT_TX (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     04a9h     050dh    0065h      CODE               _KEY (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     050eh     058fh    0082h      CODE               _initail (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     0590h     05e3h    0054h      CODE               _AD_channel (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     05e4h     06a9h    00c6h      CODE               _Voltage (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     06aah     06c9h    0020h      CODE               _Switch (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     06cah     0723h    005ah      CODE               _main (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     0724h     0731h    000eh      CODE               _builtin_holtek_delay_isr00 (D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\LIBHOLTEKGCC.LIB)
+     00h     0732h     0744h    0013h      CODE               _builtin_holtek_mulhi3_isr00 (D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\LIBHOLTEKGCC.LIB)
+     00h     0745h     0754h    0010h      CODE               _CROM2PROM (CROM2PROM)
+     00h     0080h     00a1h    0022h      DATA     6.2353    @HCCINIT0 (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     00a2h     00a2h    0001h      DATA     282       @data_ra (D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\LIBHOLTEKGCC.LIB)
+     00h     00a3h     00a3h    0001h      DATA     41        @data_rb (D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\LIBHOLTEKGCC.LIB)
+     00h     00a4h     00a4h    0001h      DATA     4         @data_rc (D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\LIBHOLTEKGCC.LIB)
+     00h     00a5h     00a5h    0001h      DATA     4         @data_rd (D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\LIBHOLTEKGCC.LIB)
+     00h     00a6h     00a6h    0001h      DATA     2         @data_r110 (isr:ra~rh)
+     00h     00a7h     00a7h    0001h      DATA     2         @data_r210 (isr:ra~rh)
+     00h     00a8h     00a8h    0001h      DATA     157       @data_ra10 (isr:ra~rh)
+     00h     00a9h     00a9h    0001h      DATA     93        @data_rb10 (isr:ra~rh)
+
+     Local Sections
+
+     Bank    Start     End      Length     Class    AvgIns    Name
+     00h     00aah     00aah    0000h      LOCAL    0         @dummy16 (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     00aah     00aah    0000h      LOCAL    0         _TM1_int (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     00b1h     00b1h    0000h      LOCAL    0         @dummy (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     00b1h     00b1h    0000h      LOCAL    0         _main (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     00afh     00afh    0000h      LOCAL    0         _initail (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     00adh     00aeh    0002h      LOCAL    13.5      _CMT_init (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     00aah     00ach    0003h      LOCAL    12.667    _SPI_WRITE (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     00aah     00aah    0000h      LOCAL    0         __DELAY (D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\LIBHOLTEKGCC.LIB)
+     00h     00aah     00aah    0001h      LOCAL    3         _builtin_holtek_delay_isr00 (D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\LIBHOLTEKGCC.LIB)
+     00h     00aah     00ach    0003h      LOCAL    6         _SPI_READ (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     00aah     00aah    0000h      LOCAL    0         _Crom2Prom (CROM2PROM)
+     00h     00b0h     00b0h    0001h      LOCAL    4         _CMT_TX (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     00aah     00afh    0006h      LOCAL    3.1667    _builtin_holtek_mulhi3_isr00 (D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\LIBHOLTEKGCC.LIB)
+     00h     00aah     00adh    0004h      LOCAL    3.75      _FIFO_WRITE (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     00aah     00aah    0000h      LOCAL    0         __DELAYX (D:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\LIBHOLTEKGCC.LIB)
+     00h     00aah     00aah    0000h      LOCAL    0         _Switch (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     00aah     00aah    0000h      LOCAL    0         _KEY (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     00b1h     00b1h    0000h      LOCAL    0         _Voltage (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+     00h     00aah     00b0h    0007h      LOCAL    5.1429    _AD_channel (D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ)
+
+     Public Symbols Information
+     Address            Public by Name
+     0590h              _AD_channel
+     03f8h              _CMT_TX
+     0375h              _CMT_init
+     0745h              _Crom2Prom
+     0745h              _Crom2PromNext
+     02b3h              _FIFO_WRITE
+     04a9h              _KEY
+     032fh              _SPI_READ
+     02f2h              _SPI_WRITE
+     06aah              _Switch
+     0049h              _TM1_int
+     05e4h              _Voltage
+     0005h              __DELAY0
+     0004h              __DELAY1
+     0003h              __DELAY2
+     0002h              __DELAY3
+     000ch              __DELAYX0
+     000bh              __DELAYX1
+     000ah              __DELAYX2
+     0009h              __DELAYX3
+     0008h              __DELAYX4
+     0007h              __DELAYX5
+     0006h              __DELAYX6
+     0726h              __DELAYY0_isr00
+     0726h              __DELAYY1_isr00
+     0725h              __DELAYY2_isr00
+     0725h              __DELAYY3_isr00
+     0724h              __DELAYY4_isr00
+     0724h              __DELAYY5_isr00
+     0083h              _a_100ms
+     0085h              _a_10count
+     0086h              _a_10ms
+     0088h              _a_1min
+     0087h              _a_500ms
+     0084h              _a_count
+     0096h              _a_data
+     0089h              _a_k1_high
+     008ah              _a_k1_low
+     008bh              _a_k2_high
+     008ch              _a_k2_low
+     008dh              _a_k3_high
+     008eh              _a_k3_low
+     008fh              _a_k4_high
+     0090h              _a_k4_low
+     0091h              _a_k5_high
+     0092h              _a_k5_low
+     0080h              _a_lcd_count
+     009ch              _a_set_count
+     0097h              _a_tx
+     009bh              _a_tx_count
+     009eh              _a_voltage_count
+     009fh              _a_voltage_level
+     009dh              _ad_data
+     00a0h              _ad_voltage_buf
+     0732h              _builtin_holtek_mulhi3_isr00
+     0019h              _c_cmt_init
+     0014h              _c_num
+     0093h              _f_flag
+     050eh              _initail
+     0081h              _lcd_data
+     06cah              _main
+     00a6h              r110
+     00a7h              r210
+     00a2h              ra
+     00a8h              ra10
+     00a3h              rb
+     00a9h              rb10
+     00a4h              rc
+     00a5h              rd
+
+     Address            Public by Value
+     0002h              __DELAY3
+     0003h              __DELAY2
+     0004h              __DELAY1
+     0005h              __DELAY0
+     0006h              __DELAYX6
+     0007h              __DELAYX5
+     0008h              __DELAYX4
+     0009h              __DELAYX3
+     000ah              __DELAYX2
+     000bh              __DELAYX1
+     000ch              __DELAYX0
+     0014h              _c_num
+     0019h              _c_cmt_init
+     0049h              _TM1_int
+     0080h              _a_lcd_count
+     0081h              _lcd_data
+     0083h              _a_100ms
+     0084h              _a_count
+     0085h              _a_10count
+     0086h              _a_10ms
+     0087h              _a_500ms
+     0088h              _a_1min
+     0089h              _a_k1_high
+     008ah              _a_k1_low
+     008bh              _a_k2_high
+     008ch              _a_k2_low
+     008dh              _a_k3_high
+     008eh              _a_k3_low
+     008fh              _a_k4_high
+     0090h              _a_k4_low
+     0091h              _a_k5_high
+     0092h              _a_k5_low
+     0093h              _f_flag
+     0096h              _a_data
+     0097h              _a_tx
+     009bh              _a_tx_count
+     009ch              _a_set_count
+     009dh              _ad_data
+     009eh              _a_voltage_count
+     009fh              _a_voltage_level
+     00a0h              _ad_voltage_buf
+     00a2h              ra
+     00a3h              rb
+     00a4h              rc
+     00a5h              rd
+     00a6h              r110
+     00a7h              r210
+     00a8h              ra10
+     00a9h              rb10
+     02b3h              _FIFO_WRITE
+     02f2h              _SPI_WRITE
+     032fh              _SPI_READ
+     0375h              _CMT_init
+     03f8h              _CMT_TX
+     04a9h              _KEY
+     050eh              _initail
+     0590h              _AD_channel
+     05e4h              _Voltage
+     06aah              _Switch
+     06cah              _main
+     0724h              __DELAYY5_isr00
+     0724h              __DELAYY4_isr00
+     0725h              __DELAYY3_isr00
+     0725h              __DELAYY2_isr00
+     0726h              __DELAYY1_isr00
+     0726h              __DELAYY0_isr00
+     0732h              _builtin_holtek_mulhi3_isr00
+     0745h              _Crom2Prom
+     0745h              _Crom2PromNext
+
+
+ROM Usage Statistics
+     Size      Used     Percentage
+     1000h     0755h    45%
+
+RAM Usage Statistics
+    Bank      Size      Used     Percentage
+     00h       0080h     0031h    38%
+     01h       0080h     0000h    0%
+     Total     0100h     0031h    19%
+
+Use Stack Count
+_TM1_int: 0
+_main: 4
+
+Call Tree
+    @dummy16
+        _TM1_int (0)
+    @dummy
+        _main (0)
+            _initail (1)
+                _CMT_init (2)
+                    _SPI_WRITE (3)
+                        __DELAY (4)
+                    _builtin_holtek_delay_isr00 (3)
+                    _SPI_READ (3)
+                    _Crom2Prom (3)
+                _Crom2Prom (2)
+            _CMT_TX (1)
+                _builtin_holtek_mulhi3_isr00 (2)
+                _Crom2Prom (2)
+                _SPI_WRITE (2)
+                    __DELAY (3)
+                _SPI_READ (2)
+                _FIFO_WRITE (2)
+                    _Crom2Prom (3)
+                    __DELAYX (3)
+            _Switch (1)
+            _KEY (1)
+            _Voltage (1)
+                _AD_channel (2)
+
+HLINK : 程序的开始执行点在程序段'@code'（地址0）。定义在'D:\Project\pcollar640\HT66F0185\HT66F0185.OBJ' 文件中
+
+错误总数 : 0  警告总数 : 0
