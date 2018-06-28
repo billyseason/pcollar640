@@ -63,7 +63,7 @@ void __attribute((interrupt(0x10)))	TM1_int()
 		}
 		
 		a_lcd_count++;
-		if(a_lcd_count>=9)	a_lcd_count=0;
+		if(a_lcd_count>=8)	a_lcd_count=0;
 		if(a_lcd_count<=7)
 		{
 			SEG3C=0;
@@ -147,44 +147,6 @@ void __attribute((interrupt(0x10)))	TM1_int()
 					break;	 
 			}
 		}
-		else
-		{
-			_com3en=0;
-			K1C=1;
-			K1UP=1;
-			_com4en=1;
-
-			if(!K1)
-			{
-				a_k1_high=0;
-				if(f_k1_buf==0)
-				{
-					a_k1_low++;
-					if(a_k1_low>=5)
-					{
-						a_k1_low=0;
-						f_k1=1;
-						f_k1_buf=1;	
-					}
-				}
-			}
-			else 
-			{	
-				a_k1_low=0;
-				if(f_k1_buf==1)
-				{
-					a_k1_high++;
-					if(a_k1_high>=5)
-					{
-						a_k1_high=0;
-						f_k1_buf=0;
-					}	
-				}
-			}	
-		}
-
-
-
 	}
 }
 
@@ -398,6 +360,36 @@ void CMT_TX()
 
 void KEY()
 {
+    K1C=1;
+    K1UP=1;
+    if(!K1)
+    {
+        a_k1_high=0;
+        if(f_k1_buf==0)
+        {
+            a_k1_low++;
+            if(a_k1_low>=5)
+            {
+                a_k1_low=0;
+                f_k1=1;
+                f_k1_buf=1; 
+            }
+        }
+    }
+    else 
+    {   
+        a_k1_low=0;
+        if(f_k1_buf==1)
+        {
+            a_k1_high++;
+            if(a_k1_high>=5)
+            {
+                a_k1_high=0;
+                f_k1_buf=0;
+            }
+        }
+    }
+
 	K2C=1;
 	K2UP=1;
 	if(!K2)
@@ -944,7 +936,7 @@ void main()
 				{
 					f_halt_buf=0;
 					a_set_count=c_count8;
-				}	
+				}
 				else a_set_count=c_count2;
 			}
 		}
