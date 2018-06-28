@@ -33,6 +33,9 @@ volatile unsigned int  ad_voltage_buf;
 #define c_voltage_3V6	221		//3.6		
 #define c_voltage_3V9   239     //3.9
 
+
+volatile unsigned char a_last_channel;
+
 //1250us
 void __attribute((interrupt(0x10)))	TM1_int()
 {
@@ -77,7 +80,7 @@ void __attribute((interrupt(0x10)))	TM1_int()
 			_slcdc3|=0b01100000;
 			_slcdc4|=0b00000001;
 			switch(a_lcd_count)									//Output com
-			{	
+			{
 				case 0: 
 					_frame=0;
 					if(lcd_data[0]&0x10)	{_seg20en=0;SEG1=0;}
@@ -778,7 +781,31 @@ unsigned int AD_channel()
 	return sum;
 }	
 
-
+void SetVoltageLevel(unsigned char level)
+{
+	switch(level)
+	{
+		case 0:
+			lcd_data[1]&=0x1f;
+			if(f_voltage_500ms)
+			{
+				f_voltage_500ms=0;
+				lcd_data[1]^=0x10;
+			}
+			break;
+		case 1:
+			lcd_data[1]&=0x0f;
+			lcd_data[1]|=0x50;
+			break;
+		case 2:
+			lcd_data[1]&=0x0f;
+			lcd_data[1]|=0xd0;
+			break;
+		case 3:
+			lcd_data[1]|=0xf0;
+			break;				
+	}	
+}
 
 void Voltage()
 {
@@ -791,12 +818,12 @@ void Voltage()
 	else
 	{
 		a_voltage_count=0;
-		ad_voltage_buf>>=4;	
+		ad_voltage_buf>>=4;
 		if(ad_voltage_buf>=c_voltage_3V9)
 		{
-			if(!f_voltage_buf0)	a_voltage_level=3;		
+			if(!f_voltage_buf0)	a_voltage_level=3;
 		}
-		else if(ad_voltage_buf>=c_voltage_3V6)	
+		else if(ad_voltage_buf>=c_voltage_3V6)
 		{
 			if(!f_voltage_buf1)
 			{
@@ -822,32 +849,12 @@ void Voltage()
 				f_voltage_buf1=1;
 				f_voltage_buf2=1;
 				f_voltage_buf3=1;
-			}	
+			}
 		}
 		ad_voltage_buf=0;		
 	}
-	switch(a_voltage_level)
-	{
-		case 0:
-			lcd_data[1]&=0x1f;
-			if(f_voltage_500ms)
-			{
-				f_voltage_500ms=0;
-				lcd_data[1]^=0x10;	
-			}
-			break;
-		case 1:
-			lcd_data[1]&=0x0f;
-			lcd_data[1]|=0x50;
-			break;
-		case 2:
-			lcd_data[1]&=0x0f;
-			lcd_data[1]|=0xd0;
-			break;
-		case 3:
-			lcd_data[1]|=0xf0;
-			break;				
-	}	
+
+	SetVoltageLevel(a_voltage_level);
 }	
 
 void Switch()
