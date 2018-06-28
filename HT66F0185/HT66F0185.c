@@ -556,13 +556,19 @@ void initail()
 	a_tx[3]=0x55;
 	lcd_data[0]=c_num[a_count];
 	a_set_count=3;
+    a_last_channel=1;
 	
 	_idlen=0;
 	_lvden=0;
-    SWITCHWU=1;
+
     K1WU=1;
 	K2WU=1;
     K3WU=1;
+	
+    SWICHC=1;
+    SWICHUP=1;
+    SWICHWU=1;
+    
 }
 
 #if 0
@@ -858,9 +864,14 @@ void Voltage()
 }	
 
 void Switch()
-{    
-    SWICHC=1;
-    SWICHUP=1;
+{
+    //∑¿÷π«–ªªchannel ±Ω¯»Îsleep
+    if(a_last_channel != SWICH)
+    {
+        a_1min=0;
+        a_last_channel = SWICH;
+    }
+
     if(!SWICH)
     {
         lcd_data[1]&=0xF0;
@@ -872,6 +883,7 @@ void Switch()
         lcd_data[1]|=0x08;
     }
 }
+
 
 
 void main()
