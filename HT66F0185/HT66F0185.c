@@ -33,6 +33,11 @@ volatile unsigned int  ad_voltage_buf;
 #define c_voltage_3V6	221		//3.6		
 #define c_voltage_3V9   239     //3.9
 
+volatile unsigned char a_charge_status;
+
+#define c_charge_idle     0
+#define c_charge_ongoing  1
+#define c_charge_full     2
 
 volatile unsigned char a_last_channel;
 
@@ -45,15 +50,33 @@ void __attribute((interrupt(0x10)))	TM1_int()
 		a_10ms++;
 		if(a_10ms>=8)
 		{
-			a_10ms=0;
-			f_10ms=1;	
-			a_500ms++;
-			if(a_500ms>=50)
-			{
-				a_500ms=0;
-				f_voltage_500ms=1;	
+            a_10ms=0;
+            f_10ms=1;
+            a_500ms++;
+            if(a_500ms>=24)
+            {
+                a_500ms=0;
+                if(f_dc_connect)
+                {
+                    if(a_charge_status==1)
+                    {
+                        a_voltage_level++;
+                        if(a_voltage_level>3)
+                        {
+                            a_voltage_level=0;
+                        }
+                    }
+                    else
+                    {
+                        a_voltage_level=3;
+                    }
+				}
+				else
+				{
+    				f_voltage_500ms=1;
+                }
 				a_1min++;
-				if(a_1min>=12)		//120
+				if(a_1min>=120)		//120
 				{
 					a_1min=0;
 					f_1min=1;
@@ -303,32 +326,10 @@ void CMT_TX()
 {
 	unsigned char tmp;
 	if(f_txen)
-	{
+	{        
+        f_txen=0;
 		if(!f_tx)             //发射使用标志位进行控制
 		{
-		   	a_tx_count++;
-		   	if(a_tx_count>=a_set_count)
-		   	{
-		   		f_txen=0;
-		   		a_tx_count=0;
-		   		a_count++;                          //发射次数LCD显示，用于调试
-				if(a_count>16)	
-                {            
-                    a_count=0;
-                }
-
-                if(a_count>9)
-                {
-                    a_10count=1;
-                }
-                lcd_data[0]=c_num[a_count-10*a_10count];
-                lcd_data[0]&=0x7F;
-                if(a_10count)
-                {
-                    lcd_data[0]|=0x80;
-                    a_10count=0;
-                }
-		   	}	
 			f_tx=1;
 			SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_STBY);	//go_stdby
 			SPI_WRITE(CMT2300A_CUS_INT_CLR1,CMT2300A_MASK_TX_DONE_CLR);  //clr TX_DONE int flag	
@@ -386,7 +387,7 @@ void KEY()
             {
                 a_k1_high=0;
                 f_k1_buf=0;
-            }
+            }   
         }
     }
 
@@ -549,7 +550,9 @@ void initail()
 	lcd_data[0]=c_num[a_count];
 	a_set_count=3;
     a_last_channel=1;
-	
+    a_charge_status=c_charge_idle;    
+    f_dc_connect=0;
+    
 	_idlen=0;
 	_lvden=0;
 
@@ -561,198 +564,12 @@ void initail()
     SWICHUP=1;
     SWICHWU=1;
     
+    CHRGINC=1;
+    CHRGINWU=1;
+    CHRGOUTC=0;
+    CHRGOUTPU=1;
 }
 
-#if 0
-
-//MCU 3.3V 分压：104 104(R17,R16) 告警电压：3.51V
-//       A/D:4096
-//bat   1:充电完成未进行电量检测;0:正常状态
-//elec_level 0:告警(<3.51) 1:低电量(3.51~3.6)  2:中电量(3.6~3.9) 3:满格(>3.9)
-void check_vr()
-{
-	uchar vr_high8=0;
-	//uchar vr_low4=0;
-	
-	_ade = 0;
-	_sadc1 = 0x03;    //设置AD时钟
-	_adcen = 1;       //ad使能
-	_acerl = 0x07;    //AN7
-	_sadc0 = 0x27;    //Enable, AN7 
-    _adrfs = 0;
-    
-//	_acerl=ADER_1channel;
-//	_adcr0=ADCR_1channel;
-//	_adcr1=AD_clk_fsys;
-//	
-//	//_delay(1000);    //added on 2017/07/06
-//	_delay(1000);    //added on 2017/07/06
-	
-	_start=0;
-	_start=1;
-	_start=0;
-	
-	//while(_eocb);
-	while(_adbz);   //等待转换结束
-
-	vr_high8 = _sadoh;
-	//vr_low4 = _sadol>>4;
-		
-	//if(VrData>2662)  //3.9V以上
-	//if ((vr_high8>0xA6)||((vr_high8==0xA6)&&(vr_low4>0x06)))
-	//if ((vr_high8>=0xA6))  //精简算法
-	if ((vr_high8>=0x97))  //精简算法
-	{
-		if(f_bat)     //锁定保护
-		{
-			elec_level = 3;
-			//bat = 0;
-		}
-	}
-	//else if (VrData>2587)  //3.79V~3.9V
-	//else if ((vr_high8>0xA1)||((vr_high8==0xA1)&&(vr_low4>0x0B)))
-	//else if ((vr_high8>0xA1))  //精简算法
-	else if ((vr_high8>=0x8C))  //精简算法
-	{
-		if ((f_bat) || (elec_level>=2))
-		{
-			elec_level = 2;
-			//bat = 0;
-		}
-	}
-	//else if (VrData>2450)  //3.6V~3.79V
-	//else if ((vr_high8>0x99)||((vr_high8==0x99)&&(vr_low4>0x02)))
-	//else if ((vr_high8>=0x99))  //精简算法
-	else if ((vr_high8>0x88))  //精简算法
-	{	
-		if ((f_bat) || (elec_level>=1))
-		{
-			elec_level = 1;
-			//bat = 0;
-		}
-	}
-	else
-	{
-		elec_level = 0;
-	}
-	
-	f_bat = 0;
-	
-	lcd_data[1]=(lcd_data[1]|0xF0)&c_eleclevel[elec_level];     //LCD显示电量级别 for debug
-	
-	_adcen = 0;   //ad除能 
-	//_adonb = 1; //added on 2017/07/19			
-}
-
-//充电检测,仅进行检测，不进行状态指示
-void charge_detect()
-{
-	   //第一次充电点亮背光灯
-	   if ((!chargein)&&(!DCinflag))
-	   {
-	   	  GCC_DELAY(10);               
-	   	  if ((!chargein)&&(!DCinflag))
-	   	  {
-//	   	  	Timer1min_high = 0;
-//	   	  	Timer1min_low = 0;
-//	   	  	
-//	   	  	led_count_high = 0;
-//	   	  	led_count_low = 0;
-
-            BL = 1;         //点亮背光
-
-            DCinflag = 1;	   	    //set DCinflag
-            f_bat = 1;              //set f_bat
-            //chargeflag = 1;       //added on 2016/07/15
-
-            //_adcen = 1;   //ad使能
-	   	  }
-	   }
-
-       //点亮LED，充电时每次都要进来？？？
-	   if ((!chargein) && (chargeout))
-	   {
-	   	  GCC_DELAY(10); 
-	   	  //if ((!chargest) && (!DCin))     //added on 2016/06/30
-	   	  if ((!chargein) && (chargeout))
-	   	  {
-	   	  
-	   	    //bat = 1;     //noted on 2016/03/29
-	   	    chargeflag = 1;
-	   	    
-	   	    //是否需要在这里点亮？与DCin检测有点近
-			//ledc = 0;        //noted on 2016/02/02
-			//_delay(20);
-  					
-			LED = 1; 				
-	    	//ledc = 0;
-	     	//led = 1;
-	   	  }	     	
-	   }
-	   
-	   if ((chargein) && (chargeout))   
-	   {
-	   	 GCC_DELAY(10); 
-	   	 if ((chargein) && (chargeout))    
-	   	 { 
-	   	   chargeoutc = 1;
-	   	   chargeoutpu = 0;
-	   	   
-	   	   GCC_DELAY(100); 
-	   	   
-	   	   if (!chargein)    //已充满
-	   	   {
-	       		//bat = 1;         //noted on 2016/03/29
-	       		chargeflag = 2;
-	       
-	   	   		DCinflag = 1;	   	  //set DCinflag
-	   	   
-  		   		//if (led_count > 500)   //1s刷新一次LED,内置，不应该在这里处理
-  		   		if (led_count_high >= 2)
-  		   		{
-  			  		//ledc = 0;         //noted on 2016/02/02
-  			  		//_delay(20);
-  					
-  			  		//ledstatus = ~ledstatus;  			  
-  			  		//led = ledstatus;
-  			  		LED = ~LED;
-  			  
-  			  		//led_count = 0;
-  			  		led_count_high = 0;
-  			  		led_count_low = 0;
-  		   		}
-	   	   }
-	   	   else if (chargein)     //充电插已拔下
-	   	   {
-	   	   	   GCC_DELAY(10); 
-	   	   	   
-	   	   	   if (chargein)
-	   	   	   {
-       	   			chargeflag = 0;
-       	   			LED = 0;    
-       	   
-       	   			DCinflag = 0;  //clr DCinflag
-           
-           			if(f_bat)  //如果是充电完成，且拔下充电插，则计数器清零，并进行电量检测
-           			{
-           				BL = 1;          
-       	   				
-//       	   				Timer1min_high = 0;
-//       	   				Timer1min_low = 0;
-       	   				
-       	   				check_vr();  //added on 2016/05/13
-           			}
-           			
-           			_adcen = 0;    //clr ad
-	   	   	   }
-	   	   }
-	   	   
-	   	   chargeoutc = 0;
-	   	   chargeout = 1;
-	   	 }	       
-	   }
-}
-#endif
 
 unsigned int AD_channel()
 {
@@ -877,6 +694,97 @@ void Switch()
 }
 
 
+void ShowNumber()
+{
+    lcd_data[0]=c_num[a_count-10*a_10count];
+    lcd_data[0]&=0x7F;
+    if(a_10count)
+    {
+        lcd_data[0]|=0x80;
+        a_10count=0;
+    }
+}
+
+
+// for key press test
+void KeyCountForTest()
+{
+   	//a_tx_count++;
+   	//if(a_tx_count>=a_set_count)
+   	{
+   		//a_tx_count=0;
+   		a_count++;                          //按键次数LCD显示，用于调试
+		if(a_count>16)	
+        {            
+            a_count=0;
+        }
+
+        if(a_count>9)
+        {
+            a_10count=1;
+        }
+        ShowNumber();
+   	}
+}
+
+
+void ChargeDetect()
+{
+    if((!CHRGIN)&&(!f_dc_connect))     //充电中
+    {
+        BL=1;
+        a_charge_status=c_charge_ongoing;
+        f_dc_connect=1;
+    }
+
+    if((CHRGIN)&&(f_dc_connect))
+    {
+        CHRGOUTC=0;
+        CHRGOUTPU=1;
+        CHRGOUT=1;
+        if(!CHRGIN)  //冲满未拔下
+        {
+            a_charge_status=c_charge_full;
+            f_dc_connect=1;
+        }
+        else        //充满已拔下，未充电
+        {
+            a_charge_status=c_charge_idle;
+            f_dc_connect=0;
+            f_dc_plugout=1;
+        }
+
+        CHRGOUTC=1;
+        CHRGOUTPU=0;
+    }
+
+    if(f_dc_connect)
+    {
+        lcd_data[0]|=0xFF;
+        switch(a_charge_status)
+        {
+            case c_charge_ongoing:
+                lcd_data[0]&=0x59;  //冲电中lcd显示C
+                break;
+            case c_charge_full:     
+                lcd_data[0]&=0x71;  //充电已满lcd显示F
+                break;
+            default:                
+                lcd_data[0]&=0x79;  //充电状态异常，显示E
+                break;
+        }
+        
+        lcd_data[1]&=0xF0;  //关闭lcd狗头显示
+        SetVoltageLevel(a_voltage_level);
+    }
+
+    if(f_dc_plugout)
+    {
+        f_dc_plugout=0;
+        ShowNumber();
+    }
+
+}
 
 void main()
 {
@@ -922,23 +830,39 @@ void main()
 		{
 		    BL=1;
 			f_10ms=0;
-            Switch();
-			KEY();	
-			Voltage();
-			if(f_k2 || f_k3 || f_k1)
-			{
-			    f_k1=0;
-				f_k2=0;
-                f_k3=0;
-				f_txen=1;
-				a_1min=0;
-				if(f_halt_buf)	
-				{
-					f_halt_buf=0;
-					a_set_count=c_count8;
-				}
-				else a_set_count=c_count2;
-			}
+            ChargeDetect();
+            if(f_dc_connect)
+            {
+                a_1min=0;
+            }
+            else
+            {
+                Switch();
+                KEY();
+                Voltage();
+                if(f_k2 || f_k3 || f_k1)
+                {
+                    f_k1=0;
+                    f_k2=0;
+                    f_k3=0;
+                    KeyCountForTest();
+                    f_txen=1;
+                    a_1min=0;
+                    if(f_halt_buf)
+                    {
+                        f_halt_buf=0;
+                        a_set_count=c_count8;
+                    }
+                    else 
+                    {
+                        a_set_count=c_count2;
+                    }
+                }
+            }
+
 		}
 	}
 }
+
+
+

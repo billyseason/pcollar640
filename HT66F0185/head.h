@@ -133,6 +133,7 @@ typedef struct   //位变量定义
 	unsigned char f_halt_buf		:1 ;
 
     unsigned char f_dc_connect  :1 ;
+    unsigned char f_dc_plugout  :1 ;
 }flag_byte;
 //flag_byte f_lcd;
 
@@ -160,3 +161,4 @@ typedef struct   //位变量定义
 #define  f_halt_buf	   	f_flag.f_halt_buf
 
 #define  f_dc_connect   f_flag.f_dc_connect
+#define  f_dc_plugout   f_flag.f_dc_plugout   //充电插头被拔出
