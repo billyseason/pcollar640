@@ -94,16 +94,18 @@ const unsigned char c_cmt_init[0x60]={
 #define SCLKC	_pbc0
 #define RF_IO3C	_pac2
 #define RF_IO3UP	_papu2
+
 #define SWICHUP _papu0
+#define SWICHWU _pawu0
 
-#define SWITCHWU _pawu0
 
+#define CHRGIN     _pa4         //get charge in:  0=in; 1=out/full;
+#define CHRGINC    _pac4        //set chargein mode:  0=output; 1=input;
+#define CHRGINWU   _pawu4
+#define CHRGOUT    _pb2     //set charge out:  0=low;1=high;
+#define CHRGOUTC   _pbc2    //set chargeout mode:  0=output; 1=input;
+#define CHRGOUTPU  _pbpu2
 
-#define chargein   _pa4         //get charge in:  0=in; 1=out/full;
-#define chargeinc  _pac4        //set chargein mode:  0=output; 1=input;
-#define chargeout 	   _pb2     //set charge out:  0=low;1=high;
-#define chargeoutc     _pbc2    //set chargeout mode:  0=output; 1=input;
-#define chargeoutpu    _pbpu2
 
 typedef struct   //位变量定义
 {
@@ -129,6 +131,8 @@ typedef struct   //位变量定义
 	unsigned char f_1min		:1 ;
 	unsigned char f_halt		:1 ;
 	unsigned char f_halt_buf		:1 ;
+
+    unsigned char f_dc_connect  :1 ;
 }flag_byte;
 //flag_byte f_lcd;
 
@@ -154,3 +158,5 @@ typedef struct   //位变量定义
 #define  f_1min		   	f_flag.f_1min
 #define  f_halt		   	f_flag.f_halt
 #define  f_halt_buf	   	f_flag.f_halt_buf
+
+#define  f_dc_connect   f_flag.f_dc_connect
