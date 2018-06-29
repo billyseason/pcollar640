@@ -326,10 +326,15 @@ void CMT_TX()
 {
 	unsigned char tmp;
 	if(f_txen)
-	{        
-        f_txen=0;
-		if(!f_tx)             //发射使用标志位进行控制
+	{
+        if(!f_tx)             //发射使用标志位进行控制
 		{
+            a_tx_count++;
+            if(a_tx_count>=a_set_count)
+            {
+                f_txen=0;
+                a_tx_count=0;
+            }
 			f_tx=1;
 			SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_STBY);	//go_stdby
 			SPI_WRITE(CMT2300A_CUS_INT_CLR1,CMT2300A_MASK_TX_DONE_CLR);  //clr TX_DONE int flag	
@@ -344,7 +349,7 @@ void CMT_TX()
 			//go_tx
 		   	SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_TX);
 		   	LED=1;
-		}	
+		}
 	}
 	if(f_tx)
 	{
@@ -355,8 +360,8 @@ void CMT_TX()
 			LED=0;
 			SPI_WRITE(CMT2300A_CUS_INT_CLR1,CMT2300A_MASK_TX_DONE_CLR); //clr TX_DONE int flag
 			SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_SLEEP);	//go_sleep
-		}	
-	}	
+		}
+	}
 }
 
 void KEY()
@@ -549,6 +554,7 @@ void initail()
 	a_tx[3]=0x55;
 	lcd_data[0]=c_num[a_count];
 	a_set_count=3;
+    a_tx_count=0;
     a_last_channel=1;
     a_charge_status=c_charge_idle;    
     f_dc_connect=0;
