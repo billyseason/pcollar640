@@ -16,7 +16,7 @@
 #include "head.h"
 #include "cmt2300a_defs.h"
 
-volatile unsigned char a_lcd_count,lcd_data[2],a_100ms,a_count,a_10count,a_10ms,a_500ms,a_1min;
+volatile unsigned char a_lcd_count,lcd_data[2],a_100ms,a_count,a_10ms,a_500ms,a_1min;
 unsigned char a_k1_high,a_k1_low,a_k2_high,a_k2_low,a_k3_high,a_k3_low,a_k4_high,a_k4_low,a_k5_high,a_k5_low;
 volatile flag_byte f_flag;
 volatile unsigned char a_data,a_tx[4],a_tx_count,a_set_count;
@@ -364,217 +364,20 @@ void CMT_TX()
 	}
 }
 
-void KEY()
+
+void SetNumber(unsigned char num)
 {
-    K1C=1;
-    K1UP=1;
-    if(!K1)
+    unsigned char decade;
+
+    decade=num/10;
+    lcd_data[0]=c_num[num-10*decade];
+    lcd_data[0]&=0x7F;
+    if(decade)
     {
-        a_k1_high=0;
-        if(f_k1_buf==0)
-        {
-            a_k1_low++;
-            if(a_k1_low>=5)
-            {
-                a_k1_low=0;
-                f_k1=1;
-                f_k1_buf=1; 
-            }
-        }
+        lcd_data[0]|=0x80;
     }
-    else 
-    {   
-        a_k1_low=0;
-        if(f_k1_buf==1)
-        {
-            a_k1_high++;
-            if(a_k1_high>=5)
-            {
-                a_k1_high=0;
-                f_k1_buf=0;
-            }   
-        }
-    }
-
-	K2C=1;
-	K2UP=1;
-	if(!K2)
-	{
-		a_k2_high=0;
-		if(!f_k2_buf)
-		{
-			a_k2_low++;
-			if(a_k2_low>=5)
-			{
-				f_k2=1;
-				f_k2_buf=1;
-			}
-		}
-	}
-	else 
-	{
-		a_k2_low=0;
-		if(f_k2_buf)
-		{
-			a_k2_high++;
-			if(a_k2_high>=5)
-			{
-				f_k2_buf=0;
-			}	
-		}
-	}	
-	
-	K3C=1;
-	K3UP=1;
-	if(!K3)
-	{
-		a_k3_high=0;
-		if(f_k3_buf==0)
-		{
-			a_k3_low++;
-			if(a_k3_low>=5)
-			{
-				a_k3_low=0;
-				f_k3=1;
-				f_k3_buf=1;	
-			}
-		}
-	}
-	else 
-	{	
-		a_k3_low=0;
-		if(f_k3_buf==1)
-		{
-			a_k3_high++;
-			if(a_k3_high>=5)
-			{
-				a_k3_high=0;
-				f_k3_buf=0;
-            }
-		}
-	}
 }
 
-void initail()
-{
-	_dmbp0=0;
-	for(_mp1=0x80;_mp1<0xff;_mp1++)	_iar1=0;
-	_iar1=0;
-	_dmbp0=1;
-	for(_mp1=0x80;_mp1<0xff;_mp1++)	_iar1=0;
-	_iar1=0;
-	//
-	_csel=0;
-	_cos=1;
-	_acerl=0;
-	COM0C=0;
-	COM1C=0;
-	COM2C=0;
-	COM3C=0;
-	SEG0C=0;
-	SEG1C=0;
-	SEG2C=0;
-	SEG3C=0;
-	
-	COM0=0;
-	COM1=0;
-	COM2=0;
-	COM3=0;
-	SEG0=0;
-	SEG1=0;
-	SEG2=0;
-	SEG3=0;
-	_lcden=1;
-	_isel1=1;
-	_isel0=1;
-	
-	RF_IO3C=1;	
-	RF_IO3UP=1;
-	FCSBC=0;
-	CSBC=0;
-	SCLKC=0;
-	SDIOC=0;
-	SCLK=1;
-	LEDC=0;
-	LED=0;
-	BLC=0;
-	//
-	_adcen=1;
-	//high 8bit
-	_adrfs=0;
-	//external input
-	_sains2=0;
-	_sains1=0;
-	_sains0=0;
-	//
-	_adpgaen=1;
-	_vbgen=1;
-	//Vref=1.04*2
-	_savrs3=1;
-	_savrs2=0;
-	_savrs1=1;
-	_savrs0=0;
-	//fsys/8
-	_sacks2=0;
-	_sacks1=1;
-	_sacks0=1;
-	//AD PIN AN7
-	_ace7=1;
-	//AN7 channle
-	_sacs2=1;
-	_sacs1=1;
-	_sacs0=1;
-
-	
-	//1250us
-	_tm1al=0x71;
-	_tm1ah=0x2;
-	//fsys/16
-	_t1ck2=0;
-	_t1ck1=1;
-	_t1ck0=0;
-	//TM0
-	_t1m1=1;
-	_t1m0=1;
-	//a cclr
-	_t1cclr=1;
-	//
-	_t1on=1;
-	_t1ae=1;
-	_mf1e=1;
-	_emi=1;
-	lcd_data[0]=0;
-	lcd_data[1]=0;
-	
-	BL=1;
-	CMT_init();             //2119B初始化设置，可以上电时初始化一次，后续无需再初始化
-	a_tx[0]=0x55;
-	a_tx[1]=0xaa;
-	a_tx[2]=0xaa;
-	a_tx[3]=0x55;
-	lcd_data[0]=c_num[a_count];
-	a_set_count=3;
-    a_tx_count=0;
-    a_last_channel=1;
-    a_charge_status=c_charge_idle;    
-    f_dc_connect=0;
-    
-	_idlen=0;
-	_lvden=0;
-
-    K1WU=1;
-	K2WU=1;
-    K3WU=1;
-	
-    SWICHC=1;
-    SWICHUP=1;
-    SWICHWU=1;
-    
-    CHRGINC=1;
-    CHRGINWU=1;
-    CHRGOUTC=0;
-    CHRGOUTPU=1;
-}
 
 
 unsigned int AD_channel()
@@ -678,56 +481,6 @@ void Voltage()
 	SetVoltageLevel(a_voltage_level);
 }	
 
-void Switch()
-{
-    //防止切换channel时进入sleep
-    if(a_last_channel != SWICH)
-    {
-        a_1min=0;
-        a_last_channel = SWICH;
-    }
-
-    if(!SWICH)
-    {
-        lcd_data[1]&=0xF0;
-        lcd_data[1]|=0x04;
-    }
-    else
-    {
-        lcd_data[1]&=0xF0;
-        lcd_data[1]|=0x08;
-    }
-}
-
-
-void ShowNumber()
-{
-    lcd_data[0]=c_num[a_count-10*a_10count];
-    lcd_data[0]&=0x7F;
-    if(a_10count)
-    {
-        lcd_data[0]|=0x80;
-        a_10count=0;
-    }
-}
-
-
-// for key press test
-void KeyCountForTest()
-{
-	a_count++;                          //按键次数LCD显示，用于调试
-	if(a_count>16)	
-    {            
-        a_count=0;
-    }
-
-    if(a_count>9)
-    {
-        a_10count=1;
-    }
-    ShowNumber();
-}
-
 
 void ChargeDetect()
 {
@@ -782,10 +535,261 @@ void ChargeDetect()
     if(f_dc_plugout)
     {
         f_dc_plugout=0;
-        ShowNumber();
+        SetNumber(a_count);
     }
 
 }
+
+
+void Switch()
+{
+    //防止切换channel时进入sleep
+    if(a_last_channel != SWICH)
+    {
+        a_1min=0;
+        a_last_channel = SWICH;
+    }
+
+    if(!SWICH)
+    {
+        lcd_data[1]&=0xF0;
+        lcd_data[1]|=0x04;
+    }
+    else
+    {
+        lcd_data[1]&=0xF0;
+        lcd_data[1]|=0x08;
+    }
+}
+
+
+void KEY()
+{    
+    Switch();
+
+    K1C=1;
+    K1UP=1;
+    if(!K1)
+    {
+        a_k1_high=0;
+        if(f_k1_buf==0)
+        {
+            a_k1_low++;
+            if(a_k1_low>=5)
+            {
+                a_k1_low=0;
+                f_k1=1;
+                f_k1_buf=1; 
+            }
+        }
+    }
+    else 
+    {   
+        a_k1_low=0;
+        if(f_k1_buf==1)
+        {
+            a_k1_high++;
+            if(a_k1_high>=5)
+            {
+                a_k1_high=0;
+                f_k1_buf=0;
+            }   
+        }
+    }
+
+	K2C=1;
+	K2UP=1;
+	if(!K2)
+	{
+		a_k2_high=0;
+		if(!f_k2_buf)
+		{
+			a_k2_low++;
+			if(a_k2_low>=5)
+			{
+				f_k2=1;
+				f_k2_buf=1;
+			}
+		}
+	}
+	else 
+	{
+		a_k2_low=0;
+		if(f_k2_buf)
+		{
+			a_k2_high++;
+			if(a_k2_high>=5)
+			{
+				f_k2_buf=0;
+			}	
+		}
+	}	
+	
+	K3C=1;
+	K3UP=1;
+	if(!K3)
+	{
+		a_k3_high=0;
+		if(f_k3_buf==0)
+		{
+			a_k3_low++;
+			if(a_k3_low>=5)
+			{
+				a_k3_low=0;
+				f_k3=1;
+				f_k3_buf=1;	
+			}
+		}
+	}
+	else 
+	{	
+		a_k3_low=0;
+		if(f_k3_buf==1)
+		{
+			a_k3_high++;
+			if(a_k3_high>=5)
+			{
+				a_k3_high=0;
+				f_k3_buf=0;
+            }
+		}
+	}
+}
+
+
+// for key press test
+void KeyCountForTest()
+{
+	a_count++;                          //按键次数LCD显示，用于调试
+	if(a_count>16)	
+    {            
+        a_count=0;
+    }
+    SetNumber(a_count);
+}
+
+
+void initail()
+{
+	_dmbp0=0;
+	for(_mp1=0x80;_mp1<0xff;_mp1++)	_iar1=0;
+	_iar1=0;
+	_dmbp0=1;
+	for(_mp1=0x80;_mp1<0xff;_mp1++)	_iar1=0;
+	_iar1=0;
+	//
+	_csel=0;
+	_cos=1;
+	_acerl=0;
+	COM0C=0;
+	COM1C=0;
+	COM2C=0;
+	COM3C=0;
+	SEG0C=0;
+	SEG1C=0;
+	SEG2C=0;
+	SEG3C=0;
+	
+	COM0=0;
+	COM1=0;
+	COM2=0;
+	COM3=0;
+	SEG0=0;
+	SEG1=0;
+	SEG2=0;
+	SEG3=0;
+	_lcden=1;
+	_isel1=1;
+	_isel0=1;
+	
+	RF_IO3C=1;	
+	RF_IO3UP=1;
+	FCSBC=0;
+	CSBC=0;
+	SCLKC=0;
+	SDIOC=0;
+	SCLK=1;
+	LEDC=0;
+	LED=0;
+	BLC=0;
+	//
+	_adcen=1;
+	//high 8bit
+	_adrfs=0;
+	//external input
+	_sains2=0;
+	_sains1=0;
+	_sains0=0;
+	//
+	_adpgaen=1;
+	_vbgen=1;
+	//Vref=1.04*2
+	_savrs3=1;
+	_savrs2=0;
+	_savrs1=1;
+	_savrs0=0;
+	//fsys/8
+	_sacks2=0;
+	_sacks1=1;
+	_sacks0=1;
+	//AD PIN AN7
+	_ace7=1;
+	//AN7 channle
+	_sacs2=1;
+	_sacs1=1;
+	_sacs0=1;
+
+	
+	//1250us
+	_tm1al=0x71;
+	_tm1ah=0x2;
+	//fsys/16
+	_t1ck2=0;
+	_t1ck1=1;
+	_t1ck0=0;
+	//TM0
+	_t1m1=1;
+	_t1m0=1;
+	//a cclr
+	_t1cclr=1;
+	//
+	_t1on=1;
+	_t1ae=1;
+	_mf1e=1;
+	_emi=1;
+	
+	BL=1;
+	CMT_init();             //2119B初始化设置，可以上电时初始化一次，后续无需再初始化
+	a_tx[0]=0x55;
+	a_tx[1]=0xaa;
+	a_tx[2]=0xaa;
+	a_tx[3]=0x55;
+    a_count=0;
+	lcd_data[0]=c_num[a_count];    
+	lcd_data[1]=0;
+	a_set_count=3;
+    a_tx_count=0;
+    a_last_channel=1;
+    a_charge_status=c_charge_idle;    
+    f_dc_connect=0;
+    
+	_idlen=0;
+	_lvden=0;
+
+    K1WU=1;
+	K2WU=1;
+    K3WU=1;
+	
+    SWICHC=1;
+    SWICHUP=1;
+    SWICHWU=1;
+    
+    CHRGINC=1;
+    CHRGINWU=1;
+    CHRGOUTC=0;
+    CHRGOUTPU=1;
+}
+
 
 void main()
 {
@@ -838,7 +842,6 @@ void main()
             }
             else
             {
-                Switch();
                 KEY();
                 Voltage();
                 if(f_k2 || f_k3 || f_k1)
