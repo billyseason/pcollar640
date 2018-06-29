@@ -709,22 +709,17 @@ void ShowNumber()
 // for key press test
 void KeyCountForTest()
 {
-   	//a_tx_count++;
-   	//if(a_tx_count>=a_set_count)
-   	{
-   		//a_tx_count=0;
-   		a_count++;                          //按键次数LCD显示，用于调试
-		if(a_count>16)	
-        {            
-            a_count=0;
-        }
+	a_count++;                          //按键次数LCD显示，用于调试
+	if(a_count>16)	
+    {            
+        a_count=0;
+    }
 
-        if(a_count>9)
-        {
-            a_10count=1;
-        }
-        ShowNumber();
-   	}
+    if(a_count>9)
+    {
+        a_10count=1;
+    }
+    ShowNumber();
 }
 
 
