@@ -16,6 +16,25 @@
 #include "head.h"
 #include "cmt2300a_defs.h"
 
+// eeprom
+typedef struct
+{
+	unsigned char bit0:1;
+	unsigned char bit1:1;
+	unsigned char bit2:1;
+	unsigned char bit3:1;
+	unsigned char bit4:1;
+	unsigned char bit5:1;
+	unsigned char bit6:1;
+	unsigned char bit7:1;
+}iar_bits;
+DEFINE_SFR(iar_bits,iar1,0x02);
+#define iar1_3	iar1.bit3
+#define iar1_2	iar1.bit2
+#define iar1_1	iar1.bit1
+#define iar1_0	iar1.bit0
+
+// common
 volatile unsigned char a_lcd_count,lcd_data[2],a_100ms,a_count,a_10ms,a_500ms,a_1min;
 unsigned char a_k1_high,a_k1_low,a_k2_high,a_k2_low,a_k3_high,a_k3_low,a_k4_high,a_k4_low,a_k5_high,a_k5_low;
 unsigned char a_up_high,a_up_low,a_down_high,a_down_low;
@@ -25,7 +44,6 @@ volatile unsigned char a_data,a_tx[4],a_tx_count,a_set_count;
 #define c_count2	2
 #define c_count8	8
 
-
 volatile unsigned char ad_data,a_voltage_count,a_voltage_level;
 volatile unsigned int  ad_voltage_buf;
 
@@ -34,12 +52,14 @@ volatile unsigned int  ad_voltage_buf;
 #define c_voltage_3V6	221		//3.6		
 #define c_voltage_3V9   239     //3.9
 
+// charge
 volatile unsigned char a_charge_status;
 
 #define c_charge_idle     0
 #define c_charge_ongoing  1
 #define c_charge_full     2
 
+// channel
 volatile unsigned char a_last_channel;
 
 //1250us
@@ -366,17 +386,63 @@ void CMT_TX()
 }
 
 
+// eeprom
+unsigned char read_byte(unsigned char addr)
+{  
+	_eea=addr;
+ 	_mp1=0x40; 
+ 	_bp=0x01;
+ 	iar1_1=1;
+	iar1_0=1;
+  	while(iar1_0);
+  	_mp1=0;
+  	_iar1=0;
+  	return _eed;
+}
+
+void  write_byte(unsigned char addr,unsigned char data_ee)
+{    
+  	_eea=addr;
+  	_eed=data_ee; 
+  	_mp1=0x40;
+  	_bp=0x01;
+  	_emi=0;
+	iar1_3=1;
+	iar1_2=1;
+  	_emi=1;
+  	while(iar1_2); 
+  	_iar1=0;
+  	_mp1=0;
+}
+
+
+void write_eeprom(unsigned char data_ee,unsigned char addr,unsigned char num)
+{
+	unsigned char i;
+	for(i=0;i<num;i++)
+	{
+		write_byte(data_ee+i,addr+i);
+		GCC_DELAY(10000);	
+	}	
+}
+
+
+
 void SetNumber(unsigned char num)
 {
-    unsigned char decade;
+    unsigned char decade=0;
 
-    decade=num/10;
-    lcd_data[0]=c_num[num-10*decade];
+    if(num>9)
+    {decade=1;}
+    //decade=num/10;
+    lcd_data[0]=c_num[num%10];
     lcd_data[0]&=0x7F;
     if(decade)
     {
         lcd_data[0]|=0x80;
     }
+
+    write_byte(0x00, num);
 }
 
 
@@ -743,7 +809,8 @@ void KeyCountForTest()
             a_count--;
         }
     }
-    else
+
+    if(f_up)
     {
         if(a_count<16)
         {
@@ -882,7 +949,8 @@ void initail()
 	a_tx[1]=0xaa;
 	a_tx[2]=0xaa;
 	a_tx[3]=0x55;
-    a_count=0;
+    a_count=read_byte(0x00);
+    if(a_count>16) a_count=0;
 	lcd_data[0]=c_num[a_count];    
 	lcd_data[1]=0;
 	a_set_count=3;
@@ -894,14 +962,17 @@ void initail()
 	_idlen=0;
 	_lvden=0;
 
+    // k1 k2 k3 wakeup
     K1WU=1;
 	K2WU=1;
     K3WU=1;
-	
+
+    //channel switch
     SWICHC=1;
     SWICHUP=1;
     SWICHWU=1;
-    
+
+    //charge detect in/out
     CHRGINC=1;
     CHRGINWU=1;
     CHRGOUTC=0;
@@ -946,6 +1017,8 @@ void main()
 			_wdtc=0x53;	
 			_lcden=1;		
 		}
+
+        
 
 		CMT_TX();
 		_clrwdt();
