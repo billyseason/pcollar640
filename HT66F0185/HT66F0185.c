@@ -18,6 +18,7 @@
 
 volatile unsigned char a_lcd_count,lcd_data[2],a_100ms,a_count,a_10ms,a_500ms,a_1min;
 unsigned char a_k1_high,a_k1_low,a_k2_high,a_k2_low,a_k3_high,a_k3_low,a_k4_high,a_k4_low,a_k5_high,a_k5_low;
+unsigned char a_up_high,a_up_low,a_down_high,a_down_low;
 volatile flag_byte f_flag;
 volatile unsigned char a_data,a_tx[4],a_tx_count,a_set_count;
 
@@ -564,7 +565,7 @@ void Switch()
 
 
 void KEY()
-{    
+{
     Switch();
 
     K1C=1;
@@ -572,7 +573,7 @@ void KEY()
     if(!K1)
     {
         a_k1_high=0;
-        if(f_k1_buf==0)
+        if(!f_k1_buf)
         {
             a_k1_low++;
             if(a_k1_low>=5)
@@ -584,9 +585,9 @@ void KEY()
         }
     }
     else 
-    {   
+    {
         a_k1_low=0;
-        if(f_k1_buf==1)
+        if(f_k1_buf)
         {
             a_k1_high++;
             if(a_k1_high>=5)
@@ -626,11 +627,11 @@ void KEY()
 	}	
 	
 	K3C=1;
-	K3UP=1;
+	K3UP=1;    
 	if(!K3)
 	{
 		a_k3_high=0;
-		if(f_k3_buf==0)
+		if(!f_k3_buf)
 		{
 			a_k3_low++;
 			if(a_k3_low>=5)
@@ -644,7 +645,7 @@ void KEY()
 	else 
 	{	
 		a_k3_low=0;
-		if(f_k3_buf==1)
+		if(f_k3_buf)
 		{
 			a_k3_high++;
 			if(a_k3_high>=5)
@@ -654,18 +655,135 @@ void KEY()
             }
 		}
 	}
+    
+    if(K1&&K2&&K3)
+    {
+        K3C=0;
+        K3=0;
+        if(!K1)
+        {
+            K3=1;
+            if(K1)
+            {
+                a_up_high=0;
+                if(!f_up_buf)
+                {
+                    a_up_low++;
+                    if(a_up_low>=5)
+                    {
+                        a_up_low=0;
+                        f_up=1;
+                        f_up_buf=1;
+                    }
+                }
+            }
+        }
+        else
+        {
+            a_up_low=0;
+            if(f_up_buf)
+            {
+                a_up_high++;
+                if(a_up_high>=5)
+                {
+                    a_up_high=0;
+                    f_up_buf=0;
+                }
+            }
+        }
+
+        K3=0;
+        if(!K2)
+        {
+            K3=1;
+            if(K2)
+            {
+                a_down_high=0;
+                if(!f_down_buf)
+                {
+                    a_down_low++;
+                    if(a_down_low>=5)
+                    {
+                        a_down_low=0;
+                        f_down=1;
+                        f_down_buf=1;
+                    }
+                }
+            }
+        }
+        else
+        {
+            a_down_low=0;
+            if(f_down_buf)
+            {
+                a_down_high++;
+                if(a_down_high>=5)
+                {
+                    a_down_high=0;
+                    f_down_buf=0;
+                }
+            }
+        }
+    	K3C=1;
+    	K3UP=1;
+        K3WU=1;
+    }
+
 }
 
 
 // for key press test
 void KeyCountForTest()
 {
-	a_count++;                          //按键次数LCD显示，用于调试
-	if(a_count>16)	
-    {            
-        a_count=0;
+    //按键次数LCD显示，用于调试
+    if(f_down)
+    {
+        if(a_count>0)
+        {
+            a_count--;
+        }
     }
+    else
+    {
+        if(a_count<16)
+        {
+            a_count++;
+        }
+    }
+
     SetNumber(a_count);
+}
+
+void KeyPressTest()
+{
+    unsigned char number;
+
+    if(f_k1)
+    {
+        number=1;
+    }
+
+    if(f_k2)
+    {
+        number=2;
+    }
+
+    if(f_k3)
+    {
+        number=3;
+    }
+
+    if(f_up)
+    {
+        number=4;
+    }
+
+    if(f_down)
+    {
+        number=5;
+    }
+
+    SetNumber(number);
 }
 
 
@@ -770,7 +888,7 @@ void initail()
 	a_set_count=3;
     a_tx_count=0;
     a_last_channel=1;
-    a_charge_status=c_charge_idle;    
+    a_charge_status=c_charge_idle;
     f_dc_connect=0;
     
 	_idlen=0;
@@ -844,12 +962,15 @@ void main()
             {
                 KEY();
                 Voltage();
-                if(f_k2 || f_k3 || f_k1)
+                if(f_k1||f_k2||f_k3||f_up||f_down)
                 {
+                    KeyCountForTest();
+                    //KeyPressTest();
                     f_k1=0;
                     f_k2=0;
                     f_k3=0;
-                    KeyCountForTest();
+                    f_up=0;
+                    f_down=0;
                     f_txen=1;
                     a_1min=0;
                     if(f_halt_buf)
