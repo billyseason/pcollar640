@@ -3,14 +3,14 @@
 #include "cmt2300a_defs.h"
 
 
-volatile unsigned char a_100ms,a_count,a_10ms;
+volatile unsigned char a_count,a_10ms,a_100ms,a_1s,a_3min;
 unsigned char a_k1_high,a_k1_low,a_k2_high,a_k2_low,a_k3_high,a_k3_low,a_k4_high,a_k4_low,a_k5_high,a_k5_low;
 volatile flag_byte f_flag;
-volatile unsigned char a_data,a_count,a_rx[4],a_read[0x20];
+volatile unsigned char a_data,a_count,a_rx[4],a_read[0x20],a_20s,f_20s;
 volatile unsigned int a_bz;
 
 
-//1500us
+//125us
 void __attribute((interrupt(0x10)))	TM1_int()
 {
 	if(_t1af)
@@ -27,15 +27,18 @@ void __attribute((interrupt(0x10)))	TM1_int()
 		{
 			a_10ms=0;
 			f_10ms=1;	
-		}
-		a_100ms++;
-//		if(a_100ms>=250)
-//		{
-//			a_100ms=0;
-//			a_count++;
-//			if(a_count>9)	a_count=0;	
-//			lcd_data[0]=c_num[a_count];
-//		}		
+			a_1s++;
+			if(a_1s>=100)
+			{
+				a_1s=0;
+				a_3min++;
+				if(a_3min>=20)		//180
+				{
+					a_3min=0;
+					f_halt=1;	
+				}
+			}
+		}		
 	}
 }
 
@@ -174,8 +177,8 @@ void CMT_init()
 //	tmp=((unsigned char)~0x07)&SPI_READ(CMT2300A_CUS_CMT10);		//RFPDK 1.46以后，可忽略
 //	SPI_WRITE(CMT2300A_CUS_CMT10, tmp|0x02);
 
-	SPI_WRITE(CMT2300A_CUS_IO_SEL,CMT2300A_GPIO1_SEL_DOUT|CMT2300A_GPIO3_SEL_INT2);	//INT1 > GPIO1   ,INT2 > GPIO3
-//	SPI_WRITE(CMT2300A_CUS_IO_SEL,CMT2300A_GPIO1_SEL_INT1|CMT2300A_GPIO3_SEL_DOUT);
+	SPI_WRITE(CMT2300A_CUS_IO_SEL,CMT2300A_GPIO1_SEL_DOUT|CMT2300A_GPIO2_SEL_INT1|CMT2300A_GPIO3_SEL_INT2);	//INT1 > GPIO1   ,INT2 > GPIO3
+	tmp=CMT2300A_INT_SEL_RSSI_VLD;
 	tmp|=CMT2300A_INT_POLAR_SEL_1;
 	SPI_WRITE(CMT2300A_CUS_INT1_CTL, tmp);	
 	tmp=SPI_READ(CMT2300A_CUS_INT1_CTL);
@@ -195,12 +198,7 @@ void CMT_init()
    	//clr rx fifo
    	SPI_WRITE(CMT2300A_CUS_FIFO_CLR,CMT2300A_MASK_FIFO_CLR_RX);		 	
 	//go_tx
-   	SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_RX);
-	
-	tmp=SPI_READ(CMT2300A_CUS_SYS10);						//SLP13
-	tmp|=13;
-	SPI_WRITE(CMT2300A_CUS_SYS10,tmp); 
-	
+   	SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_RX);	
 	SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_SLEEP);	//go_sleep
 	GCC_DELAY(60000);
 	//测试CMT是否存在
@@ -209,42 +207,34 @@ void CMT_init()
     tmp = SPI_READ(CMT2300A_CUS_PKT17);
     SPI_WRITE(CMT2300A_CUS_PKT17, back);
     if(tmp!=0xAA) while(1);    
+    
+    SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_STBY);	//go_stdby
+    SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_RX);	
   	
 }
 
 void CMT_RX()
 {
-	unsigned char tmp;   
-//	tmp= SPI_READ(CMT2300A_CUS_INT_FLAG);
+//	unsigned char tmp;
 	if(!RF_INT)
 	{
 		FIFO_READ(4);
-		SPI_WRITE(CMT2300A_CUS_INT_CLR2,CMT2300A_MASK_PKT_DONE_CLR); //clr TX_DONE int flag
+		SPI_WRITE(CMT2300A_CUS_INT_CLR1,CMT2300A_MASK_PKT_DONE_CLR); //clr PKT_DONE int flag
 		SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_SLEEP);	//go_sleep
+	//	SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_RX);
+	//	GCC_DELAY(200);
+	//	SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_STBY);	//go_stdby
+		
 		if((a_rx[0]==0x55)&&(a_rx[1]==0xaa)&&(a_rx[2]==0xaa)&&(a_rx[3]==0x55))
 		{
 			f_bz=1;
-			a_bz=200;	
+			a_bz=50;	
 		}
 		a_rx[0]=0;
 		a_rx[1]=0;
 		a_rx[2]=0;
 		a_rx[3]=0;
-		while(1)
-		{
-//			if(!f_bz)
-			{
-				_we4=1;
-				_we3=0;
-				_we2=1;
-				_we1=0;
-				_we0=1;
-				_emi=0;
-				_idlen=0;
-				_clrwdt();
-				GCC_HALT();	
-			}	
-		}
+		a_3min=0;
 	}	
 }
 
@@ -291,7 +281,32 @@ void initail()
 	_emi=1;
 	
 	CMT_init();
-	f_k2=1;
+//	f_k2=1;
+	_pac0=1;
+	_papu0=1;
+	_pawu0=1;
+
+	_papu=0xff;
+	_pbpu=0xff;
+	_pcpu=0xff;
+	HV_ENC=0;
+	HV_EN=0;
+	DCDC_ENC=0;
+	DCDC_EN=0;
+	RSTC=1;
+	IC_DATAC=1;
+	ON_OFFC=1;
+	IC_CLKC=1;
+	CHRGC=1;
+	RED_LEDC=0;
+	RED_LED=0;
+	CHRG_PULLUPC=1;
+	GREEN_LEDC=0;
+	GREEN_LED=0;
+	MOTOR_ENC=0;
+	MOTOR_EN=0;
+	BAT_DETC=1;
+
 }	
 	
 void main()
@@ -301,10 +316,46 @@ void main()
 	while(1)
 	{
 		_clrwdt();
+		CMT_RX();
 		if(f_10ms)
 		{	
-			f_10ms=0;
-			CMT_RX();
+			f_10ms=0;			
+			if(f_halt)
+			{
+				f_halt=0;
+				_we4=1;
+				_we3=0;
+				_we2=1;
+				_we1=0;
+				_we0=1;
+				_emi=0;
+				_idlen=0;	
+				SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_STBY);	//go_stdby
+				//T1=2ms,Tsleep=713
+				SPI_WRITE(0x0f,0x92);								
+				SPI_WRITE(0x10,0x53);
+				SPI_WRITE(0x11,0x3E);
+			//	SPI_WRITE(0x15,0x20);		//SLP Disable				//----------------------
+				SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_SLEEP);	//go_sleep
+						
+				GREEN_LED=0;
+				_halt();
+				GREEN_LED=1;
+				
+				_we4=0;
+				_we3=1;
+				_we2=0;
+				_we1=1;
+				_we0=0;
+				_emi=1;
+				a_3min=0;
+				SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_STBY);	//go_stdby
+				//T1=3ms,Tsleep=168
+				SPI_WRITE(0x0f,0x40);								
+				SPI_WRITE(0x10,0x51);
+				SPI_WRITE(0x11,0x4b);
+				SPI_WRITE(CMT2300A_CUS_MODE_CTL,CMT2300A_GO_SLEEP);	//go_sleep	
+			}
 		}	
 	}
 }
