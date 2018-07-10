@@ -102,46 +102,54 @@ const unsigned char c_cmt_init[0x60]={
 							 };//0x8D04   NORMAL:T1=3ms,T2=180ms,Sleep=168ms,mode13,PJD+RSSI
 #endif
 
-#define FCSB	_pb3
-#define CSB		_pa7
-#define SDIO	_pa5
-#define SCLK	_pa4
-#define RF_INT	_pb2
-#define BZ		_pb0
 
-#define HV_EN 	_pc0
-#define DCDC_EN	_pc1
-#define RST		_pc2
-#define IC_DATA _pa0
-#define ON_OFF	_pa1
-#define IC_CLK	_pa2
-#define CHRG	_pa3
-#define RED_LED _pb6
-#define CHRG_PULLUP	_pb5
+#define IC_DATA     _pa0
+#define ON_OFF	    _pa1
+#define IC_CLK	    _pa2
+#define CHRG	    _pa3
+#define RF_INT	    _pa4
+#define SCLK	    _pa5
+#define SDIO	    _pa6
+#define CSB		    _pa7
+
+#define MOTOR_EN	_pb0
+#define BZ		    _pb1
+#define BAT_DET     _pb2
+#define FCSB	    _pb3
 #define GREEN_LED	_pb4
-#define BAT_DET	_pa6
-#define MOTOR_EN	_pb1
+#define CHRG_PU     _pb5
+#define RED_LED     _pb6
 
-#define FCSBC	_pbc3
-#define CSBC	_pac7
-#define SDIOC	_pac5
-#define SCLKC	_pac4
-#define RF_INTC	_pbc2
-#define BZC		_pbc0
-#define RF_INTUP	_pbpu2
+#define HV_EN       _pc0
+#define RST	        _pc2
 
-#define HV_ENC 		_pcc0
-#define DCDC_ENC	_pcc1
-#define RSTC		_pcc2
 #define IC_DATAC 	_pac0
 #define ON_OFFC		_pac1
 #define IC_CLKC		_pac2
 #define CHRGC		_pac3
-#define RED_LEDC 	_pbc6
-#define CHRG_PULLUPC	_pbc5
+#define RF_INTC	    _pac4
+#define SCLKC	    _pac5
+#define SDIOC	    _pac6
+#define CSBC	    _pac7
+
+#define MOTOR_ENC   _pbc0
+#define BZC			_pbc1
+#define BAT_DETC    _pbc2
+#define FCSBC	    _pbc3
 #define GREEN_LEDC	_pbc4
-#define BAT_DETC	_pac6
-#define MOTOR_ENC	_pbc1
+#define CHRG_PUC    _pbc5
+#define RED_LEDC 	_pbc6
+
+#define HV_ENC 		_pcc0
+#define RSTC		_pcc2
+
+#define ON_OFFUP    _papu1
+#define RF_INTUP    _papu4
+#define CHRG_PUUP   _pbpu5
+
+#define CHRGWU      _pawu3
+#define RF_INTWU    _pawu4
+
 
 typedef struct 
 {
@@ -156,8 +164,21 @@ typedef struct
 	unsigned char f_k4_buf		:1 ;
 	unsigned char f_k5_buf		:1 ;
 	unsigned char f_10ms		:1 ;
-	unsigned char f_tx			:1 ;	
-	unsigned char f_halt		:1 ;	
+	unsigned char f_tx			:1 ;
+	unsigned char f_halt		:1 ;
+    unsigned char f_onoff       :1 ;
+    unsigned char f_onoff_buf   :1 ;
+    unsigned char f_vibra       :1 ;
+    unsigned char f_stim        :1 ;
+
+    unsigned char f_dc_connect  :1 ;
+	
+	unsigned char f_voltage_buf0	:1 ;
+	unsigned char f_voltage_buf1	:1 ;
+	unsigned char f_voltage_buf2	:1 ;
+	unsigned char f_voltage_buf3	:1 ;
+	unsigned char f_voltage_500ms	:1 ;
+	
 }flag_byte;
 //flag_byte f_lcd;
 
@@ -174,3 +195,17 @@ typedef struct
 #define  f_10ms 	   	f_flag.f_10ms
 #define  f_tx	 	   	f_flag.f_tx
 #define  f_halt	 	   	f_flag.f_halt
+#define  f_onoff        f_flag.f_onoff
+#define  f_onoff_buf    f_flag.f_onoff_buf
+#define  f_vibra        f_flag.f_vibra
+#define  f_stim         f_flag.f_stim
+#define  f_dc_connect   f_flag.f_dc_connect
+
+#define  f_voltage_buf0		f_flag.f_voltage_buf0
+#define  f_voltage_buf1		f_flag.f_voltage_buf1
+#define  f_voltage_buf2		f_flag.f_voltage_buf2
+#define  f_voltage_buf3		f_flag.f_voltage_buf3
+#define  f_voltage_500ms   	f_flag.f_voltage_500ms
+
+
+

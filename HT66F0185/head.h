@@ -21,7 +21,17 @@ const unsigned char c_num[]={0x5F,0x06,0x6B,0x2f,0x36,0x3d,0x7d,0x07,0x7f,0x3f};
 //							 0x50,0x26,0x03,0x00,0x42,0xB0,0x00,0x8a,0x18,0x3F,	//Reserve Bank
 //							 0x7F,												//LBD Bank	
 //							 };
-
+#if 1
+const unsigned char c_cmt_init[0x60]={
+							 0x40,0x66,0xec,0x1d,0xf0,0x80,0x14,0x08,0x91,0x02,0x02,0xd0,	//CMT Bank
+							 0xae,0xe0,0x55,0x00,0x00,0xf4,0x10,0xe2,0x42,0x20,0x00,0x81,	//System Bank
+							 0x42,0x71,0xCE,0x1C,0x42,0x5B,0x1C,0x1C,						//Freq Bank
+							 0xca,0x60,0x10,0x33,0xE1,0x36,0x18,0x0a,0x9F,0x38,0x29,0x29,0xC0,0x94,0x0A,0x53,0x08,0x00,0xB4,0x00,0x00,0x01,0x00,0x00,	//Data Rate Bank
+							 0x12,0xD2,0x00,0xAA,0x02,0x00,0x00,0x00,0x00,0x00,0x00,0xD4,0x2D,0x00,0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x60,0xFF,0x00,0x00,0x1F,0x10, //Baseband
+							 0x50,0x19,0x0C,0x00,0x0F,0x90,0x00,0x8a,0x18,0x3F,	//Reserve Bank
+							 0x7F,												//LBD Bank	
+							 };//175preamble+5ms,9.6kbps/19.2kHz,8bit-preamble+2byte-sync+4byte-data
+#else
 const unsigned char c_cmt_init[0x60]={
 							 0x40,0x66,0xec,0x1d,0xf0,0x80,0x14,0x08,0x91,0x02,0x02,0xd0,	//CMT Bank
 							 0xae,0xe0,0x35,0x00,0x00,0xf4,0x10,0xe2,0x42,0x20,0x00,0x81,	//System Bank
@@ -31,28 +41,28 @@ const unsigned char c_cmt_init[0x60]={
 							 0x50,0x19,0x0c,0x00,0x0f,0x90,0x00,0x8a,0x18,0x3F,	//Reserve Bank
 							 0x7F,												//LBD Bank	
 							 };//0x1D46   9.6	175Preamble
-
-#define K1		_pa7
+#endif
+#define K1		_pa5
 #define K2		_pa6
-#define K3		_pa5
+#define K3		_pa7
 #define K4		_pa2
 #define K5		_pa6
 
-#define K1C		_pac7
+#define K1C		_pac5
 #define K2C		_pac6
-#define K3C		_pac5
+#define K3C		_pac7
 #define K4C		_pac2
 #define K5C		_pac6
 
-#define K1UP	_papu7
+#define K1UP	_papu5
 #define K2UP	_papu6
-#define K3UP	_papu5
+#define K3UP	_papu7
 #define K4UP	_papu2
 #define K5UP	_papu6
 
-#define K1WU    _pawu7
+#define K1WU    _pawu5
 #define K2WU	_pawu6
-#define K3WU    _pawu5
+#define K3WU    _pawu7
 
 #define COM0	_pc2
 #define COM1	_pc5
@@ -114,11 +124,15 @@ typedef struct   //位变量定义
 	unsigned char f_k3			:1 ;
 	unsigned char f_k4			:1 ;
 	unsigned char f_k5			:1 ;
+    unsigned char f_up          :1 ;
+    unsigned char f_down        :1 ;
 	unsigned char f_k1_buf		:1 ;
 	unsigned char f_k2_buf		:1 ;
 	unsigned char f_k3_buf		:1 ;
 	unsigned char f_k4_buf		:1 ;
 	unsigned char f_k5_buf		:1 ;
+    unsigned char f_up_buf      :1 ;
+    unsigned char f_down_buf    :1 ;
 	unsigned char f_10ms		:1 ;
 	unsigned char f_tx			:1 ;	
 	unsigned char f_txen		:1 ;
@@ -142,11 +156,16 @@ typedef struct   //位变量定义
 #define  f_k3	 	   	f_flag.f_k3
 #define  f_k4	 	   	f_flag.f_k4
 #define  f_k5	 	   	f_flag.f_k5
+#define  f_up           f_flag.f_up
+#define  f_down         f_flag.f_down
 #define  f_k1_buf 	   	f_flag.f_k1_buf
 #define  f_k2_buf 	   	f_flag.f_k2_buf
 #define  f_k3_buf 	   	f_flag.f_k3_buf
 #define  f_k4_buf 	   	f_flag.f_k4_buf
 #define  f_k5_buf 	   	f_flag.f_k5_buf
+#define  f_up_buf       f_flag.f_up_buf
+#define  f_down_buf     f_flag.f_down_buf
+
 #define  f_10ms 	   	f_flag.f_10ms
 #define  f_tx	 	   	f_flag.f_tx
 #define  f_txen	 	   	f_flag.f_txen

@@ -4,12 +4,6 @@
 项目：640训狗器遥控软件。
 编译器 HT-V3,芯片：HT66F0185 
 功能：LCD显示，六个按键，433M发送数据,充电
-
-修改历史：
---2018/06/13
-  1、增加AD检测功能。
-  2、增加充电检测功能，以配合电量显示锁定功能。该功能有待进一步完善。
-  3、初始化上述增加部分的相关变量。  
 */
 
 #include "HT66F0185.h"
@@ -58,6 +52,8 @@ volatile unsigned char a_charge_status;
 #define c_charge_idle     0
 #define c_charge_ongoing  1
 #define c_charge_full     2
+
+volatile unsigned char a_charge_full_wait;
 
 // channel
 volatile unsigned char a_last_channel;
@@ -551,32 +547,63 @@ void Voltage()
 
 void ChargeDetect()
 {
+    a_charge_full_wait=200;
+
     if((!CHRGIN)&&(!f_dc_connect))     //充电中
     {
-        BL=1;
-        a_charge_status=c_charge_ongoing;
-        f_dc_connect=1;
+        GCC_DELAY(10);
+        if(!CHRGIN)
+        {
+
+            f_dc_connect=1;
+            GCC_DELAY(10);
+            if(!CHRGIN&&CHRGOUT)
+            {
+                GCC_DELAY(10);
+                if(!CHRGIN&&CHRGOUT)
+                {
+                    BL=1;
+                    a_charge_status=c_charge_ongoing;
+                }
+            }
+        }
     }
 
-    if((CHRGIN)&&(f_dc_connect))
+    if((CHRGIN)&&(CHRGOUT)&&(f_dc_connect))
     {
-        CHRGOUTC=0;
-        CHRGOUTPU=1;
-        CHRGOUT=1;
-        if(!CHRGIN)  //冲满未拔下
+        GCC_DELAY(10);
+        if(CHRGIN&&CHRGOUT)
         {
-            a_charge_status=c_charge_full;
-            f_dc_connect=1;
+            CHRGOUTC=1;
+            CHRGOUTPU=0;
+            while(a_charge_full_wait--)
+            {
+                if(!CHRGIN)  //冲满未拔下
+                {
+                    GCC_DELAY(10);
+                    if(!CHRGIN)
+                    {
+                        a_charge_status=c_charge_full;
+                        f_dc_connect=1;
+                        break;
+                    }
+                }
+                else        //充满已拔下，未充电
+                {
+                    GCC_DELAY(10);
+                    if(CHRGIN&&a_charge_full_wait==0)
+                    {
+                        a_charge_status=c_charge_idle;
+                        f_dc_connect=0;
+                        f_dc_plugout=1;
+                    }
+                }                
+                _clrwdt();
+                GCC_DELAY(200);
+            }
+            CHRGOUTC=0;
+            CHRGOUT=1;
         }
-        else        //充满已拔下，未充电
-        {
-            a_charge_status=c_charge_idle;
-            f_dc_connect=0;
-            f_dc_plugout=1;
-        }
-
-        CHRGOUTC=1;
-        CHRGOUTPU=0;
     }
 
     if(f_dc_connect)
@@ -630,6 +657,48 @@ void Switch()
 }
 
 
+void SetAction()
+{
+    if(f_k1)
+    {
+        a_tx[3]|=0x0f;
+        a_tx[3]&=0xf1;
+    }
+
+    if(f_k2)
+    {
+        a_tx[3]|=0x0f;
+        a_tx[3]&=0xf2;
+    }
+
+    if(f_k3)
+    {
+        a_tx[3]|=0x0f;
+        a_tx[3]&=0xf3;        
+    }
+
+    if(f_down)
+    {
+        if(a_count>1)
+        {
+            a_count--;
+        }
+    }
+
+    if(f_up)
+    {
+        if(a_count<16)
+        {
+            a_count++;
+        }
+    }
+
+    a_tx[3]&=0x0f;
+    a_tx[3]|=(a_count-1)<<4;
+
+    SetNumber(a_count);
+}
+
 void KEY()
 {
     Switch();
@@ -644,7 +713,7 @@ void KEY()
             a_k1_low++;
             if(a_k1_low>=5)
             {
-                a_k1_low=0;
+                //a_k1_low=0;
                 f_k1=1;
                 f_k1_buf=1; 
             }
@@ -795,30 +864,7 @@ void KEY()
         K3WU=1;
     }
 
-}
-
-
-// for key press test
-void KeyCountForTest()
-{
-    //按键次数LCD显示，用于调试
-    if(f_down)
-    {
-        if(a_count>0)
-        {
-            a_count--;
-        }
-    }
-
-    if(f_up)
-    {
-        if(a_count<16)
-        {
-            a_count++;
-        }
-    }
-
-    SetNumber(a_count);
+    SetAction();
 }
 
 void KeyPressTest()
@@ -924,7 +970,6 @@ void initail()
 	_sacs1=1;
 	_sacs0=1;
 
-	
 	//1250us
 	_tm1al=0x71;
 	_tm1ah=0x2;
@@ -942,16 +987,14 @@ void initail()
 	_t1ae=1;
 	_mf1e=1;
 	_emi=1;
-	
-	BL=1;
-	CMT_init();             //2119B初始化设置，可以上电时初始化一次，后续无需再初始化
+
 	a_tx[0]=0x55;
 	a_tx[1]=0xaa;
 	a_tx[2]=0xaa;
-	a_tx[3]=0x55;
+	//a_tx[3]=0x55;
     a_count=read_byte(0x00);
-    if(a_count>16) a_count=0;
-	lcd_data[0]=c_num[a_count];    
+    if(a_count>16) a_count=1;
+	lcd_data[0]=c_num[a_count];
 	lcd_data[1]=0;
 	a_set_count=3;
     a_tx_count=0;
@@ -962,6 +1005,8 @@ void initail()
 	_idlen=0;
 	_lvden=0;
 
+    BL=0;
+    
     // k1 k2 k3 wakeup
     K1WU=1;
 	K2WU=1;
@@ -976,7 +1021,9 @@ void initail()
     CHRGINC=1;
     CHRGINWU=1;
     CHRGOUTC=0;
-    CHRGOUTPU=1;
+    CHRGOUT=1;
+
+	CMT_init();             //2119B初始化设置，可以上电时初始化一次，后续无需再初始化    
 }
 
 
@@ -1014,11 +1061,13 @@ void main()
 			_halt();
 			
 			f_halt_buf=1;
-			_wdtc=0x53;	
-			_lcden=1;		
-		}
+			_wdtc=0x53;
+			_lcden=1;
 
-        
+			_adcen=1;
+			_adpgaen=1;
+			_vbgen=1;
+		}
 
 		CMT_TX();
 		_clrwdt();
@@ -1033,11 +1082,10 @@ void main()
             }
             else
             {
-                KEY();
                 Voltage();
+                KEY();
                 if(f_k1||f_k2||f_k3||f_up||f_down)
                 {
-                    KeyCountForTest();
                     //KeyPressTest();
                     f_k1=0;
                     f_k2=0;
